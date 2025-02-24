@@ -1,0 +1,38 @@
+body {
+  margin: 0;
+  font-family: 'Lucida Grande', sans-serif;
+  font-size: 12px;
+  background: rgb(41, 41, 41);
+}
+
+#deck {
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+}
+
+#top-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  text-align: right;
+  z-index: 5;
+}
+
+.dg.a {
+  margin-right: 0;
+}
+
+.dg.ac {
+  z-index: 5;
+}
+
+.mapboxgl-ctrl-bottom-left, .mapboxgl-ctrl-bottom-right {
+  display: none;
+}
+
+.fps-meter > div {
+  position: static !important;
+  display: inline-block;
+}
+
