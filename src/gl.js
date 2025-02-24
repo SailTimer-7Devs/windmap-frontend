@@ -8,5 +8,5 @@
 // see https://github.com/visgl/luma.gl/blob/master/modules/constants/src/constants-enum.ts
 export default {
   TEXTURE_WRAP_S: 0x2802,
-  REPEAT: 0x2901,
-};
+  REPEAT: 0x2901
+}

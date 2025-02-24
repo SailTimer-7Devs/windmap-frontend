@@ -1,18 +1,20 @@
-import mapboxgl from 'mapbox-gl';
+import mapboxgl from 'mapbox-gl'
 import { Deck } from '@deck.gl/core'
 import { MapboxOverlay } from '@deck.gl/mapbox'
-import { FpsMeterControl } from './fps-meter.js';
-import { initConfig, initGui } from './config.js';
+import { FpsMeterControl } from './fps-meter.js'
+import { initConfig, initGui } from './config.js'
 import ParticleLayer from './particle-layer.js'
 
-const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoic2VyaGl5YW5kcmVqZXYiLCJhIjoiY2tkbHg4eWN2MTNlZzJ1bGhvcmMyc25tcCJ9.BGYH_9ryrV4r5ttG6VuxFQ';
-mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
+const image = 'wind_data.png'
+
+const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoic2VyaGl5YW5kcmVqZXYiLCJhIjoiY2tkbHg4eWN2MTNlZzJ1bGhvcmMyc25tcCJ9.BGYH_9ryrV4r5ttG6VuxFQ'
+mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN
 
 window.addEventListener('DOMContentLoaded', () => {
-  const config = initConfig();
-  const image = 'wind_data.png';
-  const imageUnscale = [-128, 127];
-  const bounds = [-180, -90, 180, 90];
+  const config = initConfig()
+
+  const imageUnscale = [-128, 127]
+  const bounds = [-180, -90, 180, 90]
 
   // Create the Mapbox instance separately
   const map = new mapboxgl.Map({
@@ -23,10 +25,10 @@ window.addEventListener('DOMContentLoaded', () => {
     minZoom: 5,
     maxZoom: 15,
     projection: 'mercator' // Makes map flat instead of globe default view
-  });
+  })
 
   // Create the DeckGL instance with Mapbox support
-  const deckgl = new Deck();
+  const deckgl = new Deck()
 
   // Add the DeckGL overlay to Mapbox
   const overlay = new MapboxOverlay({
@@ -39,9 +41,9 @@ window.addEventListener('DOMContentLoaded', () => {
       maxZoom: 15,
     },
     controller: true
-  });
+  })
 
-  map.addControl(overlay);
+  map.addControl(overlay)
 
   // Function to update layers
   function update () {
@@ -58,14 +60,14 @@ window.addEventListener('DOMContentLoaded', () => {
       opacity: config.particle.opacity,
       animate: config.particle.animate,
       getPolygonOffset: ({ layerIndex }) => [0, -1000],
-    });
+    })
 
-    overlay.setProps({ layers: [particleLayer] });
+    overlay.setProps({ layers: [particleLayer] })
   }
 
   document.getElementById('top-left')
-    .prepend(new FpsMeterControl().onAdd());
+    .prepend(new FpsMeterControl().onAdd())
 
-  update();
-  initGui(config, update, { deckgl });
-});
+  update()
+  initGui(config, update, { deckgl })
+})

@@ -3,11 +3,11 @@ export function initConfig () {
     rotate: false,
     particle: {
       numParticles: 5000,
-      maxAge: 50,
+      maxAge: 40,
       speedFactor: 5,
       color: [255, 255, 255],
       width: 2,
-      opacity: 0.5,
+      opacity: 0.3,
       animate: true
     }
   }
