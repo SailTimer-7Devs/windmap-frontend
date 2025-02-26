@@ -168,7 +168,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       id: 'heatmap',
       bounds: [-180, -85.051129, 180, 85.051129],
       image: heatmapImage || heatmap,
-      opacity: 0.4,
+      opacity: 0.3,
       desaturate: 0,
       transparentColor: [0, 0, 0, 0],
       tintColor: [255, 255, 255],
