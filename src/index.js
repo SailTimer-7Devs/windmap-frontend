@@ -133,7 +133,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   // Create the Mapbox instance separately
   const map = new mapboxgl.Map({
     container: 'deck',
-    style: 'mapbox://styles/serhiyandrejev/cm7dko5dk00c101s79467achq',
+    style: 'mapbox://styles/serhiyandrejev/cm7lxq3gm00vl01r39guh5hzu',
     center: [0.45, 51.47],
     zoom: 0,
     minZoom: 0,
