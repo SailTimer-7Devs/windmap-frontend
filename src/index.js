@@ -195,9 +195,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     overlay.setProps({ layers })
   }
 
-  document.getElementById('top-left')
-    .prepend(new FpsMeterControl().onAdd())
+  // document.getElementById('top-left').prepend(new FpsMeterControl().onAdd())
 
   update()
-  initGui(config, update, { deckgl })
+  // initGui(config, update, { deckgl })
 })
