@@ -1,10 +1,14 @@
+import mobile from 'is-mobile'
+
+const isMobile = mobile()
+
 export function initConfig () {
   return {
     rotate: false,
     particle: {
-      numParticles: 5000,
-      maxAge: 40,
-      speedFactor: 5,
+      numParticles: isMobile ? 2000 : 5000,
+      maxAge: isMobile ? 25 : 40,
+      speedFactor: isMobile ? 4 : 5,
       color: [255, 255, 255],
       width: 2,
       opacity: 0.3,
