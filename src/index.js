@@ -23,7 +23,7 @@ async function loadImage (url) {
 
 function calculateBounds (imageWidth, imageHeight) {
   const aspectRatio = imageWidth / imageHeight;
-  const latRange = 180; // от -90 до 90
+  const latRange = 180; // from -90 to 90
   const lonRange = latRange * aspectRatio;
   const halfLonRange = lonRange / 2;
   return [-halfLonRange, -90, halfLonRange, 90];
@@ -62,34 +62,6 @@ async function loadWindData (imageUrl, imageUnscale, bounds) {
   return points
 }
 
-// Function to get wind data at point
-function getWindData(x, y, imageData, imageWidth, imageUnscale, bounds) {
-  const i = (y * imageWidth + x) * 4;
-  
-  // Get U and V components from red and blue channels
-  const u = imageData.data[i];      // 0..255
-  const v = imageData.data[i + 2];  // 0..255
-  
-  // Convert to actual wind speed values (-128..127 m/s)
-  const realU = u - 128;
-  const realV = v - 128;
-  
-  // Calculate speed (in m/s)
-  const speed = Math.sqrt(realU * realU + realV * realV);
-  
-  // Calculate wind direction
-  // atan2 gives angle counter-clockwise from positive x-axis
-  const windDirection = Math.atan2(realV, realU) * 180 / Math.PI;
-  
-  // Convert to meteorological convention (direction wind is coming FROM)
-  // 0° is North, 90° is East, 180° is South, 270° is West
-  const direction = (270 + windDirection) % 360;
-  
-  return { 
-    speed: speed, 
-    direction: direction
-  };
-}
 
 // Function to convert coordinates to image pixels
 function coordsToPixels(lon, lat, bounds, imageWidth, imageHeight) {
@@ -99,11 +71,12 @@ function coordsToPixels(lon, lat, bounds, imageWidth, imageHeight) {
   return { x, y };
 }
 
+
 window.addEventListener('DOMContentLoaded', async () => {
   const config = initConfig()
 
   const imageUnscale = [-128, 127]
-  const bounds = [-180, -90, 180, 90] // Фиксированные границы для всех слоев
+  const bounds = [-180, -90, 180, 90]
 
   const windImg = new Image();
 
@@ -144,6 +117,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     id: 'heatmap',
     bounds: [-180, -85.051129, 180, 85.051129],
     image: heatmapImage || heatmap,
+    pickable: true,
     opacity: 0.3,
     desaturate: 0,
     transparentColor: [0, 0, 0, 0],
@@ -168,6 +142,47 @@ window.addEventListener('DOMContentLoaded', async () => {
     getPolygonOffset: ({ layerIndex }) => [0, -1000]
   })
 
+  // Function to get wind data at point
+  function getWindData(x, y, imageWidth = 8010) {
+    const i = (y * imageWidth + x) * 4;
+    
+    // Get U and V components from red and blue channels
+    const u = image.data[i];      // 0..255
+    const v = image.data[i + 2];  // 0..255
+    
+    // Convert to actual wind speed values (-128..127 m/s)
+    const realU = u - 128;
+    const realV = v - 128;
+    
+    // Calculate speed (in m/s)
+    const speed = Math.sqrt(realU * realU + realV * realV);
+    
+    // Calculate wind direction
+    // atan2 gives angle counter-clockwise from positive x-axis
+    const windDirection = Math.atan2(realV, realU) * 180 / Math.PI;
+    
+    // Convert to meteorological convention (direction wind is coming FROM)
+    // 0° is North, 90° is East, 180° is South, 270° is West
+    const direction = (270 + windDirection) % 360;
+    
+    return { 
+      speed: speed, 
+      direction: direction
+    };
+  }
+
+
+  function getTooltip ({bitmap}) {
+    if (!bitmap || !image) {
+      return
+    }
+
+    const windData = getWindData(bitmap.pixel[0], bitmap.pixel[1])
+
+    return `speed: ${windData.speed} direction: ${windData.direction}}`
+  }
+
+
   // Add the DeckGL overlay to Mapbox
   const overlay = new MapboxOverlay({
     // interleaved: true,
@@ -179,6 +194,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       maxZoom: 15,
     },
     controller: true,
+    getTooltip,
     layers: [heatmapLayer, particleLayer]
   })
 

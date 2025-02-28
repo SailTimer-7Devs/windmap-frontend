@@ -312,6 +312,10 @@ export default class ParticleLayer extends LineLayer {
     }, 1000 / FPS);
   }
 
+  // getPickingInfo () {
+  //   console.log(arguments)
+  // }
+
   step () {
     this._runTransformFeedback();
 
