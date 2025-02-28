@@ -2,8 +2,7 @@ import mapboxgl from 'mapbox-gl'
 import { Deck } from '@deck.gl/core'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { BitmapLayer } from '@deck.gl/layers'
-import { FpsMeterControl } from './fps-meter.js'
-import { initConfig, initGui } from './config.js'
+import { initConfig } from './config.js'
 import ParticleLayer from './particle-layer.js'
 
 const image = 'wind_data.png'
@@ -12,19 +11,17 @@ const heatmap = 'wind_data_heatmap.png'
 const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoic2VyaGl5YW5kcmVqZXYiLCJhIjoiY2tkbHg4eWN2MTNlZzJ1bGhvcmMyc25tcCJ9.BGYH_9ryrV4r5ttG6VuxFQ'
 mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN
 
-// Функция для загрузки изображения
-async function loadImage(url) {
+async function loadImage (url) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
     img.onerror = reject;
-    img.crossOrigin = 'anonymous';  // Важно для CORS
+    img.crossOrigin = 'anonymous';
     img.src = url;
   });
 }
 
-// Функция для расчета правильных границ изображения
-function calculateBounds(imageWidth, imageHeight) {
+function calculateBounds (imageWidth, imageHeight) {
   const aspectRatio = imageWidth / imageHeight;
   const latRange = 180; // от -90 до 90
   const lonRange = latRange * aspectRatio;
@@ -32,7 +29,7 @@ function calculateBounds(imageWidth, imageHeight) {
   return [-halfLonRange, -90, halfLonRange, 90];
 }
 
-async function loadWindData(imageUrl, imageUnscale, bounds) {
+async function loadWindData (imageUrl, imageUnscale, bounds) {
   const img = new Image()
   img.src = imageUrl
   await new Promise(resolve => img.onload = resolve)
@@ -108,9 +105,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   const imageUnscale = [-128, 127]
   const bounds = [-180, -90, 180, 90] // Фиксированные границы для всех слоев
 
-  // Загружаем данные о ветре
   const windImg = new Image();
+
   let windImageData = null;
+
   windImg.onload = () => {
     const canvas = document.createElement('canvas');
     canvas.width = windImg.width;
@@ -121,19 +119,18 @@ window.addEventListener('DOMContentLoaded', async () => {
   };
   windImg.src = image;
 
-  // Предварительно загружаем изображение тепловой карты
   let heatmapImage;
   try {
     heatmapImage = await loadImage(heatmap);
-    console.log('Тепловая карта загружена успешно:', heatmapImage.width, 'x', heatmapImage.height);
+    console.log('Heatmap loaded succesfuly:', heatmapImage.width, 'x', heatmapImage.height);
   } catch (error) {
-    console.error('Ошибка загрузки тепловой карты:', error);
+    console.error('Heatmap load error:', error);
   }
 
   // Create the Mapbox instance separately
   const map = new mapboxgl.Map({
     container: 'deck',
-    style: 'mapbox://styles/serhiyandrejev/cm7lxq3gm00vl01r39guh5hzu',
+    style: 'mapbox://styles/serhiyandrejev/cm7npjmqq003h01qu6xsj7qr0',
     center: [0.45, 51.47],
     zoom: 0,
     minZoom: 0,
@@ -141,12 +138,39 @@ window.addEventListener('DOMContentLoaded', async () => {
     projection: 'mercator'
   })
 
-  // Create the DeckGL instance with Mapbox support
   const deckgl = new Deck()
+
+  const heatmapLayer = new BitmapLayer({
+    id: 'heatmap',
+    bounds: [-180, -85.051129, 180, 85.051129],
+    image: heatmapImage || heatmap,
+    opacity: 0.3,
+    desaturate: 0,
+    transparentColor: [0, 0, 0, 0],
+    tintColor: [255, 255, 255],
+    _imageCoordinateSystem: 'COORDINATE_SYSTEM.LNGLAT',
+    beforeId: 'waterway-label'
+  })
+
+  // Add particle layer
+  const particleLayer = new ParticleLayer({
+    id: 'particle',
+    image,
+    imageUnscale,
+    bounds,
+    numParticles: config.particle.numParticles,
+    maxAge: config.particle.maxAge,
+    speedFactor: config.particle.speedFactor,
+    color: config.particle.color,
+    width: config.particle.width,
+    opacity: config.particle.opacity,
+    animate: config.particle.animate,
+    getPolygonOffset: ({ layerIndex }) => [0, -1000]
+  })
 
   // Add the DeckGL overlay to Mapbox
   const overlay = new MapboxOverlay({
-    layers: [],
+    // interleaved: true,
     initialViewState: {
       longitude: 0.45,
       latitude: 51.47,
@@ -154,49 +178,9 @@ window.addEventListener('DOMContentLoaded', async () => {
       minZoom: 0,
       maxZoom: 15,
     },
-    controller: true
+    controller: true,
+    layers: [heatmapLayer, particleLayer]
   })
 
   map.addControl(overlay)
-
-  // Function to update layers
-  function update() {
-    const layers = []
-
-    // Add raster layer for heatmap
-    const heatmapLayer = new BitmapLayer({
-      id: 'heatmap',
-      bounds: [-180, -85.051129, 180, 85.051129],
-      image: heatmapImage || heatmap,
-      opacity: 0.3,
-      desaturate: 0,
-      transparentColor: [0, 0, 0, 0],
-      tintColor: [255, 255, 255],
-      _imageCoordinateSystem: 'COORDINATE_SYSTEM.LNGLAT'
-    })
-
-    // Add particle layer
-    const particleLayer = new ParticleLayer({
-      id: 'particle',
-      image,
-      imageUnscale,
-      bounds,
-      numParticles: config.particle.numParticles,
-      maxAge: config.particle.maxAge,
-      speedFactor: config.particle.speedFactor,
-      color: config.particle.color,
-      width: config.particle.width,
-      opacity: config.particle.opacity,
-      animate: config.particle.animate,
-      getPolygonOffset: ({ layerIndex }) => [0, -1000],
-    })
-
-    layers.push(heatmapLayer, particleLayer)
-    overlay.setProps({ layers })
-  }
-
-  // document.getElementById('top-left').prepend(new FpsMeterControl().onAdd())
-
-  update()
-  // initGui(config, update, { deckgl })
 })
