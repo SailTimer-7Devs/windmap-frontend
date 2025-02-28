@@ -49,13 +49,15 @@ async function loadWindData (imageUrl, imageUnscale, bounds) {
       const u = (imageData.data[i] - 128) * (imageUnscale[1] - imageUnscale[0]) / 255 + imageUnscale[0]
       const v = (imageData.data[i + 1] - 128) * (imageUnscale[1] - imageUnscale[0]) / 255 + imageUnscale[0]
       const speed = Math.sqrt(u * u + v * v)
-      
+      const direction = Math.atan2(v, u) * 180 / Math.PI
+
       const lon = bounds[0] + (x / canvas.width) * (bounds[2] - bounds[0])
       const lat = bounds[1] + (y / canvas.height) * (bounds[3] - bounds[1])
       
       points.push({
         position: [lon, lat],
-        speed: speed
+        speed: speed,
+        direction: direction
       })
     }
   }
@@ -142,34 +144,31 @@ window.addEventListener('DOMContentLoaded', async () => {
     getPolygonOffset: ({ layerIndex }) => [0, -1000]
   })
 
-  // Function to get wind data at point
-  function getWindData(x, y, imageWidth = 8010) {
-    const i = (y * imageWidth + x) * 4;
-    
-    // Get U and V components from red and blue channels
-    const u = image.data[i];      // 0..255
-    const v = image.data[i + 2];  // 0..255
-    
-    // Convert to actual wind speed values (-128..127 m/s)
-    const realU = u - 128;
-    const realV = v - 128;
-    
-    // Calculate speed (in m/s)
-    const speed = Math.sqrt(realU * realU + realV * realV);
-    
-    // Calculate wind direction
-    // atan2 gives angle counter-clockwise from positive x-axis
-    const windDirection = Math.atan2(realV, realU) * 180 / Math.PI;
-    
-    // Convert to meteorological convention (direction wind is coming FROM)
-    // 0° is North, 90° is East, 180° is South, 270° is West
+  function getWindData(x, y) {
+    // Извлекаем данные пикселя
+    const index = (y * windImageData.width + x) * 4;
+    const u = windImageData.data[index];      // Значение красного канала
+    const v = windImageData.data[index + 1];    // Значение зеленого канала (или другого, в зависимости от кодировки)
+  
+    // Если исходное значение ветра было закодировано как: encoded = original + 128,
+    // то для восстановления используем:
+    const unscaledU = u / 255 * (imageUnscale[1] - imageUnscale[0]) + imageUnscale[0];
+    const unscaledV = v / 255 * (imageUnscale[1] - imageUnscale[0]) + imageUnscale[0];
+  
+    // Вычисляем скорость ветра
+    const speed = Math.sqrt(unscaledU * unscaledU + unscaledV * unscaledV);
+  
+    // Вычисляем направление ветра
+    const windDirection = Math.atan2(unscaledV, unscaledU) * 180 / Math.PI;
     const direction = (270 + windDirection) % 360;
-    
-    return { 
-      speed: speed, 
+  
+    return {
+      speed: speed,
       direction: direction
     };
   }
+  
+  
 
 
   function getTooltip ({bitmap}) {
