@@ -145,20 +145,20 @@ window.addEventListener('DOMContentLoaded', async () => {
   })
 
   function getWindData(x, y) {
-    // Извлекаем данные пикселя
+    // Extract pixel data
     const index = (y * windImageData.width + x) * 4;
-    const u = windImageData.data[index];      // Значение красного канала
-    const v = windImageData.data[index + 1];    // Значение зеленого канала (или другого, в зависимости от кодировки)
+    const u = windImageData.data[index];      // Red channel value
+    const v = windImageData.data[index + 1];    // Green channel value (or other, depending on encoding)
   
-    // Если исходное значение ветра было закодировано как: encoded = original + 128,
-    // то для восстановления используем:
+    // If the original wind value was encoded as: encoded = original + 128,
+    // then for restoration we use:
     const unscaledU = u / 255 * (imageUnscale[1] - imageUnscale[0]) + imageUnscale[0];
     const unscaledV = v / 255 * (imageUnscale[1] - imageUnscale[0]) + imageUnscale[0];
   
-    // Вычисляем скорость ветра
+    // Calculate wind speed
     const speed = Math.sqrt(unscaledU * unscaledU + unscaledV * unscaledV);
   
-    // Вычисляем направление ветра
+    // Calculate wind direction
     const windDirection = Math.atan2(unscaledV, unscaledU) * 180 / Math.PI;
     const direction = (270 + windDirection) % 360;
   
