@@ -178,7 +178,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     const windData = getWindData(bitmap.pixel[0], bitmap.pixel[1])
 
-    return `speed: ${windData.speed} direction: ${windData.direction}}`
+    return `speed: ${windData.speed} \n direction: ${windData.direction}`
   }
 
 
