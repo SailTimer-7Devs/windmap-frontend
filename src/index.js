@@ -73,7 +73,6 @@ function coordsToPixels(lon, lat, bounds, imageWidth, imageHeight) {
   return { x, y };
 }
 
-
 window.addEventListener('DOMContentLoaded', async () => {
   const config = initConfig()
 
@@ -167,18 +166,17 @@ window.addEventListener('DOMContentLoaded', async () => {
       direction: direction
     };
   }
-  
-  
 
-
-  function getTooltip ({bitmap}) {
+  function getTooltip ({bitmap, coordinate}) {
     if (!bitmap || !image) {
       return
     }
 
-    const windData = getWindData(bitmap.pixel[0], bitmap.pixel[1])
+    const new_pixel = coordsToPixels(coordinate[0], coordinate[1], [-180, 90, 180, -90], windImageData.width, windImageData.height)
 
-    return `speed: ${windData.speed} \n direction: ${windData.direction}`
+    const windData = getWindData(new_pixel.x, new_pixel.y)
+
+    return `speed: ${windData.speed} \n direction: ${windData.direction}, \n coordinates: ${coordinate[0]}, ${coordinate[1]}`
   }
 
 
