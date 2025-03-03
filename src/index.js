@@ -29,6 +29,72 @@ function calculateBounds (imageWidth, imageHeight) {
   return [-halfLonRange, -90, halfLonRange, 90];
 }
 
+
+function createColorBar() {
+  const colorBarContainer = document.createElement('div');
+  colorBarContainer.className = 'color-bar-container';
+  colorBarContainer.style.cssText = `
+    position: absolute;
+    bottom: 30px;
+    right: 10px;
+    width: 300px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
+    padding: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    font-family: Arial, sans-serif;
+    pointer-events: none;
+  `;
+
+  // Title
+  const title = document.createElement('div');
+  title.textContent = 'Wind Speed (knots)';
+  title.style.cssText = 'font-weight: bold; margin-bottom: 5px; text-align: center;';
+  colorBarContainer.appendChild(title);
+
+  // Create the gradient bar
+  const gradientBar = document.createElement('div');
+  gradientBar.style.cssText = `
+    height: 20px;
+    width: 100%;
+    margin: 5px 0;
+    background: linear-gradient(to right, 
+      rgb(68, 1, 84), rgb(69, 9, 92), rgb(70, 18, 100), rgb(71, 26, 108), 
+      rgb(72, 35, 116), rgb(70, 43, 120), rgb(68, 51, 125), rgb(66, 59, 130), 
+      rgb(64, 67, 135), rgb(61, 73, 136), rgb(58, 80, 138), rgb(55, 87, 139), 
+      rgb(52, 94, 141), rgb(49, 100, 141), rgb(46, 107, 142), rgb(43, 114, 142), 
+      rgb(41, 121, 142), rgb(38, 126, 141), rgb(36, 132, 141), rgb(253, 231, 37), 
+      rgb(253, 231, 37), rgb(253, 231, 37), rgb(253, 231, 37), rgb(253, 231, 37), 
+      rgb(240, 100, 100), rgb(230, 80, 80), rgb(220, 60, 60), rgb(210, 40, 40), 
+      rgb(200, 30, 30), rgb(190, 25, 25), rgb(180, 20, 20), rgb(170, 15, 15), 
+      rgb(160, 12, 12), rgb(150, 10, 10), rgb(140, 8, 8), rgb(130, 5, 5)
+    );
+    border-radius: 2px;
+  `;
+  colorBarContainer.appendChild(gradientBar);
+
+  // Create labels container
+  const labelsContainer = document.createElement('div');
+  labelsContainer.style.cssText = `
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2px;
+    font-size: 12px;
+  `;
+
+  // Add key markers at specific points
+  const keyPoints = [0, 5, 10, 15, 20, 25, 30, 35];
+  keyPoints.forEach(value => {
+    const label = document.createElement('div');
+    label.textContent = value;
+    labelsContainer.appendChild(label);
+  });
+
+  colorBarContainer.appendChild(labelsContainer);
+  return colorBarContainer;
+}
+
 async function loadWindData (imageUrl, imageUnscale, bounds) {
   const img = new Image()
   img.src = imageUrl
@@ -176,7 +242,14 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     const windData = getWindData(new_pixel.x, new_pixel.y)
 
-    return `speed: ${windData.speed} \n direction: ${windData.direction}, \n coordinates: ${coordinate[0]}, ${coordinate[1]}`
+    //round every value to 2 decimal places and conver speed to knots from m/s
+    const roundedSpeed = Math.round(windData.speed * 1.94384 * 100) / 100
+    const roundedDirection = Math.round(windData.direction * 100) / 100
+
+    //round coordinate to 3 decimal places
+    const roundedCoordinate = coordinate.map(coord => Math.round(coord * 10000) / 10000)
+
+    return `Speed: ${roundedSpeed} knots \n Direction FROM: ${roundedDirection}° \n Coordinates: ${roundedCoordinate[0]}, ${roundedCoordinate[1]}`
   }
 
 
@@ -196,4 +269,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   })
 
   map.addControl(overlay)
+
+  map.on('load', () => {
+    // Add the color bar to the map container
+    const colorBar = createColorBar();
+    document.body.appendChild(colorBar);
+  });
 })
