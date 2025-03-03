@@ -313,13 +313,24 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     //round every value to 2 decimal places and conver speed to knots from m/s
     const roundedSpeed = Math.round(windData.speed * 1.94384 * 100) / 100
-    const roundedDirection = (Math.round(windData.direction * 100) / 100 + 90) % 360
+    
+    let directionFrom = windData.direction;
+    if (directionFrom >= 360) {
+      directionFrom -= 360;
+    }
 
+    directionFrom = (180 - directionFrom + 360) % 360;
+
+    const roundedDirectionFrom = Math.round(directionFrom * 100) / 100;
+
+    let directionTo = (directionFrom + 180) % 360;
+
+    const roundedDirectionTo = Math.round(directionTo * 100) / 100;
 
     //round coordinate to 3 decimal places
     const roundedCoordinate = coordinate.map(coord => Math.round(coord * 10000) / 10000)
 
-    return `Speed: ${roundedSpeed} knots \n Direction FROM: ${roundedDirection}° \n Coordinates: ${roundedCoordinate[0]}, ${roundedCoordinate[1]}`
+    return `Speed: ${roundedSpeed} knots \n Direction From: ${roundedDirectionFrom}° \n Direction To: ${roundedDirectionTo}° \n Coordinates: ${roundedCoordinate[0]}, ${roundedCoordinate[1]}`
   }
 
 
