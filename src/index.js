@@ -11,6 +11,14 @@ const heatmap = 'wind_data_heatmap.png'
 const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoic2VyaGl5YW5kcmVqZXYiLCJhIjoiY2tkbHg4eWN2MTNlZzJ1bGhvcmMyc25tcCJ9.BGYH_9ryrV4r5ttG6VuxFQ'
 mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN
 
+const heatmapNames = {
+  'jet': 'wind_data_heatmap_jet.png',
+  'edge': 'wind_data_heatmap_edge.png',
+  'rainbow': 'wind_data_heatmap_rainbow.png',
+  'turbo': 'wind_data_heatmap_turbo.png',
+  'viridis': 'wind_data_heatmap_viridis.png',
+}
+
 async function loadImage (url) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -139,6 +147,39 @@ function coordsToPixels(lon, lat, bounds, imageWidth, imageHeight) {
   return { x, y };
 }
 
+function createColorMapSelector() {
+  const container = document.createElement('div');
+  container.style.cssText = `
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+  `;
+
+  const select = document.createElement('select');
+  select.style.cssText = `
+    padding: 5px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    background: white;
+    font-family: Arial, sans-serif;
+  `;
+
+  Object.keys(heatmapNames).forEach(name => {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name.charAt(0).toUpperCase() + name.slice(1);
+    select.appendChild(option);
+  });
+
+  container.appendChild(select);
+  return { container, select };
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
   const config = initConfig()
 
@@ -160,12 +201,40 @@ window.addEventListener('DOMContentLoaded', async () => {
   windImg.src = image;
 
   let heatmapImage;
-  try {
-    heatmapImage = await loadImage(heatmap);
-    console.log('Heatmap loaded succesfuly:', heatmapImage.width, 'x', heatmapImage.height);
-  } catch (error) {
-    console.error('Heatmap load error:', error);
+  let currentHeatmap = 'jet'; // default colormap
+  
+  async function updateHeatmap(colormap) {
+    try {
+      const heatmapPath = heatmapNames[colormap];
+      heatmapImage = await loadImage(heatmapPath);
+      console.log('Heatmap loaded successfully:', heatmapImage.width, 'x', heatmapImage.height);
+      
+      // Update the heatmap layer
+      if (overlay) {
+        const newHeatmapLayer = new BitmapLayer({
+          id: 'heatmap',
+          bounds: [-180, -85.051129, 180, 85.051129],
+          image: heatmapImage,
+          pickable: true,
+          opacity: 0.1,
+          desaturate: 0,
+          transparentColor: [0, 0, 0, 0],
+          tintColor: [255, 255, 255],
+          _imageCoordinateSystem: 'COORDINATE_SYSTEM.LNGLAT',
+          beforeId: 'waterway-label'
+        });
+        
+        overlay.setProps({
+          layers: [newHeatmapLayer, particleLayer]
+        });
+      }
+    } catch (error) {
+      console.error('Heatmap load error:', error);
+    }
   }
+
+  // Initial heatmap load
+  await updateHeatmap(currentHeatmap);
 
   // Create the Mapbox instance separately
   const map = new mapboxgl.Map({
@@ -244,7 +313,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     //round every value to 2 decimal places and conver speed to knots from m/s
     const roundedSpeed = Math.round(windData.speed * 1.94384 * 100) / 100
-    const roundedDirection = Math.round(windData.direction * 100) / 100
+    const roundedDirection = (Math.round(windData.direction * 100) / 100 + 90) % 360
+
 
     //round coordinate to 3 decimal places
     const roundedCoordinate = coordinate.map(coord => Math.round(coord * 10000) / 10000)
@@ -274,5 +344,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Add the color bar to the map container
     const colorBar = createColorBar();
     document.body.appendChild(colorBar);
+
+    // Add the colormap selector
+    const { container: selectorContainer, select: colormapSelect } = createColorMapSelector();
+    document.body.appendChild(selectorContainer);
+
+    // Add change event listener
+    colormapSelect.addEventListener('change', (e) => {
+      currentHeatmap = e.target.value;
+      updateHeatmap(currentHeatmap);
+    });
   });
 })
