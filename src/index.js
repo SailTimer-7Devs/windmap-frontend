@@ -19,24 +19,21 @@ const heatmapNames = {
   'viridis': 'wind_data_heatmap_viridis.png',
 }
 
-async function loadImage (url) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.crossOrigin = 'anonymous';
-    img.src = url;
-  });
+let colorScales = {};
+
+// Load color scales from JSON
+async function loadColorScales() {
+  try {
+    const response = await fetch('colorscales.json');
+    colorScales = await response.json();
+  } catch (error) {
+    console.error('Error loading color scales:', error);
+  }
 }
 
-function calculateBounds (imageWidth, imageHeight) {
-  const aspectRatio = imageWidth / imageHeight;
-  const latRange = 180; // from -90 to 90
-  const lonRange = latRange * aspectRatio;
-  const halfLonRange = lonRange / 2;
-  return [-halfLonRange, -90, halfLonRange, 90];
+function generateGradient(colors) {
+  return `linear-gradient(to right, ${colors.join(', ')})`;
 }
-
 
 function createColorBar() {
   const colorBarContainer = document.createElement('div');
@@ -67,17 +64,7 @@ function createColorBar() {
     height: 20px;
     width: 100%;
     margin: 5px 0;
-    background: linear-gradient(to right, 
-      rgb(68, 1, 84), rgb(69, 9, 92), rgb(70, 18, 100), rgb(71, 26, 108), 
-      rgb(72, 35, 116), rgb(70, 43, 120), rgb(68, 51, 125), rgb(66, 59, 130), 
-      rgb(64, 67, 135), rgb(61, 73, 136), rgb(58, 80, 138), rgb(55, 87, 139), 
-      rgb(52, 94, 141), rgb(49, 100, 141), rgb(46, 107, 142), rgb(43, 114, 142), 
-      rgb(41, 121, 142), rgb(38, 126, 141), rgb(36, 132, 141), rgb(253, 231, 37), 
-      rgb(253, 231, 37), rgb(253, 231, 37), rgb(253, 231, 37), rgb(253, 231, 37), 
-      rgb(240, 100, 100), rgb(230, 80, 80), rgb(220, 60, 60), rgb(210, 40, 40), 
-      rgb(200, 30, 30), rgb(190, 25, 25), rgb(180, 20, 20), rgb(170, 15, 15), 
-      rgb(160, 12, 12), rgb(150, 10, 10), rgb(140, 8, 8), rgb(130, 5, 5)
-    );
+    background: ${generateGradient(colorScales['jet'] || [])};
     border-radius: 2px;
   `;
   colorBarContainer.appendChild(gradientBar);
@@ -100,7 +87,87 @@ function createColorBar() {
   });
 
   colorBarContainer.appendChild(labelsContainer);
-  return colorBarContainer;
+  return { container: colorBarContainer, gradientBar };
+}
+
+async function loadImage (url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.crossOrigin = 'anonymous';
+    img.src = url;
+  });
+}
+
+function calculateBounds (imageWidth, imageHeight) {
+  const aspectRatio = imageWidth / imageHeight;
+  const latRange = 180; // from -90 to 90
+  const lonRange = latRange * aspectRatio;
+  const halfLonRange = lonRange / 2;
+  return [-halfLonRange, -90, halfLonRange, 90];
+}
+
+function createColorMapSelector() {
+  const container = document.createElement('div');
+  container.style.cssText = `
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+  `;
+
+  // Colormap selector
+  const select = document.createElement('select');
+  select.style.cssText = `
+    padding: 5px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    background: white;
+    font-family: Arial, sans-serif;
+    width: 100%;
+    margin-bottom: 10px;
+  `;
+
+  Object.keys(heatmapNames).forEach(name => {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name.charAt(0).toUpperCase() + name.slice(1);
+    select.appendChild(option);
+  });
+
+  // Opacity slider
+  const sliderContainer = document.createElement('div');
+  sliderContainer.style.marginBottom = '5px';
+  
+  const sliderLabel = document.createElement('label');
+  sliderLabel.textContent = 'Opacity: ';
+  sliderLabel.style.cssText = `
+    display: block;
+    color: #000;
+  `;
+  
+  const slider = document.createElement('input');
+  slider.type = 'range';
+  slider.min = '0';
+  slider.max = '100';
+  slider.value = '10';
+  slider.style.cssText = `
+    width: 100%;
+    opacity: 1;
+  `;
+  
+  sliderContainer.appendChild(sliderLabel);
+  sliderContainer.appendChild(slider);
+
+  container.appendChild(select);
+  container.appendChild(sliderContainer);
+
+  return { container, select, slider };
 }
 
 async function loadWindData (imageUrl, imageUnscale, bounds) {
@@ -114,7 +181,6 @@ async function loadWindData (imageUrl, imageUnscale, bounds) {
   canvas.height = img.height
   ctx.drawImage(img, 0, 0)
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-  
   
   const points = []
   for (let y = 0; y < canvas.height; y++) {
@@ -138,7 +204,6 @@ async function loadWindData (imageUrl, imageUnscale, bounds) {
   return points
 }
 
-
 // Function to convert coordinates to image pixels
 function coordsToPixels(lon, lat, bounds, imageWidth, imageHeight) {
   // For WGS84, we use direct linear interpolation
@@ -147,40 +212,9 @@ function coordsToPixels(lon, lat, bounds, imageWidth, imageHeight) {
   return { x, y };
 }
 
-function createColorMapSelector() {
-  const container = document.createElement('div');
-  container.style.cssText = `
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 10px;
-    border-radius: 4px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-    z-index: 9999;
-  `;
-
-  const select = document.createElement('select');
-  select.style.cssText = `
-    padding: 5px;
-    border-radius: 3px;
-    border: 1px solid #ccc;
-    background: white;
-    font-family: Arial, sans-serif;
-  `;
-
-  Object.keys(heatmapNames).forEach(name => {
-    const option = document.createElement('option');
-    option.value = name;
-    option.textContent = name.charAt(0).toUpperCase() + name.slice(1);
-    select.appendChild(option);
-  });
-
-  container.appendChild(select);
-  return { container, select };
-}
-
 window.addEventListener('DOMContentLoaded', async () => {
+  await loadColorScales(); // Load color scales first
+  
   const config = initConfig()
 
   const imageUnscale = [-128, 127]
@@ -353,17 +387,42 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   map.on('load', () => {
     // Add the color bar to the map container
-    const colorBar = createColorBar();
+    const { container: colorBar, gradientBar } = createColorBar();
     document.body.appendChild(colorBar);
 
     // Add the colormap selector
-    const { container: selectorContainer, select: colormapSelect } = createColorMapSelector();
+    const { container: selectorContainer, select: colormapSelect, slider } = createColorMapSelector();
     document.body.appendChild(selectorContainer);
 
     // Add change event listener
     colormapSelect.addEventListener('change', (e) => {
       currentHeatmap = e.target.value;
       updateHeatmap(currentHeatmap);
+      // Update color bar gradient
+      if (colorScales[currentHeatmap]) {
+        gradientBar.style.background = generateGradient(colorScales[currentHeatmap]);
+      }
+    });
+
+    // Add slider event listener
+    slider.addEventListener('input', (e) => {
+      const opacity = parseFloat(e.target.value) / 100;
+      const newHeatmapLayer = new BitmapLayer({
+        id: 'heatmap',
+        bounds: [-180, -85.051129, 180, 85.051129],
+        image: heatmapImage,
+        pickable: true,
+        opacity: opacity,
+        desaturate: 0,
+        transparentColor: [0, 0, 0, 0],
+        tintColor: [255, 255, 255],
+        _imageCoordinateSystem: 'COORDINATE_SYSTEM.LNGLAT',
+        beforeId: 'waterway-label'
+      });
+      
+      overlay.setProps({
+        layers: [newHeatmapLayer, particleLayer]
+      });
     });
   });
 })
