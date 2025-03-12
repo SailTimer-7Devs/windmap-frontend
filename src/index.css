@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: 'Lucida Grande', sans-serif;
+  font-size: 12px;
+  background: rgb(41, 41, 41);
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  z-index: 0;
+}

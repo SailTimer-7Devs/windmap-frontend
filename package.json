@@ -4,21 +4,38 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "vite --port 8000",
+    "build": "tsc -b && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
-  "devDependencies": {
-    "vite": "^6.1.0"
-  },
   "dependencies": {
-    "@deck.gl/aggregation-layers": "^8.9.36",
-    "@deck.gl/core": "^8.9.36",
-    "@deck.gl/layers": "^8.9.36",
-    "@deck.gl/mapbox": "^8.9.36",
-    "@luma.gl/core": "^8.5.21",
-    "geodesy-fn": "^1.1.0",
-    "is-mobile": "^5.0.0",
-    "mapbox-gl": "^2.15.0"
+    "@deck.gl/extensions": "^9.1.4",
+    "@deck.gl/mapbox": "^9.1.4",
+    "deck.gl": "^9.1.4",
+    "mapbox-gl": "^3.10.0",
+    "prop-types": "^15.8.1",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-fps-stats": "^0.3.1",
+    "react-map-gl": "^8.0.1",
+    "rollup-plugin-worker-factory": "^0.5.7",
+    "weatherlayers-gl": "^2025.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.10",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.26.0",
+    "@typescript-eslint/parser": "^8.26.0",
+    "@vitejs/plugin-react-swc": "^3.8.0",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.0.13",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.0"
   }
 }
