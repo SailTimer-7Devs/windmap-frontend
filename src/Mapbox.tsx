@@ -136,12 +136,13 @@ function Mapbox() {
               image: state.windHeatmapData,
               imageType: 'SCALAR', // "SCALAR" | "VECTOR"
               // imageUnscale: IMAGE_UNSCALE, ??? unsure if we need it
-              bounds: WIND_HEATMAP_BOUNDS,
+              bounds: WIND_MAP_BOUNDS,
               // style properties
               visible: true,
               palette: PALETTE,
-              opacity: 0.8,
+              opacity: 0.7,
               pickable: true,
+              imageUnscale: [0, 255],
               extensions: [new ClipExtension()],
               clipBounds: CLIP_BOUNDS,
               beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID,
