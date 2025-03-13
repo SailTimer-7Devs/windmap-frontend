@@ -13,7 +13,7 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import { MapView } from 'deck.gl'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { ClipExtension } from '@deck.gl/extensions'
-import { RasterLayer, ParticleLayer } from 'weatherlayers-gl'
+import { RasterLayer, ParticleLayer, loadTextureData } from 'weatherlayers-gl'
 
 const BASEMAP_VECTOR_LAYER_BEFORE_ID = 'waterway-label'
 const BASEMAP_VECTOR_STYLE_URL = 'mapbox://styles/serhiyandrejev/cm7npjmqq003h01qu6xsj7qr0'
@@ -91,9 +91,9 @@ function Mapbox() {
   //   updateBasemapVectorStyle(e.target)
   // }
 
-  // const handleHover: DeckProps['onHover'] = (e) => {
-  //   console.log(e.raster)
-  // }
+  const handleHover: DeckProps['onHover'] = (e) => {
+    console.log(e)
+  }
 
   const handleLoad = async () => {
     try {
@@ -128,7 +128,7 @@ function Mapbox() {
           // interleaved
           views={MAP_VIEW}
           controller={true}
-          // onHover={handleHover}
+          onClick={handleHover}
           layers={[
             new RasterLayer({
               id: 'heatmap',
@@ -185,28 +185,42 @@ function DeckGLOverlay<T extends View | View[]>(
   return null
 }
 
-// const TEXT_LAYERS = [
-//   'place_hamlet',
-//   'place_suburbs',
-//   'place_villages',
-//   'place_town',
-//   'place_country_2',
-//   'place_country_1',
-//   'place_state',
-//   'place_continent',
-//   'place_city_r6',
-//   'place_city_r5',
-//   'place_city_dot_r7',
-//   'place_city_dot_r4',
-//   'place_city_dot_r2',
-//   'place_city_dot_z7',
-//   'place_capital_dot_z7',
-//   'watername_ocean',
-//   'watername_sea',
-//   'watername_lake',
-//   'watername_lake_line',
-//   'waterway_label',
-// ]
+type State = {
+  windData?: TextureData
+  windHeatmapData?: TextureData
+}
+
+function handleImageDataLoad(url: string): Promise<TextureData> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+
+      canvas.width = img.width
+      canvas.height = img.height
+
+      const ctx = canvas.getContext('2d')
+
+      ctx!.drawImage(img, 0, 0)
+
+      const { data } = ctx!.getImageData(0, 0, canvas.width, canvas.height)
+
+      resolve({
+        data,
+        width: canvas.width,
+        height: canvas.height
+      })
+    }
+
+    img.onerror = reject
+
+    img.src = url
+  })
+}
+
+export default Mapbox
+
 
 // export function updateBasemapVectorStyle(map) {
 //   for (let layer of TEXT_LAYERS) {
@@ -219,34 +233,3 @@ function DeckGLOverlay<T extends View | View[]>(
 //     map.setPaintProperty(layer, 'fill-color', '#222')
 //   }
 // }
-
-type State = {
-  windData?: TextureData
-  windHeatmapData?: TextureData
-}
-
-function handleImageDataLoad(url: string): Promise<TextureData> {
-  return new Promise((resolve, reject) => {
-    const windImg = new Image()
-
-    windImg.onload = () => {
-      const canvas = document.createElement('canvas')
-      canvas.width = windImg.width
-      canvas.height = windImg.height
-      const ctx = canvas.getContext('2d')
-      ctx!.drawImage(windImg, 0, 0)
-      const { data } = ctx!.getImageData(0, 0, canvas.width, canvas.height)
-
-      resolve({
-        data,
-        width: canvas.width,
-        height: canvas.height
-      })
-    }
-    windImg.onerror = reject
-
-    windImg.src = url
-  })
-}
-
-export default Mapbox
