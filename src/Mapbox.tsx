@@ -140,7 +140,7 @@ function Mapbox() {
               // style properties
               visible: true,
               palette: PALETTE,
-              opacity: 0.7,
+              opacity: 0.5,
               pickable: true,
               imageUnscale: [0, 255],
               extensions: [new ClipExtension()],
