@@ -15,6 +15,11 @@ import { MapboxOverlay } from '@deck.gl/mapbox'
 import { ClipExtension } from '@deck.gl/extensions'
 import { RasterLayer, ParticleLayer } from 'weatherlayers-gl'
 
+const API_URL = 'https://d3s2may00o9nmt.cloudfront.net/public/latest/'
+
+const WINDMAP_URL = API_URL + 'wind_data.png'
+const WIND_HEATMAP_URL = API_URL + 'wind_data_heatmap.png'
+
 const BASEMAP_VECTOR_LAYER_BEFORE_ID = 'waterway-label'
 const BASEMAP_VECTOR_STYLE_URL = 'mapbox://styles/serhiyandrejev/cm7npjmqq003h01qu6xsj7qr0'
 const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoic2VyaGl5YW5kcmVqZXYiLCJhIjoiY2tkbHg4eWN2MTNlZzJ1bGhvcmMyc25tcCJ9.BGYH_9ryrV4r5ttG6VuxFQ'
@@ -76,8 +81,6 @@ const PALETTE: Palette = [
 const IMAGE_UNSCALE: ImageUnscale = [-128, 127]
 const WIND_MAP_BOUNDS: BitmapBoundingBox = [-180, -90, 180, 90]
 // const WIND_HEATMAP_BOUNDS: BitmapBoundingBox = [-180, -85.051129, 180, 85.051129]
-const WINDMAP_URL = '/wind_data.png'
-const WIND_HEATMAP_URL = '/wind_data_heatmap.png'
 const INITIAL_STATE = {
   windData: undefined,
   windHeatmapData: undefined
@@ -194,6 +197,8 @@ type State = {
 function handleImageDataLoad(url: string): Promise<TextureData> {
   return new Promise((resolve, reject) => {
     const img = new Image()
+
+    img.crossOrigin = 'anonymous'
 
     img.onload = () => {
       const canvas = document.createElement('canvas')
