@@ -1,6 +1,6 @@
 import type { DeckProps } from 'deck.gl'
 import type { BitmapBoundingBox } from '@deck.gl/layers'
-import type { TextureData, ImageUnscale } from 'weatherlayers-gl/client'
+import type { TextureData, ImageUnscale } from 'weatherlayers-gl-fork/client'
 import type { CSSProperties } from 'react'
 import type { Palette } from 'cpt2js';
 import type { View } from '@deck.gl/core'
@@ -13,7 +13,7 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import { MapView } from 'deck.gl'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { ClipExtension } from '@deck.gl/extensions'
-import { RasterLayer, ParticleLayer } from 'weatherlayers-gl'
+import { RasterLayer, ParticleLayer } from 'weatherlayers-gl-fork'
 
 const API_URL = 'https://d3s2may00o9nmt.cloudfront.net/public/latest/'
 

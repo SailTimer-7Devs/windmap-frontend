@@ -20,7 +20,7 @@
     "react-fps-stats": "^0.3.1",
     "react-map-gl": "^8.0.1",
     "rollup-plugin-worker-factory": "^0.5.7",
-    "weatherlayers-gl": "^2025.3.0"
+    "weatherlayers-gl-fork": "^2025.3.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.10",
