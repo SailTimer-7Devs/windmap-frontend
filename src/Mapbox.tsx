@@ -21,8 +21,8 @@ const WINDMAP_URL = API_URL + 'wind_data.png'
 const WIND_HEATMAP_URL = API_URL + 'wind_data_heatmap.png'
 
 const BASEMAP_VECTOR_LAYER_BEFORE_ID = 'waterway-label'
-const BASEMAP_VECTOR_STYLE_URL = 'mapbox://styles/serhiyandrejev/cm7npjmqq003h01qu6xsj7qr0'
-const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoic2VyaGl5YW5kcmVqZXYiLCJhIjoiY2tkbHg4eWN2MTNlZzJ1bGhvcmMyc25tcCJ9.BGYH_9ryrV4r5ttG6VuxFQ'
+const BASEMAP_VECTOR_STYLE_URL = 'mapbox://styles/mapbox/navigation-night-v1'
+const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoicy10LSIsImEiOiJjbTJhZGNldXowZjI2Mmxtdzg5NGl6MTlmIn0.-1-r5B8r6-xIzyL1gsbcEg'
 const MAP_STYLE: CSSProperties = {
   position: 'absolute',
   top: 0,
@@ -143,7 +143,7 @@ function Mapbox() {
               // style properties
               visible: true,
               palette: PALETTE,
-              opacity: 0.5,
+              opacity: 0.3,
               pickable: true,
               imageUnscale: [0, 255],
               extensions: [new ClipExtension()],
