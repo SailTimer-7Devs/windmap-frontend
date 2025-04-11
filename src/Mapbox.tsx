@@ -5,7 +5,7 @@ import type { CSSProperties } from 'react'
 import type { Palette } from 'cpt2js';
 import type { View } from '@deck.gl/core'
 import type { MapboxOverlayProps } from '@deck.gl/mapbox'
-// import type { MapCallbacks } from 'react-map-gl/mapbox'
+import type { MapCallbacks } from 'react-map-gl/mapbox'
 
 import React from 'react'
 import { MapView } from 'deck.gl'
@@ -22,7 +22,7 @@ import {
   WINDMAP_URL,
   WIND_HEATMAP_URL,
   WIND_SPEED_PALETTE,
-  updateBasemapVectorStyle
+  // updateBasemapVectorStyle
 } from './basemap'
 
 import { handleImageDataLoad } from './lib'
@@ -61,7 +61,7 @@ const MAP_VIEW = new MapView({
 })
 
 let legendControl
-let tooltipControl
+let tooltipControl: WeatherLayers.TooltipControl
 
 function Mapbox() {
   const [state, setState] = React.useState<State>(INITIAL_STATE)
@@ -76,7 +76,7 @@ function Mapbox() {
       bounds: WIND_MAP_BOUNDS,
       // style properties
       visible: true,
-      palette: WIND_SPEED_PALETTE,
+      palette: WIND_SPEED_PALETTE as Palette,
       opacity: 0.3,
       pickable: true,
       imageUnscale: [0, 255],
@@ -115,10 +115,12 @@ function Mapbox() {
       unitFormat: {
         unit: 'knots',
       },
-      palette: WIND_SPEED_PALETTE
+      palette: WIND_SPEED_PALETTE as Palette
     })
 
-    legendControl.addTo(document.getElementsByClassName('mapboxgl-ctrl-bottom-right')[0])
+    const el = document.getElementsByClassName('mapboxgl-ctrl-bottom-right')[0] as HTMLElement
+
+    legendControl.addTo(el)
 
     // debugger
 
@@ -129,7 +131,9 @@ function Mapbox() {
       directionFormat: WeatherLayers.DirectionFormat.CARDINAL3,
       followCursor: true
     })
-    tooltipControl.addTo(mapInstance.getCanvas().parentElement)
+    const parentElement = mapInstance.getCanvas().parentElement as HTMLElement
+    
+    tooltipControl.addTo(parentElement)
 
     // mapInstance.setProps({
     //   onHover: event => tooltipControl.updatePickingInfo(event)

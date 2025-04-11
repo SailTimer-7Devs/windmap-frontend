@@ -82,7 +82,7 @@ const FILL_LAYERS = [
   'water',
 ];
 
-export function updateBasemapVectorStyle(map) {
+export function updateBasemapVectorStyle<T extends {setPaintProperty: Function}>(map: T) {
   for (let layer of TEXT_LAYERS) {
     map.setPaintProperty(layer, 'text-color', '#ccc');
   }
