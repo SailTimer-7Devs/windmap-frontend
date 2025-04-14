@@ -10,13 +10,13 @@ export const WIND_HEATMAP_URL = API_URL + 'wind_data_heatmap.png'
 export const WIND_DIRECTION_HEATMAP_URL = API_URL + 'wind_data_direction_heatmap.png'
 
 export const WIND_SPEED_PALETTE = [
-  [0, [48, 18, 59, 255]],    // 0.00000 * 50 = 0
-  [1, [55, 39, 104, 255]],   // ≈ 0.02857 * 50 ≈ 1.43 → 1
-  [3, [62, 59, 149, 255]],   // ≈ 0.05714 * 50 ≈ 2.86 → 3
-  [4, [66, 79, 184, 255]],   // ≈ 0.08571 * 50 ≈ 4.29 → 4
-  [6, [68, 98, 211, 255]],   // ≈ 0.11429 * 50 ≈ 5.71 → 6
-  [7, [70, 117, 237, 255]],  // ≈ 0.14286 * 50 ≈ 7.14 → 7
-  [9, [65, 135, 243, 255]],  // ≈ 0.17143 * 50 ≈ 8.57 → 9
+  [0, [48, 18, 59, 255]], // 0.00000 * 50 = 0
+  [1, [55, 39, 104, 255]], // ≈ 0.02857 * 50 ≈ 1.43 → 1
+  [3, [62, 59, 149, 255]], // ≈ 0.05714 * 50 ≈ 2.86 → 3
+  [4, [66, 79, 184, 255]], // ≈ 0.08571 * 50 ≈ 4.29 → 4
+  [6, [68, 98, 211, 255]], // ≈ 0.11429 * 50 ≈ 5.71 → 6
+  [7, [70, 117, 237, 255]], // ≈ 0.14286 * 50 ≈ 7.14 → 7
+  [9, [65, 135, 243, 255]], // ≈ 0.17143 * 50 ≈ 8.57 → 9
   [10, [60, 153, 249, 255]], // 0.20000 * 50 = 10
   [11, [51, 171, 244, 255]], // ≈ 0.22857 * 50 ≈ 11.43 → 11
   [13, [39, 189, 228, 255]], // ≈ 0.25714 * 50 ≈ 12.86 → 13
@@ -38,15 +38,15 @@ export const WIND_SPEED_PALETTE = [
   [36, [254, 155, 45, 255]], // ≈ 0.71429 * 50 ≈ 35.71 → 36
   [37, [250, 133, 35, 255]], // ≈ 0.74286 * 50 ≈ 37.14 → 37
   [39, [245, 110, 26, 255]], // ≈ 0.77143 * 50 ≈ 38.57 → 39
-  [40, [238, 91, 18, 255]],  // 0.80000 * 50 = 40
-  [41, [227, 73, 12, 255]],  // ≈ 0.82857 * 50 ≈ 41.43 → 41
-  [43, [217, 56, 6, 255]],   // ≈ 0.85714 * 50 ≈ 42.86 → 43
-  [44, [201, 44, 4, 255]],   // ≈ 0.88571 * 50 ≈ 44.29 → 44
-  [46, [185, 31, 2, 255]],   // ≈ 0.91429 * 50 ≈ 45.71 → 46
-  [47, [166, 21, 1, 255]],   // ≈ 0.94286 * 50 ≈ 47.14 → 47
-  [49, [144, 12, 2, 255]],   // ≈ 0.97143 * 50 ≈ 48.57 → 49
-  [50, [122, 4, 2, 255]],    // 1.00000 * 50 = 50
-];
+  [40, [238, 91, 18, 255]], // 0.80000 * 50 = 40
+  [41, [227, 73, 12, 255]], // ≈ 0.82857 * 50 ≈ 41.43 → 41
+  [43, [217, 56, 6, 255]], // ≈ 0.85714 * 50 ≈ 42.86 → 43
+  [44, [201, 44, 4, 255]], // ≈ 0.88571 * 50 ≈ 44.29 → 44
+  [46, [185, 31, 2, 255]], // ≈ 0.91429 * 50 ≈ 45.71 → 46
+  [47, [166, 21, 1, 255]], // ≈ 0.94286 * 50 ≈ 47.14 → 47
+  [49, [144, 12, 2, 255]], // ≈ 0.97143 * 50 ≈ 48.57 → 49
+  [50, [122, 4, 2, 255]] // 1.00000 * 50 = 50
+]
 
 const TEXT_LAYERS = [
   'place_hamlet',
@@ -68,29 +68,33 @@ const TEXT_LAYERS = [
   'watername_sea',
   'watername_lake',
   'watername_lake_line',
-  'waterway_label',
-];
+  'waterway_label'
+]
 
 const LINE_LAYERS = [
   'waterway',
   'boundary_county',
   'boundary_state',
   'boundary_country_outline',
-  'boundary_country_inner',
-];
+  'boundary_country_inner'
+]
 
 const FILL_LAYERS = [
-  'water',
-];
+  'water'
+]
 
-export function updateBasemapVectorStyle<T extends {setPaintProperty: Function}>(map: T) {
-  for (let layer of TEXT_LAYERS) {
-    map.setPaintProperty(layer, 'text-color', '#ccc');
+export function updateBasemapVectorStyle<T extends {
+  setPaintProperty(layer: string, property: string, value: string): void
+}>(map: T): void {
+  for (const layer of TEXT_LAYERS) {
+    map.setPaintProperty(layer, 'text-color', '#ccc')
   }
-  for (let layer of LINE_LAYERS) {
-    map.setPaintProperty(layer, 'line-color', '#222');
+
+  for (const layer of LINE_LAYERS) {
+    map.setPaintProperty(layer, 'line-color', '#222')
   }
-  for (let layer of FILL_LAYERS) {
-    map.setPaintProperty(layer, 'fill-color', '#222');
+
+  for (const layer of FILL_LAYERS) {
+    map.setPaintProperty(layer, 'fill-color', '#222')
   }
 }
