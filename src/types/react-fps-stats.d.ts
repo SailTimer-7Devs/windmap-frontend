@@ -6,6 +6,6 @@ declare module 'react-fps-stats' {
     left?: number | string;
   }
 
-  const FPSStats: React.FC<FPSStatsProps>;
-  export default FPSStats;
+  const FPSStats: React.FC<FPSStatsProps>
+  export default FPSStats
 }

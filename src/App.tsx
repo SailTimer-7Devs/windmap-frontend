@@ -1,11 +1,13 @@
+import { type ReactElement } from 'react'
+
 // import FPSStats from 'react-fps-stats'
 
-import Mapbox from './Mapbox.tsx';
+import Mapbox from './Mapbox.tsx'
 
-export default function App() {
+export default function App(): ReactElement {
   return (
-    <div className="relative w-full h-full">
+    <div className='relative w-full h-full'>
       <Mapbox />
     </div>
-  );
+  )
 }

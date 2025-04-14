@@ -4,7 +4,7 @@
 
 body {
   margin: 0;
-  font-family: 'Lucida Grande', sans-serif;
+  font-family: 'Lucida Grande', 'Trebuchet MS', sans-serif;
   font-size: 12px;
   background: rgb(41, 41, 41);
 }
@@ -16,6 +16,7 @@ body {
   z-index: 0;
 }
 
-.mapboxgl-ctrl-logo, .mapboxgl-ctrl-attrib-inner > * {
+.mapboxgl-ctrl-logo,
+.mapboxgl-ctrl-attrib-inner>* {
   display: none !important;
 }
