@@ -7,6 +7,7 @@ export const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoicy10LSIsImEiOiJjbTJhZGNldXowZjI2M
 
 export const WINDMAP_URL = API_URL + 'wind_data.png'
 export const WIND_HEATMAP_URL = API_URL + 'wind_data_heatmap.png'
+export const WIND_DIRECTION_HEATMAP_URL = API_URL + 'wind_data_direction_heatmap.png'
 
 export const WIND_SPEED_PALETTE = [
   [0, [48, 18, 59, 255]],    // 0.00000 * 50 = 0
