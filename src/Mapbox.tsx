@@ -96,11 +96,24 @@ function Mapbox(): ReactElement {
       image: state.windDirectionHeatmapData,
       bounds: WIND_MAP_BOUNDS,
       // style properties
-      interval: 1,
-      majorInterval: 10,
-      width: 0.5,
+      interval: 0.05,
+      majorInterval: 0,
+      width: 0.4,
+      color: [255, 255, 255, 150], // [r, g, b, [a]?]
+      extensions: [new ClipExtension()],
+      clipBounds: CLIP_BOUNDS
+    }),
+
+    new WeatherLayers.GridLayer({
+      image: state.windData,
+      bounds: WIND_MAP_BOUNDS,
+      imageUnscale: IMAGE_UNSCALE,
+      density:0,
+      iconSize: 35,
+      imageType: 'VECTOR',
       color: [255, 255, 255, 170], // [r, g, b, [a]?]
       extensions: [new ClipExtension()],
+      style: WeatherLayers.GridStyle.WIND_BARB,
       clipBounds: CLIP_BOUNDS
     }),
 
