@@ -96,7 +96,7 @@ function Mapbox(): ReactElement {
       image: state.windDirectionHeatmapData,
       bounds: WIND_MAP_BOUNDS,
       // style properties
-      interval: 200,
+      interval: 10,
       color: [255, 255, 255, 170], // [r, g, b, [a]?]
       extensions: [new ClipExtension()],
       clipBounds: CLIP_BOUNDS
