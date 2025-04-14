@@ -87,7 +87,7 @@ function Mapbox(): ReactElement {
       imageUnscale: [0, 255],
       extensions: [new ClipExtension()],
       clipBounds: CLIP_BOUNDS,
-      beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID //  ?? ToDo: option is not in Layer props
+      beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID
     }),
 
     new WeatherLayers.ContourLayer({
@@ -120,7 +120,7 @@ function Mapbox(): ReactElement {
       extensions: [new ClipExtension()],
       clipBounds: CLIP_BOUNDS,
       getPolygonOffset: () => [0, -1000],
-      beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID // ?? ToDo: option is not in Layer props
+      beforeId: BASEMAP_VECTOR_LAYER_BEFORE_ID
     })
   ]
 
