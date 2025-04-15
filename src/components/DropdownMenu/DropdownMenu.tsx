@@ -14,6 +14,17 @@ interface DropdownMenuProps {
 }
 
 const DropdownMenu = ({ caption, options }: DropdownMenuProps): ReactElement => {
+  const handleMenuClick = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    onClick?: () => void,
+    close?: () => void
+  ) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (onClick) onClick()
+    if (close) return null
+  }
+
   return (
     <Menu>
       <MenuButton className='inline-flex items-center gap-2 rounded-full bg-gray-800 py-3 px-4 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[hover]:bg-gray-700 data-[open]:bg-gray-700 data-[focus]:outline-1 data-[focus]:outline-white transition duration-100'>
@@ -28,13 +39,15 @@ const DropdownMenu = ({ caption, options }: DropdownMenuProps): ReactElement => 
       >
         {options.map(({ label, icon, onClick }) => (
           <MenuItem key={label}>
-            <button
-              className='group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-white/10'
-              onClick={onClick}
-            >
-              {icon}
-              {label}
-            </button>
+            {({ close }) => (
+              <button
+                className='group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-white/10'
+                onClick={(e) => handleMenuClick(e, onClick, close)}
+              >
+                {icon}
+                {label}
+              </button>
+            )}
           </MenuItem>
         ))}
       </MenuItems>
