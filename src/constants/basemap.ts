@@ -1,3 +1,10 @@
+import type { CSSProperties } from 'react'
+import type { BitmapBoundingBox } from '@deck.gl/layers'
+
+import type { ImageUnscale } from 'weatherlayers-gl-fork/client'
+
+import { MapView } from 'deck.gl'
+
 export const API_URL = 'https://d3s2may00o9nmt.cloudfront.net/public/latest/'
 
 export const BASEMAP_VECTOR_LAYER_BEFORE_ID = 'waterway-label'
@@ -98,3 +105,29 @@ export function updateBasemapVectorStyle<T extends {
     map.setPaintProperty(layer, 'fill-color', '#222')
   }
 }
+
+export const MAP_STYLE: CSSProperties = {
+  position: 'absolute',
+  top: 0,
+  right: 0,
+  bottom: 0,
+  left: 0
+}
+
+export const INITIAL_VIEW_STATE = {
+  longitude: 0.45,
+  latitude: 51.47,
+  zoom: 0,
+  minZoom: 0,
+  maxZoom: 15
+}
+// const CLIP_BOUNDS = [-180, -85.051129, 180, 85.051129]
+export const CLIP_BOUNDS = [-181, -85.051129, 181, 85.051129]
+
+export const IMAGE_UNSCALE: ImageUnscale = [-128, 127]
+export const WIND_MAP_BOUNDS: BitmapBoundingBox = [-180, -90, 180, 90]
+// const WIND_HEATMAP_BOUNDS: BitmapBoundingBox = [-180, -85.051129, 180, 85.051129]
+
+export const MAP_VIEW = new MapView({
+  repeat: true
+})

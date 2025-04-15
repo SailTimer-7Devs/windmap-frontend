@@ -7,5 +7,9 @@ export default {
   theme: {
     extend: {}
   },
-  plugins: []
+  plugins: [],
+  future: {
+    hoverOnlyWhenSupported: true
+  },
+  dataAttributes: ['hover', 'open', 'focus', 'closed']
 }
