@@ -68,7 +68,8 @@ function Mapbox(): ReactElement {
     }),
 
     new WeatherLayers.GridLayer({
-      image: state[LAYERS.WIND as LayerKey].data,
+      id: 'wind-barbs',
+      image: state[LAYERS.WIND_BARBS as LayerKey].data,
       bounds: OPTIONS.WIND_MAP_BOUNDS,
       imageUnscale: OPTIONS.IMAGE_UNSCALE,
       density: 0,
@@ -78,7 +79,7 @@ function Mapbox(): ReactElement {
       extensions: [new ClipExtension()],
       style: WeatherLayers.GridStyle.WIND_BARB,
       clipBounds: OPTIONS.CLIP_BOUNDS,
-      visible: state[LAYERS.WIND as LayerKey].visible
+      visible: state[LAYERS.WIND_BARBS as LayerKey].visible
     }),
 
     new WeatherLayers.ParticleLayer({
@@ -167,6 +168,10 @@ function Mapbox(): ReactElement {
         [LAYERS.WIND_HEATMAP]: {
           ...prevState[LAYERS.WIND_HEATMAP as LayerKey],
           data: windHeatmapData
+        },
+        [LAYERS.WIND_BARBS]: {
+          ...prevState[LAYERS.WIND_BARBS as LayerKey],
+          data: windData
         }
       }))
     } catch (e) {

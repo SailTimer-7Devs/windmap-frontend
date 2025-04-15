@@ -12,15 +12,19 @@ import { LAYERS, LayerKey } from 'src/constants/layers'
 const layers = [
   {
     id: LAYERS.WIND,
-    name: 'Wind'
+    name: 'Particles'
   },
   {
     id: LAYERS.WIND_HEATMAP,
-    name: 'Heatmap'
+    name: 'Speed heatmap'
+  },
+  {
+    id: LAYERS.WIND_BARBS,
+    name: 'Barbs'
   },
   {
     id: LAYERS.WIND_DIRECTION_HEATMAP,
-    name: 'Heatmap Direction'
+    name: 'Contours'
   }
 ]
 
