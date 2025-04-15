@@ -108,7 +108,7 @@ function Mapbox(): ReactElement {
       image: state.windData,
       bounds: WIND_MAP_BOUNDS,
       imageUnscale: IMAGE_UNSCALE,
-      density:0,
+      density: 0,
       iconSize: 35,
       imageType: 'VECTOR',
       color: [255, 255, 255, 170], // [r, g, b, [a]?]
