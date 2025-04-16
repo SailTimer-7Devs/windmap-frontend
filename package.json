@@ -17,10 +17,10 @@
     "deck.gl": "^9.1.9",
     "mapbox-gl": "^3.11.0",
     "prop-types": "^15.8.1",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "react-fps-stats": "^0.3.1",
-    "react-map-gl": "^8.0.3",
+    "react-map-gl": "^8.0.4",
     "rollup-plugin-worker-factory": "^0.5.7",
     "weatherlayers-gl": "^2025.3.0",
     "weatherlayers-gl-fork": "^2025.3.3"
@@ -28,8 +28,8 @@
   "devDependencies": {
     "@eslint/js": "^9.24.0",
     "@tailwindcss/postcss": "^4.1.4",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react-swc": "^3.9.0",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.24.0",
@@ -40,6 +40,6 @@
     "tailwindcss": "^4.1.4",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.30.1",
-    "vite": "^6.2.6"
+    "vite": "^6.3.0"
   }
 }

@@ -21,6 +21,7 @@ const DropdownMenu = ({ caption, options }: DropdownMenuProps): ReactElement => 
   ) => {
     e.preventDefault()
     e.stopPropagation()
+
     if (onClick) onClick()
     if (close) return null
   }
