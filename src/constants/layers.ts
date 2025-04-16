@@ -1,4 +1,4 @@
-import type { LayersState } from 'src/types'
+import type { LayersState } from 'types'
 
 const WIND = 'wind'
 const WIND_BARBS = 'windBarbs'

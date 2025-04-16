@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react'
 import type { BitmapBoundingBox } from '@deck.gl/layers'
 import type { ImageUnscale } from 'weatherlayers-gl-fork/client'
-import type { MapViewState } from 'src/types'
+import type { MapViewState } from 'types'
 
 import { MapView } from 'deck.gl'
 

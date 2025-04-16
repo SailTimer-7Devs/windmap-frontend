@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react'
 
-import type { MapViewState } from 'src/types'
+import type { MapViewState } from 'types'
 
 export const handleRequestUserLocation = (
   setViewState: Dispatch<SetStateAction<MapViewState>>

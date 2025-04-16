@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import type { LayersState, LayerKey } from 'src/types'
+import type { LayersState, LayerKey } from 'types'
 import type { DeckProps } from 'deck.gl'
 import type { MapboxOverlayProps } from '@deck.gl/mapbox'
 import type { View } from '@deck.gl/core'
@@ -15,15 +15,15 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 
 import * as WeatherLayers from 'weatherlayers-gl'
 
-import * as BASE from 'src/constants/basemap'
+import * as BASE from 'constants/basemap'
 
 import {
   INITIAL_LAYERS_STATE,
   LAYER_KEYS
-} from 'src/constants/layers'
+} from 'constants/layers'
 
-import { handleImageDataLoad } from 'src/lib/images'
-import { handleRequestUserLocation } from 'src/lib/location'
+import { handleImageDataLoad } from 'lib/images'
+import { handleRequestUserLocation } from 'lib/location'
 
 import LayersMenu from './LayersMenu'
 

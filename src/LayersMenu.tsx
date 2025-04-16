@@ -1,12 +1,12 @@
 import type { ReactElement } from 'react'
-import type { LayerKey, LayersMenuProps } from 'src/types'
+import type { LayerKey, LayersMenuProps } from 'types'
 
-import DropdownMenu from 'src/components/DropdownMenu'
+import DropdownMenu from 'components/DropdownMenu'
 
-import { EyeIcon } from 'src/icons/Eye'
-import { EyeSlashIcon } from 'src/icons/EyeSlash'
+import { EyeIcon } from 'icons/Eye'
+import { EyeSlashIcon } from 'icons/EyeSlash'
 
-import { ACTIONS_MENU_LIST } from 'src/constants/layers'
+import { ACTIONS_MENU_LIST } from 'constants/layers'
 
 const ICON_STYLES = {
   className: 'shrink-0'

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import type { DropdownMenuProps } from 'src/types'
+import type { DropdownMenuProps } from 'types'
 
 import {
   Menu,
@@ -8,7 +8,7 @@ import {
   MenuItems
 } from '@headlessui/react'
 
-import { ChevronDownIcon } from 'src/icons/ChevronDown'
+import { ChevronDownIcon } from 'icons/ChevronDown'
 
 const DropdownMenu = ({ caption, options }: DropdownMenuProps): ReactElement => {
   const handleMenuClick = (

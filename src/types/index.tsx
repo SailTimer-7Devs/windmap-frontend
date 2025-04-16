@@ -1,7 +1,7 @@
 import type { Dispatch, ReactElement, SetStateAction } from 'react'
 import type { TextureData } from 'weatherlayers-gl-fork/client'
 
-import { LAYER_KEYS } from 'src/constants/layers'
+import { LAYER_KEYS } from 'constants/layers'
 
 export type MapViewState = {
   longitude: number
