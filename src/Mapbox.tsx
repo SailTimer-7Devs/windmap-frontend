@@ -57,14 +57,18 @@ function Mapbox(): ReactElement {
       // data properties
       image: state[LAYERS.WIND_DIRECTION_HEATMAP as LayerKey].data,
       bounds: OPTIONS.WIND_MAP_BOUNDS,
-      // style properties
-      interval: 0.05,
+      imageUnscale: [0, 22.5],
+      // style properties,
+      imageInterpolation: 'CUBIC',
+      imageSmoothing: 6,
+      interval: 1,
       majorInterval: 0,
-      width: 0.4,
-      color: [255, 255, 255, 150], // [r, g, b, [a]?]
+      width: 1,
+      color: [255, 255, 255, 200], // [r, g, b, [a]?]
       extensions: [new ClipExtension()],
       clipBounds: OPTIONS.CLIP_BOUNDS,
-      visible: state[LAYERS.WIND_DIRECTION_HEATMAP as LayerKey].visible
+      visible: state[LAYERS.WIND_DIRECTION_HEATMAP as LayerKey].visible,
+      maxZoom: 30
     }),
 
     new WeatherLayers.GridLayer({
@@ -92,10 +96,10 @@ function Mapbox(): ReactElement {
       // style properties
       visible: state[LAYERS.WIND as LayerKey].visible,
       numParticles: 5000,
-      maxAge: 10,
+      maxAge: 25,
       speedFactor: 10,
       width: 2,
-      opacity: 0.2,
+      opacity: 0.15,
       animate: true,
       extensions: [new ClipExtension()],
       clipBounds: OPTIONS.CLIP_BOUNDS,
