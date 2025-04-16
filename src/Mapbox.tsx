@@ -77,9 +77,9 @@ function Mapbox(): ReactElement {
       bounds: OPTIONS.WIND_MAP_BOUNDS,
       imageUnscale: OPTIONS.IMAGE_UNSCALE,
       density: 0,
-      iconSize: 35,
+      iconSize: 50,
       imageType: 'VECTOR',
-      color: [255, 255, 255, 170], // [r, g, b, [a]?]
+      color: [255, 255, 255, 200], // [r, g, b, [a]?]
       extensions: [new ClipExtension()],
       style: WeatherLayers.GridStyle.WIND_BARB,
       clipBounds: OPTIONS.CLIP_BOUNDS,
