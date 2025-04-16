@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import type { ControlPosition } from 'react-map-gl'
 import type { BitmapBoundingBox } from '@deck.gl/layers'
 import type { ImageUnscale } from 'weatherlayers-gl-fork/client'
 import type { MapViewState } from 'types'
@@ -131,3 +132,14 @@ export const WIND_MAP_BOUNDS: BitmapBoundingBox = [-180, -90, 180, 90]
 export const MAP_VIEW = new MapView({
   repeat: true
 })
+
+export const MAP_VIEW_CONTROLS_PROPS: {
+  position: ControlPosition;
+  style: CSSProperties;
+} = {
+  position: 'top-left',
+  style: {
+    position: 'relative',
+    zIndex: 2
+  }
+}

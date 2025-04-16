@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react'
+import type { GeolocateControlInstance } from 'react-map-gl/mapbox'
 import type { LayersState, LayerKey } from 'types'
 import type { DeckProps } from 'deck.gl'
 import type { MapboxOverlayProps } from '@deck.gl/mapbox'
@@ -10,7 +11,14 @@ import React from 'react'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { ClipExtension } from '@deck.gl/extensions'
 
-import { Map, useControl } from 'react-map-gl/mapbox'
+import {
+  Map,
+  NavigationControl,
+  FullscreenControl,
+  ScaleControl,
+  GeolocateControl,
+  useControl
+} from 'react-map-gl/mapbox'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
 import * as WeatherLayers from 'weatherlayers-gl'
@@ -23,7 +31,6 @@ import {
 } from 'constants/layers'
 
 import { handleImageDataLoad } from 'lib/images'
-import { handleRequestUserLocation } from 'lib/location'
 
 import LayersMenu from './LayersMenu'
 
@@ -32,7 +39,8 @@ let tooltipControl: WeatherLayers.TooltipControl
 
 function Mapbox(): ReactElement {
   const [layersState, setLayersState] = React.useState<LayersState>(INITIAL_LAYERS_STATE)
-  const [viewState, setViewState] = React.useState(BASE.INITIAL_VIEW_STATE)
+
+  const geolocateControlRef = React.useRef<GeolocateControlInstance>(null)
 
   const layers = [
     new WeatherLayers.RasterLayer({
@@ -178,6 +186,10 @@ function Mapbox(): ReactElement {
           data: windData
         }
       }))
+
+      if (geolocateControlRef.current) {
+        geolocateControlRef.current.trigger()
+      }
     } catch (e) {
       console.error(e)
     }
@@ -185,7 +197,14 @@ function Mapbox(): ReactElement {
 
   React.useEffect(() => {
     handleLoad()
-    handleRequestUserLocation(setViewState)
+
+    // const timer = setTimeout(() => {
+    //   if (geolocateControlRef.current) {
+    //     geolocateControlRef.current?.trigger()
+    //   }
+    // }, 1000)
+
+    // return () => clearTimeout(timer)
   }, [])
 
   return (
@@ -199,15 +218,23 @@ function Mapbox(): ReactElement {
 
       <Map
         onLoad={handleMapLoad}
-        onMove={evt => setViewState(prevState => ({
-          ...prevState,
-          ...evt.viewState
-        }))}
         style={BASE.MAP_STYLE}
         mapboxAccessToken={BASE.MAPBOX_ACCESS_TOKEN}
         mapStyle={BASE.BASEMAP_VECTOR_STYLE_URL}
-        {...viewState}
+        initialViewState={BASE.INITIAL_VIEW_STATE}
       >
+        <GeolocateControl
+          {...BASE.MAP_VIEW_CONTROLS_PROPS}
+          ref={geolocateControlRef}
+        />
+        <FullscreenControl {...BASE.MAP_VIEW_CONTROLS_PROPS} />
+        <NavigationControl {...BASE.MAP_VIEW_CONTROLS_PROPS} />
+
+        <ScaleControl
+          unit='nautical'
+          style={{ borderRadius: '4px' }}
+        />
+
         <DeckGLOverlay<typeof BASE.MAP_VIEW>
           // interleaved
           views={BASE.MAP_VIEW}

@@ -1,0 +1,41 @@
+@use "tailwindcss";
+
+:root {
+  --primary-red: #B22E2E;
+  --primary-red-alfa: #B22E2E33;
+}
+
+body {
+  margin: 0;
+  font-family: 'Lucida Grande', 'Trebuchet MS', sans-serif;
+  font-size: 12px;
+  background: rgb(41, 41, 41);
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  z-index: 0;
+}
+
+.mapboxgl-ctrl-logo,
+.mapboxgl-ctrl-attrib-inner>* {
+  display: none !important;
+}
+
+.mapboxgl-marker {
+  z-index: 10;
+}
+
+.mapboxgl-user-location-dot {
+  background-color: var(--primary-red);
+
+  &::before {
+    background-color: var(--primary-red);
+  }
+}
+
+.mapboxgl-user-location-accuracy-circle {
+  background-color: var(--primary-red-alfa);
+}

@@ -22,6 +22,7 @@
     "react-fps-stats": "^0.3.1",
     "react-map-gl": "^8.0.4",
     "rollup-plugin-worker-factory": "^0.5.7",
+    "sass": "^1.86.3",
     "weatherlayers-gl": "^2025.3.0",
     "weatherlayers-gl-fork": "^2025.3.3"
   },
