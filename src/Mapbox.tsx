@@ -197,14 +197,6 @@ function Mapbox(): ReactElement {
 
   React.useEffect(() => {
     handleLoad()
-
-    // const timer = setTimeout(() => {
-    //   if (geolocateControlRef.current) {
-    //     geolocateControlRef.current?.trigger()
-    //   }
-    // }, 1000)
-
-    // return () => clearTimeout(timer)
   }, [])
 
   return (
