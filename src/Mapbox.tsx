@@ -199,6 +199,10 @@ function Mapbox(): ReactElement {
 
       <Map
         onLoad={handleMapLoad}
+        onMove={evt => setViewState(prevState => ({
+          ...prevState,
+          ...evt.viewState
+        }))}
         style={BASE.MAP_STYLE}
         mapboxAccessToken={BASE.MAPBOX_ACCESS_TOKEN}
         mapStyle={BASE.BASEMAP_VECTOR_STYLE_URL}
