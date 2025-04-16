@@ -1,4 +1,4 @@
-import type { TextureData } from 'weatherlayers-gl-fork/client'
+import type { LayersState } from 'src/types'
 
 const WIND = 'wind'
 const WIND_BARBS = 'windBarbs'
@@ -12,19 +12,7 @@ export const LAYER_KEYS = {
   WIND_HEATMAP
 }
 
-export type LayerKey = typeof WIND
-  | typeof WIND_HEATMAP
-  | typeof WIND_DIRECTION_HEATMAP
-  | typeof WIND_BARBS
-
-export type State = {
-  [key in LayerKey]: {
-    data?: TextureData
-    visible: boolean
-  }
-}
-
-export const INITIAL_LAYERS_STATE: State = {
+export const INITIAL_LAYERS_STATE: LayersState = {
   [WIND]: {
     data: undefined,
     visible: true
@@ -45,3 +33,24 @@ export const INITIAL_LAYERS_STATE: State = {
     visible: true
   }
 }
+
+export const ACTIONS_MENU_LIST = [
+  {
+    id: LAYER_KEYS.WIND_HEATMAP,
+    name: 'Wind Speed'
+  },
+
+  {
+    id: LAYER_KEYS.WIND,
+    name: 'Wind Particles'
+  },
+
+  {
+    id: LAYER_KEYS.WIND_BARBS,
+    name: 'Wind Barbs'
+  },
+  {
+    id: LAYER_KEYS.WIND_DIRECTION_HEATMAP,
+    name: 'Wind Direction Contour Lines'
+  }
+]

@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react'
 import type { BitmapBoundingBox } from '@deck.gl/layers'
-
 import type { ImageUnscale } from 'weatherlayers-gl-fork/client'
+import type { MapViewState } from 'src/types'
 
 import { MapView } from 'deck.gl'
 
@@ -114,7 +114,7 @@ export const MAP_STYLE: CSSProperties = {
   left: 0
 }
 
-export const INITIAL_VIEW_STATE = {
+export const INITIAL_VIEW_STATE: MapViewState = {
   longitude: 0.45,
   latitude: 51.47,
   zoom: 0,

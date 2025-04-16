@@ -1,36 +1,15 @@
 import type { ReactElement } from 'react'
-import type { Dispatch, SetStateAction } from 'react'
-import type { State } from 'src/constants/layers'
+import type { LayerKey, LayersMenuProps } from 'src/types'
 
 import DropdownMenu from 'src/components/DropdownMenu'
 
 import { EyeIcon } from 'src/icons/Eye'
 import { EyeSlashIcon } from 'src/icons/EyeSlash'
 
-import { LAYER_KEYS, LayerKey } from 'src/constants/layers'
+import { ACTIONS_MENU_LIST } from 'src/constants/layers'
 
-const layers = [
-  {
-    id: LAYER_KEYS.WIND,
-    name: 'Particles'
-  },
-  {
-    id: LAYER_KEYS.WIND_HEATMAP,
-    name: 'Speed heatmap'
-  },
-  {
-    id: LAYER_KEYS.WIND_BARBS,
-    name: 'Barbs'
-  },
-  {
-    id: LAYER_KEYS.WIND_DIRECTION_HEATMAP,
-    name: 'Contours'
-  }
-]
-
-type LayersMenuProps = {
-  state: State,
-  setState: Dispatch<SetStateAction<State>>
+const ICON_STYLES = {
+  className: 'shrink-0'
 }
 
 const LayersMenu = ({ state, setState }: LayersMenuProps): ReactElement => {
@@ -44,9 +23,11 @@ const LayersMenu = ({ state, setState }: LayersMenuProps): ReactElement => {
     }))
   }
 
-  const options = layers.map(({ id, name }) => ({
+  const options = ACTIONS_MENU_LIST.map(({ id, name }) => ({
     label: name,
-    icon: state[id as LayerKey].visible ? <EyeIcon /> : <EyeSlashIcon />,
+    icon: state[id as LayerKey].visible
+      ? <EyeIcon {...ICON_STYLES} />
+      : <EyeSlashIcon {...ICON_STYLES} />,
     onClick: () => toggleLayer(id as LayerKey)
   }))
 

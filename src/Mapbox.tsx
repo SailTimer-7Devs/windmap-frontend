@@ -1,16 +1,12 @@
 import type { ReactElement } from 'react'
-import type { State, LayerKey } from 'src/constants/layers'
-
+import type { LayersState, LayerKey } from 'src/types'
 import type { DeckProps } from 'deck.gl'
 import type { MapboxOverlayProps } from '@deck.gl/mapbox'
 import type { View } from '@deck.gl/core'
-
 import type { Palette } from 'cpt2js'
-
 import type { MapCallbacks } from 'react-map-gl/mapbox'
 
 import React from 'react'
-
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { ClipExtension } from '@deck.gl/extensions'
 
@@ -20,42 +16,23 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import * as WeatherLayers from 'weatherlayers-gl'
 
 import * as BASE from 'src/constants/basemap'
+
 import {
   INITIAL_LAYERS_STATE,
   LAYER_KEYS
 } from 'src/constants/layers'
 
-import LayersMenu from './LayersMenu'
+import { handleImageDataLoad } from 'src/lib/images'
+import { handleRequestUserLocation } from 'src/lib/location'
 
-import { handleImageDataLoad } from './lib'
+import LayersMenu from './LayersMenu'
 
 let legendControl
 let tooltipControl: WeatherLayers.TooltipControl
 
 function Mapbox(): ReactElement {
-  const [layersState, setLayersState] = React.useState<State>(INITIAL_LAYERS_STATE)
+  const [layersState, setLayersState] = React.useState<LayersState>(INITIAL_LAYERS_STATE)
   const [viewState, setViewState] = React.useState(BASE.INITIAL_VIEW_STATE)
-
-  const requestUserLocation = () => {
-    if (!navigator.geolocation) {
-      console.error('geolocation not supported')
-      return
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setViewState(prevState => ({
-          ...prevState,
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          zoom: 10
-        }))
-      },
-      (err) => {
-        console.error('error getting location', err)
-      }
-    )
-  }
 
   const layers = [
     new WeatherLayers.RasterLayer({
@@ -208,7 +185,7 @@ function Mapbox(): ReactElement {
 
   React.useEffect(() => {
     handleLoad()
-    requestUserLocation()
+    handleRequestUserLocation(setViewState)
   }, [])
 
   return (

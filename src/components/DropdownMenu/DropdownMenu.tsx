@@ -1,17 +1,14 @@
 import type { ReactElement } from 'react'
+import type { DropdownMenuProps } from 'src/types'
 
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import {
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems
+} from '@headlessui/react'
 
 import { ChevronDownIcon } from 'src/icons/ChevronDown'
-
-interface DropdownMenuProps {
-  caption: string
-  options: {
-    label: string
-    icon: ReactElement
-    onClick: () => void
-  }[]
-}
 
 const DropdownMenu = ({ caption, options }: DropdownMenuProps): ReactElement => {
   const handleMenuClick = (
@@ -42,7 +39,7 @@ const DropdownMenu = ({ caption, options }: DropdownMenuProps): ReactElement => 
           <MenuItem key={label}>
             {({ close }) => (
               <button
-                className='group flex w-full items-center gap-2 rounded-lg py-1.5 px-3 data-[focus]:bg-white/10'
+                className='w-full group flex gap-2 text-left rounded-lg py-1.5 px-3 data-[focus]:bg-white/10'
                 onClick={(e) => handleMenuClick(e, onClick, close)}
               >
                 {icon}
