@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import type { ControlPosition } from 'react-map-gl'
+import type { ControlPosition } from 'react-map-gl/mapbox'
 import type { BitmapBoundingBox } from '@deck.gl/layers'
 import type { ImageUnscale } from 'weatherlayers-gl-fork/client'
 import type { MapViewState } from 'types'
