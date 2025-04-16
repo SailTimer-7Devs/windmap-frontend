@@ -15,15 +15,17 @@ import { MapboxOverlay } from '@deck.gl/mapbox'
 import { ClipExtension } from '@deck.gl/extensions'
 
 import { Map, useControl } from 'react-map-gl/mapbox'
-
-import * as WeatherLayers from 'weatherlayers-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
-import { INITIAL_STATE, LAYERS } from 'src/constants/layers'
+import * as WeatherLayers from 'weatherlayers-gl'
+
+import * as BASE from 'src/constants/basemap'
+import {
+  INITIAL_LAYERS_STATE,
+  LAYER_KEYS
+} from 'src/constants/layers'
 
 import LayersMenu from './LayersMenu'
-
-import * as OPTIONS from 'src/constants/basemap'
 
 import { handleImageDataLoad } from './lib'
 
@@ -31,34 +33,56 @@ let legendControl
 let tooltipControl: WeatherLayers.TooltipControl
 
 function Mapbox(): ReactElement {
-  const [state, setState] = React.useState<State>(INITIAL_STATE)
+  const [layersState, setLayersState] = React.useState<State>(INITIAL_LAYERS_STATE)
+  const [viewState, setViewState] = React.useState(BASE.INITIAL_VIEW_STATE)
+
+  const requestUserLocation = () => {
+    if (!navigator.geolocation) {
+      console.error('geolocation not supported')
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setViewState(prevState => ({
+          ...prevState,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          zoom: 10
+        }))
+      },
+      (err) => {
+        console.error('error getting location', err)
+      }
+    )
+  }
 
   const layers = [
     new WeatherLayers.RasterLayer({
       id: 'heatmap',
       // data properties
-      image: state[LAYERS.WIND_HEATMAP as LayerKey].data,
+      image: layersState[LAYER_KEYS.WIND_HEATMAP as LayerKey].data,
       imageType: 'SCALAR', // "SCALAR" | "VECTOR"
       // imageUnscale: IMAGE_UNSCALE, ??? unsure if we need it
-      bounds: OPTIONS.WIND_MAP_BOUNDS,
+      bounds: BASE.WIND_MAP_BOUNDS,
       // style properties
-      visible: state[LAYERS.WIND_HEATMAP as LayerKey].visible,
-      palette: OPTIONS.WIND_SPEED_PALETTE as Palette,
+      visible: layersState[LAYER_KEYS.WIND_HEATMAP as LayerKey].visible,
+      palette: BASE.WIND_SPEED_PALETTE as Palette,
       opacity: 0.3,
       pickable: true,
       imageUnscale: [0, 255],
       extensions: [new ClipExtension()],
-      clipBounds: OPTIONS.CLIP_BOUNDS,
-      beforeId: OPTIONS.BASEMAP_VECTOR_LAYER_BEFORE_ID
+      clipBounds: BASE.CLIP_BOUNDS,
+      beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
     }),
 
     new WeatherLayers.ContourLayer({
       id: 'heatmap-contour-direction',
       // data properties
-      image: state[LAYERS.WIND_DIRECTION_HEATMAP as LayerKey].data,
-      bounds: OPTIONS.WIND_MAP_BOUNDS,
+      image: layersState[LAYER_KEYS.WIND_DIRECTION_HEATMAP as LayerKey].data,
+      bounds: BASE.WIND_MAP_BOUNDS,
       imageUnscale: [0, 22.5],
-      // style properties,
+      // style properties
       imageInterpolation: 'CUBIC',
       imageSmoothing: 6,
       interval: 1,
@@ -66,35 +90,34 @@ function Mapbox(): ReactElement {
       width: 1,
       color: [255, 255, 255, 200], // [r, g, b, [a]?]
       extensions: [new ClipExtension()],
-      clipBounds: OPTIONS.CLIP_BOUNDS,
-      visible: state[LAYERS.WIND_DIRECTION_HEATMAP as LayerKey].visible,
-      maxZoom: 30
+      clipBounds: BASE.CLIP_BOUNDS,
+      visible: layersState[LAYER_KEYS.WIND_DIRECTION_HEATMAP as LayerKey].visible
     }),
 
     new WeatherLayers.GridLayer({
       id: 'wind-barbs',
-      image: state[LAYERS.WIND_BARBS as LayerKey].data,
-      bounds: OPTIONS.WIND_MAP_BOUNDS,
-      imageUnscale: OPTIONS.IMAGE_UNSCALE,
+      image: layersState[LAYER_KEYS.WIND_BARBS as LayerKey].data,
+      bounds: BASE.WIND_MAP_BOUNDS,
+      imageUnscale: BASE.IMAGE_UNSCALE,
       density: 0,
       iconSize: 50,
       imageType: 'VECTOR',
       color: [255, 255, 255, 200], // [r, g, b, [a]?]
       extensions: [new ClipExtension()],
       style: WeatherLayers.GridStyle.WIND_BARB,
-      clipBounds: OPTIONS.CLIP_BOUNDS,
-      visible: state[LAYERS.WIND_BARBS as LayerKey].visible
+      clipBounds: BASE.CLIP_BOUNDS,
+      visible: layersState[LAYER_KEYS.WIND_BARBS as LayerKey].visible
     }),
 
     new WeatherLayers.ParticleLayer({
       id: 'particle',
       // data properties
-      image: state[LAYERS.WIND as LayerKey].data,
+      image: layersState[LAYER_KEYS.WIND as LayerKey].data,
       imageType: 'VECTOR', // "SCALAR" | "VECTOR"
-      imageUnscale: OPTIONS.IMAGE_UNSCALE,
-      bounds: OPTIONS.WIND_MAP_BOUNDS,
+      imageUnscale: BASE.IMAGE_UNSCALE,
+      bounds: BASE.WIND_MAP_BOUNDS,
       // style properties
-      visible: state[LAYERS.WIND as LayerKey].visible,
+      visible: layersState[LAYER_KEYS.WIND as LayerKey].visible,
       numParticles: 5000,
       maxAge: 25,
       speedFactor: 10,
@@ -102,9 +125,9 @@ function Mapbox(): ReactElement {
       opacity: 0.15,
       animate: true,
       extensions: [new ClipExtension()],
-      clipBounds: OPTIONS.CLIP_BOUNDS,
+      clipBounds: BASE.CLIP_BOUNDS,
       getPolygonOffset: () => [0, -1000],
-      beforeId: OPTIONS.BASEMAP_VECTOR_LAYER_BEFORE_ID
+      beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
     })
   ]
 
@@ -116,7 +139,7 @@ function Mapbox(): ReactElement {
       unitFormat: {
         unit: 'knots'
       },
-      palette: OPTIONS.WIND_SPEED_PALETTE as Palette
+      palette: BASE.WIND_SPEED_PALETTE as Palette
     })
 
     const el = document.getElementsByClassName('mapboxgl-ctrl-bottom-right')[0] as HTMLElement
@@ -140,7 +163,7 @@ function Mapbox(): ReactElement {
     //   onHover: event => tooltipControl.updatePickingInfo(event)
     // })
 
-    // OPTIONS.updateBasemapVectorStyle(e.target)
+    // CONST.updateBasemapVectorStyle(e.target)
   }
 
   const handleHover: DeckProps['onHover'] = (e) => {
@@ -154,27 +177,27 @@ function Mapbox(): ReactElement {
         windDirectionHeatmapData,
         windHeatmapData
       ] = await Promise.all([
-        handleImageDataLoad(OPTIONS.WINDMAP_URL),
-        handleImageDataLoad(OPTIONS.WIND_DIRECTION_HEATMAP_URL),
-        handleImageDataLoad(OPTIONS.WIND_HEATMAP_URL)
+        handleImageDataLoad(BASE.WINDMAP_URL),
+        handleImageDataLoad(BASE.WIND_DIRECTION_HEATMAP_URL),
+        handleImageDataLoad(BASE.WIND_HEATMAP_URL)
       ])
 
-      setState(prevState => ({
+      setLayersState(prevState => ({
         ...prevState,
-        [LAYERS.WIND]: {
-          ...prevState[LAYERS.WIND as LayerKey],
+        [LAYER_KEYS.WIND]: {
+          ...prevState[LAYER_KEYS.WIND as LayerKey],
           data: windData
         },
-        [LAYERS.WIND_DIRECTION_HEATMAP]: {
-          ...prevState[LAYERS.WIND_DIRECTION_HEATMAP as LayerKey],
+        [LAYER_KEYS.WIND_DIRECTION_HEATMAP]: {
+          ...prevState[LAYER_KEYS.WIND_DIRECTION_HEATMAP as LayerKey],
           data: windDirectionHeatmapData
         },
-        [LAYERS.WIND_HEATMAP]: {
-          ...prevState[LAYERS.WIND_HEATMAP as LayerKey],
+        [LAYER_KEYS.WIND_HEATMAP]: {
+          ...prevState[LAYER_KEYS.WIND_HEATMAP as LayerKey],
           data: windHeatmapData
         },
-        [LAYERS.WIND_BARBS]: {
-          ...prevState[LAYERS.WIND_BARBS as LayerKey],
+        [LAYER_KEYS.WIND_BARBS]: {
+          ...prevState[LAYER_KEYS.WIND_BARBS as LayerKey],
           data: windData
         }
       }))
@@ -185,24 +208,28 @@ function Mapbox(): ReactElement {
 
   React.useEffect(() => {
     handleLoad()
+    requestUserLocation()
   }, [])
 
   return (
     <>
       <div className='absolute top-[12px] right-[12px] z-10'>
-        <LayersMenu state={state} setState={setState} />
+        <LayersMenu
+          state={layersState}
+          setState={setLayersState}
+        />
       </div>
 
       <Map
         onLoad={handleMapLoad}
-        style={OPTIONS.MAP_STYLE}
-        mapboxAccessToken={OPTIONS.MAPBOX_ACCESS_TOKEN}
-        mapStyle={OPTIONS.BASEMAP_VECTOR_STYLE_URL}
-        initialViewState={OPTIONS.INITIAL_VIEW_STATE}
+        style={BASE.MAP_STYLE}
+        mapboxAccessToken={BASE.MAPBOX_ACCESS_TOKEN}
+        mapStyle={BASE.BASEMAP_VECTOR_STYLE_URL}
+        {...viewState}
       >
-        <DeckGLOverlay<typeof OPTIONS.MAP_VIEW>
+        <DeckGLOverlay<typeof BASE.MAP_VIEW>
           // interleaved
-          views={OPTIONS.MAP_VIEW}
+          views={BASE.MAP_VIEW}
           controller={true}
           onHover={handleHover}
           layers={layers}

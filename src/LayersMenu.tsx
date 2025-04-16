@@ -7,23 +7,23 @@ import DropdownMenu from 'src/components/DropdownMenu'
 import { EyeIcon } from 'src/icons/Eye'
 import { EyeSlashIcon } from 'src/icons/EyeSlash'
 
-import { LAYERS, LayerKey } from 'src/constants/layers'
+import { LAYER_KEYS, LayerKey } from 'src/constants/layers'
 
 const layers = [
   {
-    id: LAYERS.WIND,
+    id: LAYER_KEYS.WIND,
     name: 'Particles'
   },
   {
-    id: LAYERS.WIND_HEATMAP,
+    id: LAYER_KEYS.WIND_HEATMAP,
     name: 'Speed heatmap'
   },
   {
-    id: LAYERS.WIND_BARBS,
+    id: LAYER_KEYS.WIND_BARBS,
     name: 'Barbs'
   },
   {
-    id: LAYERS.WIND_DIRECTION_HEATMAP,
+    id: LAYER_KEYS.WIND_DIRECTION_HEATMAP,
     name: 'Contours'
   }
 ]
