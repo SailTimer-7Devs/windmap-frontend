@@ -69,8 +69,8 @@ function Mapbox(): ReactElement {
       imageUnscale: [0, 22.5],
       // style properties
       imageInterpolation: 'CUBIC',
-      imageSmoothing: 15,
-      interval: 2,
+      imageSmoothing: 10,
+      interval: 1,
       majorInterval: 0,
       width: 1,
       color: [255, 255, 255, 170], // [r, g, b, [a]?]
