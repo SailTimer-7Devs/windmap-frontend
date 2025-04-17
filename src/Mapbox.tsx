@@ -203,6 +203,7 @@ function Mapbox(): ReactElement {
           {...BASE.MAP_VIEW_CONTROLS_PROPS}
           ref={geolocateControlRef}
         />
+
         <FullscreenControl {...BASE.MAP_VIEW_CONTROLS_PROPS} />
         <NavigationControl {...BASE.MAP_VIEW_CONTROLS_PROPS} />
 
