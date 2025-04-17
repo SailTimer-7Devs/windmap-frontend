@@ -1,4 +1,4 @@
-import type { Dispatch, ReactElement, SetStateAction } from 'react'
+import type { ReactElement } from 'react'
 import type { TextureData } from 'weatherlayers-gl-fork/client'
 
 import { LAYER_KEYS } from 'constants/layers'
@@ -17,15 +17,12 @@ export type LayerKey = typeof LAYER_KEYS.WIND
   | typeof LAYER_KEYS.WIND_BARBS
 
 export type LayersState = {
-  [key in LayerKey]: {
-    data?: TextureData
-    visible: boolean
-  }
+  [key in LayerKey]: TextureData | undefined
 }
 
 export type LayersMenuProps = {
-  state: LayersState
-  setState: Dispatch<SetStateAction<LayersState>>
+  layersId: LayerKey[]
+  toggle: (layerId: LayerKey) => void
 }
 
 export type DropdownMenuProps = {

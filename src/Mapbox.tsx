@@ -24,11 +24,15 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import * as WeatherLayers from 'weatherlayers-gl'
 
 import * as BASE from 'constants/basemap'
+import * as KEYS from 'constants/localStorage'
 
 import {
   INITIAL_LAYERS_STATE,
-  LAYER_KEYS
+  LAYER_KEYS,
+  VISIBLE_LAYERS
 } from 'constants/layers'
+
+import { useLocalStorage } from 'hooks/useLocalStorage'
 
 import { handleImageDataLoad } from 'lib/images'
 
@@ -39,19 +43,16 @@ let tooltipControl: WeatherLayers.TooltipControl
 
 function Mapbox(): ReactElement {
   const [layersState, setLayersState] = React.useState<LayersState>(INITIAL_LAYERS_STATE)
+  const { value: layersId, toggle } = useLocalStorage(KEYS.LAYERS, VISIBLE_LAYERS)
 
   const geolocateControlRef = React.useRef<GeolocateControlInstance>(null)
 
   const layers = [
     new WeatherLayers.RasterLayer({
-      id: 'heatmap',
-      // data properties
-      image: layersState[LAYER_KEYS.WIND_HEATMAP as LayerKey].data,
-      imageType: 'SCALAR', // "SCALAR" | "VECTOR"
-      // imageUnscale: IMAGE_UNSCALE, ??? unsure if we need it
+      id: LAYER_KEYS.WIND_HEATMAP,
+      image: layersState[LAYER_KEYS.WIND_HEATMAP as LayerKey],
+      imageType: 'SCALAR',
       bounds: BASE.WIND_MAP_BOUNDS,
-      // style properties
-      visible: layersState[LAYER_KEYS.WIND_HEATMAP as LayerKey].visible,
       palette: BASE.WIND_SPEED_PALETTE as Palette,
       opacity: 0.55,
       pickable: true,
@@ -62,47 +63,40 @@ function Mapbox(): ReactElement {
     }),
 
     new WeatherLayers.ContourLayer({
-      id: 'heatmap-contour-direction',
-      // data properties
-      image: layersState[LAYER_KEYS.WIND_DIRECTION_HEATMAP as LayerKey].data,
+      id: LAYER_KEYS.WIND_DIRECTION_HEATMAP,
+      image: layersState[LAYER_KEYS.WIND_DIRECTION_HEATMAP as LayerKey],
       bounds: BASE.WIND_MAP_BOUNDS,
       imageUnscale: [0, 22.5],
-      // style properties
       imageInterpolation: 'CUBIC',
       imageSmoothing: 10,
       interval: 1,
       majorInterval: 0,
       width: 1,
-      color: [255, 255, 255, 170], // [r, g, b, [a]?]
+      color: [255, 255, 255, 170],
       extensions: [new ClipExtension()],
-      clipBounds: BASE.CLIP_BOUNDS,
-      visible: layersState[LAYER_KEYS.WIND_DIRECTION_HEATMAP as LayerKey].visible
+      clipBounds: BASE.CLIP_BOUNDS
     }),
 
     new WeatherLayers.GridLayer({
-      id: 'wind-barbs',
-      image: layersState[LAYER_KEYS.WIND_BARBS as LayerKey].data,
+      id: LAYER_KEYS.WIND_BARBS,
+      image: layersState[LAYER_KEYS.WIND_BARBS as LayerKey],
       bounds: BASE.WIND_MAP_BOUNDS,
       imageUnscale: BASE.IMAGE_UNSCALE,
       density: 0,
       iconSize: 50,
       imageType: 'VECTOR',
-      color: [255, 255, 255, 200], // [r, g, b, [a]?]
+      color: [255, 255, 255, 200],
       extensions: [new ClipExtension()],
       style: WeatherLayers.GridStyle.WIND_BARB,
-      clipBounds: BASE.CLIP_BOUNDS,
-      visible: layersState[LAYER_KEYS.WIND_BARBS as LayerKey].visible
+      clipBounds: BASE.CLIP_BOUNDS
     }),
 
     new WeatherLayers.ParticleLayer({
-      id: 'particle',
-      // data properties
-      image: layersState[LAYER_KEYS.WIND as LayerKey].data,
-      imageType: 'VECTOR', // "SCALAR" | "VECTOR"
+      id: LAYER_KEYS.WIND,
+      image: layersState[LAYER_KEYS.WIND as LayerKey],
+      imageType: 'VECTOR',
       imageUnscale: BASE.IMAGE_UNSCALE,
       bounds: BASE.WIND_MAP_BOUNDS,
-      // style properties
-      visible: layersState[LAYER_KEYS.WIND as LayerKey].visible,
       numParticles: 5000,
       maxAge: 25,
       speedFactor: 10,
@@ -167,25 +161,12 @@ function Mapbox(): ReactElement {
         handleImageDataLoad(BASE.WIND_HEATMAP_URL)
       ])
 
-      setLayersState(prevState => ({
-        ...prevState,
-        [LAYER_KEYS.WIND]: {
-          ...prevState[LAYER_KEYS.WIND as LayerKey],
-          data: windData
-        },
-        [LAYER_KEYS.WIND_DIRECTION_HEATMAP]: {
-          ...prevState[LAYER_KEYS.WIND_DIRECTION_HEATMAP as LayerKey],
-          data: windDirectionHeatmapData
-        },
-        [LAYER_KEYS.WIND_HEATMAP]: {
-          ...prevState[LAYER_KEYS.WIND_HEATMAP as LayerKey],
-          data: windHeatmapData
-        },
-        [LAYER_KEYS.WIND_BARBS]: {
-          ...prevState[LAYER_KEYS.WIND_BARBS as LayerKey],
-          data: windData
-        }
-      }))
+      setLayersState({
+        [LAYER_KEYS.WIND]: windData,
+        [LAYER_KEYS.WIND_DIRECTION_HEATMAP]: windDirectionHeatmapData,
+        [LAYER_KEYS.WIND_HEATMAP]: windHeatmapData,
+        [LAYER_KEYS.WIND_BARBS]: windData
+      })
 
       if (geolocateControlRef.current) {
         geolocateControlRef.current.trigger()
@@ -195,6 +176,8 @@ function Mapbox(): ReactElement {
     }
   }
 
+  const visibleLayers = layers.filter(item => layersId.includes(item.id))
+
   React.useEffect(() => {
     handleLoad()
   }, [])
@@ -203,8 +186,8 @@ function Mapbox(): ReactElement {
     <>
       <div className='absolute top-[12px] right-[12px] z-10'>
         <LayersMenu
-          state={layersState}
-          setState={setLayersState}
+          layersId={layersId}
+          toggle={toggle}
         />
       </div>
 
@@ -232,7 +215,7 @@ function Mapbox(): ReactElement {
           views={BASE.MAP_VIEW}
           controller={true}
           onHover={handleHover}
-          layers={layers}
+          layers={visibleLayers}
         />
       </Map>
     </>

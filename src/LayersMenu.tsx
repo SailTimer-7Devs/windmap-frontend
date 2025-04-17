@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import type { LayerKey, LayersMenuProps } from 'types'
+import type { LayersMenuProps } from 'types'
 
 import DropdownMenu from 'components/DropdownMenu'
 
@@ -12,23 +12,13 @@ const ICON_STYLES = {
   className: 'shrink-0'
 }
 
-const LayersMenu = ({ state, setState }: LayersMenuProps): ReactElement => {
-  const toggleLayer = (layerName: LayerKey) => {
-    setState(prevState => ({
-      ...prevState,
-      [layerName]: {
-        ...prevState[layerName],
-        visible: !prevState[layerName].visible
-      }
-    }))
-  }
-
+const LayersMenu = ({ layersId, toggle }: LayersMenuProps): ReactElement => {
   const options = ACTIONS_MENU_LIST.map(({ id, name }) => ({
     label: name,
-    icon: state[id as LayerKey].visible
+    icon: layersId.includes(id)
       ? <EyeIcon {...ICON_STYLES} />
       : <EyeSlashIcon {...ICON_STYLES} />,
-    onClick: () => toggleLayer(id as LayerKey)
+    onClick: () => toggle(id)
   }))
 
   return (

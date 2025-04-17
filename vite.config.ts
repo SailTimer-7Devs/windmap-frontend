@@ -17,7 +17,8 @@ export default defineConfig({
       'constants': path.resolve(__dirname, './src/constants'),
       'lib': path.resolve(__dirname, './src/lib'),
       'types': path.resolve(__dirname, './src/types'),
-      'icons': path.resolve(__dirname, './src/icons')
+      'icons': path.resolve(__dirname, './src/icons'),
+      'hooks': path.resolve(__dirname, './src/hooks')
     }
   }
 })
