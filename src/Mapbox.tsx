@@ -53,7 +53,7 @@ function Mapbox(): ReactElement {
       // style properties
       visible: layersState[LAYER_KEYS.WIND_HEATMAP as LayerKey].visible,
       palette: BASE.WIND_SPEED_PALETTE as Palette,
-      opacity: 0.3,
+      opacity: 0.55,
       pickable: true,
       imageUnscale: [0, 255],
       extensions: [new ClipExtension()],
@@ -69,11 +69,11 @@ function Mapbox(): ReactElement {
       imageUnscale: [0, 22.5],
       // style properties
       imageInterpolation: 'CUBIC',
-      imageSmoothing: 6,
-      interval: 1,
+      imageSmoothing: 15,
+      interval: 2,
       majorInterval: 0,
       width: 1,
-      color: [255, 255, 255, 200], // [r, g, b, [a]?]
+      color: [255, 255, 255, 170], // [r, g, b, [a]?]
       extensions: [new ClipExtension()],
       clipBounds: BASE.CLIP_BOUNDS,
       visible: layersState[LAYER_KEYS.WIND_DIRECTION_HEATMAP as LayerKey].visible

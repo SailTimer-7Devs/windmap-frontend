@@ -9,7 +9,7 @@ import { MapView } from 'deck.gl'
 export const API_URL = 'https://d3s2may00o9nmt.cloudfront.net/public/latest/'
 
 export const BASEMAP_VECTOR_LAYER_BEFORE_ID = 'waterway-label'
-export const BASEMAP_VECTOR_STYLE_URL = 'mapbox://styles/mapbox/navigation-night-v1'
+export const BASEMAP_VECTOR_STYLE_URL = 'mapbox://styles/s-t-/cm9laauxg00yc01s8fxzxcand'
 
 export const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoicy10LSIsImEiOiJjbTJhZGNldXowZjI2Mmxtdzg5NGl6MTlmIn0.-1-r5B8r6-xIzyL1gsbcEg'
 
