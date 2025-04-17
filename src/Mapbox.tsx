@@ -72,6 +72,7 @@ function Mapbox(): ReactElement {
       interval: 1,
       majorInterval: 0,
       width: 1,
+      maxZoom: 30,
       color: [255, 255, 255, 170],
       extensions: [new ClipExtension()],
       clipBounds: BASE.CLIP_BOUNDS
