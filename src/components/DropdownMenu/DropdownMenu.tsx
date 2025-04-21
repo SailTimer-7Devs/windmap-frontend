@@ -39,7 +39,7 @@ const DropdownMenu = ({ caption, options }: DropdownMenuProps): ReactElement => 
           <MenuItem key={label}>
             {({ close }) => (
               <button
-                className='w-full group flex gap-2 text-left rounded-lg py-1.5 px-3 data-[focus]:bg-white/10'
+                className='w-full group flex gap-2 text-left capitalize rounded-lg py-1.5 px-3 data-[focus]:bg-white/10'
                 onClick={(e) => handleMenuClick(e, onClick, close)}
               >
                 {icon}

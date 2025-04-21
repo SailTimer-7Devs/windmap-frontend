@@ -1,6 +1,42 @@
-# React + TypeScript + Vite
+# Windmap
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Installation
+
+In the project directory, need to start:
+
+```bash
+npm install  
+```
+
+or
+
+```bash
+npm i  
+```
+
+This command will directly install the required dependencies into the directory you specify. After this command
+completes, you can start the application.
+
+## Run development mode
+
+Use on of the following commands, to start local development server:
+```bash
+make
+# or
+npm run dev
+```
+
+Starts the process of compiling and assembling the application from source code.
+Special configs with the necessary settings are used in this process.
+
+The result of a successful execution there will be information  about the time spent on assembly and the address: http://localhost:8000
+
+## Create production build
+
+Use next command to create production build:
+```bash
+npm run build
+```
 
 ## Expanding the ESLint configuration
 
