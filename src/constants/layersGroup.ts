@@ -1,9 +1,11 @@
 const WIND = 'wind'
 const PSWD = 'pswd'
+const PWH = 'pwh'
 
 const GROUP_NAMES = [
+  WIND,
   PSWD,
-  WIND
+  PWH
 ]
 
 export const LAYERS_GROUP_MENU_LIST = GROUP_NAMES.map((name) => ({
