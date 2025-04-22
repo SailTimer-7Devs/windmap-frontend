@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react'
 import type { TextureData } from 'weatherlayers-gl-fork/client'
 
-import { WIND_LAYER_KEYS } from 'constants/layer/wind'
 import { PSWD_LAYER_KEYS } from 'constants/layer/pswd'
 import { PWH_LAYER_KEYS } from 'constants/layer/pwh'
+import { WIND_LAYER_KEYS } from 'constants/layer/wind'
 import { WSH_LAYER_KEYS } from 'constants/layer/wsh'
 
 export type MapViewState = {

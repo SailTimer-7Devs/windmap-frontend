@@ -9,6 +9,7 @@ export default function getVisibleLayerList(name: string): string[] {
     case PSWD_HEATMAP: return PSWD_VISIBLE_LAYERS
     case PWH_HEATMAP: return PWH_VISIBLE_LAYERS
     case WSH_HEATMAP: return WSH_VISIBLE_LAYERS
+
     default: return WIND_VISIBLE_LAYERS
   }
 }

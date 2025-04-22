@@ -138,7 +138,7 @@ function Mapbox(): ReactElement {
 
       {layerLoading && (
         <div className='absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black/30 z-20'>
-          <p className='text-white text-[2vw]'>Loading layers...</p>
+          <p className='text-[2vw] text-white text-shadow-lg'>Loading layers...</p>
         </div>
       )}
 
