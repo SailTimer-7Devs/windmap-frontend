@@ -73,20 +73,19 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   }),
 
-  new WeatherLayers.ContourLayer({
+  new WeatherLayers.RasterLayer({
     id: WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP,
     image: layersState[WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP as LayerKey],
+    imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
-    imageUnscale: [0, 22.5],
-    imageInterpolation: 'CUBIC',
-    imageSmoothing: 10,
-    interval: 1,
-    majorInterval: 0,
-    width: 1,
-    maxZoom: 30,
-    color: [255, 255, 255, 170],
+    palette: BASE.EXPERIMENTAL_WIND_PALETTE_0_16 as Palette,
+    imageInterpolation: 'NEAREST',
+    opacity: 0.55,
+    pickable: true,
+    imageUnscale: [0, 16],
     extensions: [new ClipExtension()],
-    clipBounds: BASE.CLIP_BOUNDS
+    clipBounds: BASE.CLIP_BOUNDS,
+    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   }),
 
   new WeatherLayers.GridLayer({
@@ -110,10 +109,10 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
     imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
     numParticles: 5000,
-    maxAge: 25,
+    maxAge: 40,
     speedFactor: 10,
-    width: 2,
-    opacity: 0.15,
+    width: 3,
+    opacity: 0.1,
     animate: true,
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,

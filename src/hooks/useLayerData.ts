@@ -38,10 +38,10 @@ export default function useLayerData(
           }
 
           case pswdLayer.PSWH_HEATMAP: {
-            const pswdLayersState = await pswdLayer.getPswdLayersData()
+            const pswdLayersState = await pswdLayer.getPswhLayersData()
 
             if (!isCancelled) {
-              setLayerList(pswdLayer.getPswdLayers(pswdLayersState))
+              setLayerList(pswdLayer.getPswhLayers(pswdLayersState))
               setLayerMenu(pswdLayer.PSWH_LAYERS_MENU_LIST)
               setIsLoading(false)
             }
@@ -60,10 +60,10 @@ export default function useLayerData(
           }
 
           case wshLayer.WSH_HEATMAP: {
-            const wshLayersState = await wshLayer.getPwhLayersData()
+            const wshLayersState = await wshLayer.getWshLayersData()
 
             if (!isCancelled) {
-              setLayerList(wshLayer.getPwhLayers(wshLayersState))
+              setLayerList(wshLayer.getWshLayers(wshLayersState))
               setLayerMenu(wshLayer.WSH_LAYERS_MENU_LIST)
               setIsLoading(false)
             }

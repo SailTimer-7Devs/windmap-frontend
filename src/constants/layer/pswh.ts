@@ -10,6 +10,7 @@ import * as WeatherLayers from 'weatherlayers-gl'
 import * as BASE from 'constants/basemap'
 
 import { handleImageDataLoad } from 'lib/image'
+import { WSH_LAYER_KEYS } from './wsh'
 
 export const PSWH_HEATMAP = 'pswh'
 export const PSWH_UV = 'pswh-uv'
@@ -40,14 +41,14 @@ export const PSWH_LAYERS_MENU_LIST = [
   }
 ]
 
-export const getPswdLayers = (layersState: LayersState): Layer[] => [
+export const getPswhLayers = (layersState: LayersState): Layer[] => [
   new WeatherLayers.RasterLayer({
     id: PSWH_LAYER_KEYS.PSWH_HEATMAP,
     image: layersState[PSWH_LAYER_KEYS.PSWH_HEATMAP as LayerKey],
     imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.WIND_SPEED_PALETTE as Palette,
-    opacity: 0.55,
+    palette: BASE.WAVE_HEIGHT_PALETTE_0_50 as Palette,
+    opacity: 0.5,
     pickable: true,
     imageUnscale: [0, 255],
     extensions: [new ClipExtension()],
@@ -62,9 +63,9 @@ export const getPswdLayers = (layersState: LayersState): Layer[] => [
     imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
     numParticles: 5000,
-    maxAge: 25,
-    speedFactor: 10,
-    width: 2,
+    maxAge: 30,
+    speedFactor: 4,
+    width: 15,
     opacity: 0.15,
     animate: true,
     extensions: [new ClipExtension()],
@@ -74,7 +75,7 @@ export const getPswdLayers = (layersState: LayersState): Layer[] => [
   })
 ]
 
-export async function getPswdLayersData(): Promise<LayersState> {
+export async function getPswhLayersData(): Promise<LayersState> {
   try {
     const [
       pswhHeatmapData,

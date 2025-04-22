@@ -40,14 +40,14 @@ export const WSH_LAYERS_MENU_LIST = [
   }
 ]
 
-export const getPwhLayers = (layersState: LayersState): Layer[] => [
+export const getWshLayers = (layersState: LayersState): Layer[] => [
   new WeatherLayers.RasterLayer({
     id: WSH_LAYER_KEYS.WSH_HEATMAP,
     image: layersState[WSH_LAYER_KEYS.WSH_HEATMAP as LayerKey],
     imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.WIND_SPEED_PALETTE as Palette,
-    opacity: 0.55,
+    palette: BASE.WAVE_HEIGHT_PALETTE_0_50 as Palette,
+    opacity: 0.5,
     pickable: true,
     imageUnscale: [0, 255],
     extensions: [new ClipExtension()],
@@ -62,9 +62,9 @@ export const getPwhLayers = (layersState: LayersState): Layer[] => [
     imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
     numParticles: 5000,
-    maxAge: 25,
-    speedFactor: 10,
-    width: 2,
+    maxAge: 30,
+    speedFactor: 4,
+    width: 15,
     opacity: 0.15,
     animate: true,
     extensions: [new ClipExtension()],
@@ -74,7 +74,7 @@ export const getPwhLayers = (layersState: LayersState): Layer[] => [
   })
 ]
 
-export async function getPwhLayersData(): Promise<LayersState> {
+export async function getWshLayersData(): Promise<LayersState> {
   try {
     const [
       wshHeatmapData,
