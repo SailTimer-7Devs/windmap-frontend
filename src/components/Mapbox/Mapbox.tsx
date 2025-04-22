@@ -22,6 +22,8 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 
 import * as WeatherLayers from 'weatherlayers-gl'
 
+import logo from 'assets/images/wni_logo.png'
+
 import * as BASE from 'constants/basemap'
 import { STORAGE_LAYER_KEY } from 'constants/localStorage'
 
@@ -30,7 +32,10 @@ import useLocalStorageLayer from 'hooks/useLocalStorageLayer'
 import useUrlChange from 'hooks/useUrlChange'
 
 import getUrlParams from 'lib/url'
-import getVisibleLayerList from 'lib/layer'
+import {
+  getVisibleLayerList,
+  isWind
+} from 'lib/layer'
 
 import DeckGLOverlay from './DeckGLOverlay'
 import LayerGroupMenu from './LayerGroupMenu'
@@ -42,6 +47,7 @@ let tooltipControl: WeatherLayers.TooltipControl
 function Mapbox(): ReactElement {
   const layerName = getUrlParams()
   const visibleList = getVisibleLayerList(layerName)
+  const isWindLayer = isWind(layerName)
 
   const storageLayerValue = { name: layerName, list: visibleList }
 
@@ -127,6 +133,14 @@ function Mapbox(): ReactElement {
   return (
     <>
       <div className='absolute top-[10px] right-[10px] z-10 flex gap-2'>
+        {!isWindLayer &&
+          <img
+            className='w-[48px] h-[48px]'
+            src={logo}
+            alt='WNI Logo'
+          />
+        }
+
         <LayerGroupMenu checked={storageLayer.name} />
 
         <LayerListMenu

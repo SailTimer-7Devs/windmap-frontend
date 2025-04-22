@@ -3,7 +3,7 @@ import { PSWH_HEATMAP, PSWH_VISIBLE_LAYERS } from 'constants/layer/pswh'
 import { PWH_HEATMAP, PWH_VISIBLE_LAYERS } from 'constants/layer/pwh'
 import { WSH_HEATMAP, WSH_VISIBLE_LAYERS } from 'constants/layer/wsh'
 
-export default function getVisibleLayerList(name: string): string[] {
+export function getVisibleLayerList(name: string): string[] {
   switch (name) {
     case WIND: return WIND_VISIBLE_LAYERS
     case PSWH_HEATMAP: return PSWH_VISIBLE_LAYERS
@@ -12,4 +12,8 @@ export default function getVisibleLayerList(name: string): string[] {
 
     default: return WIND_VISIBLE_LAYERS
   }
+}
+
+export function isWind(name: string): boolean {
+  return name === WIND
 }
