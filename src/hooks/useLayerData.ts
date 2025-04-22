@@ -6,6 +6,7 @@ import React from 'react'
 import * as pswdLayer from 'constants/layer/pswd'
 import * as pwhLayer from 'constants/layer/pwh'
 import * as windLayer from 'constants/layer/wind'
+import * as wshLayer from 'constants/layer/wsh'
 
 export default function useLayerData(
   name: string
@@ -53,6 +54,17 @@ export default function useLayerData(
             if (!isCancelled) {
               setLayerList(pwhLayer.getPwhLayers(pwhLayersState))
               setLayerMenu(pwhLayer.PWH_LAYERS_MENU_LIST)
+              setIsLoading(false)
+            }
+            break
+          }
+
+          case wshLayer.WSH_HEATMAP: {
+            const wshLayersState = await wshLayer.getPwhLayersData()
+
+            if (!isCancelled) {
+              setLayerList(wshLayer.getPwhLayers(wshLayersState))
+              setLayerMenu(wshLayer.WSH_LAYERS_MENU_LIST)
               setIsLoading(false)
             }
             break

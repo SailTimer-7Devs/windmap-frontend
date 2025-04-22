@@ -11,39 +11,39 @@ import * as BASE from 'constants/basemap'
 
 import { handleImageDataLoad } from 'lib/image'
 
-export const PWH_HEATMAP = 'pwh'
-export const PWH_UV = 'pwh-uv'
+export const WSH_HEATMAP = 'wsh'
+export const WSH_UV = 'wsh-uv'
 
-export const PWH_LAYER_KEYS = {
-  PWH_HEATMAP,
-  PWH_UV
+export const WSH_LAYER_KEYS = {
+  WSH_HEATMAP,
+  WSH_UV
 }
 
-export const PWH_VISIBLE_LAYERS = [
-  PWH_HEATMAP,
-  PWH_UV
+export const WSH_VISIBLE_LAYERS = [
+  WSH_HEATMAP,
+  WSH_UV
 ]
 
-export const PWH_INITIAL_LAYERS_STATE: LayersState = {
-  [PWH_HEATMAP]: undefined,
-  [PWH_UV]: undefined
+export const WSH_INITIAL_LAYERS_STATE: LayersState = {
+  [WSH_HEATMAP]: undefined,
+  [WSH_UV]: undefined
 }
 
-export const PWH_LAYERS_MENU_LIST = [
+export const WSH_LAYERS_MENU_LIST = [
   {
-    id: PWH_HEATMAP,
-    name: 'Pwh Heatmap'
+    id: WSH_HEATMAP,
+    name: 'Wsh Heatmap'
   },
   {
-    id: PWH_UV,
-    name: 'Pwh Speed'
+    id: WSH_UV,
+    name: 'Wsh Speed'
   }
 ]
 
 export const getPwhLayers = (layersState: LayersState): Layer[] => [
   new WeatherLayers.RasterLayer({
-    id: PWH_LAYER_KEYS.PWH_HEATMAP,
-    image: layersState[PWH_LAYER_KEYS.PWH_HEATMAP as LayerKey],
+    id: WSH_LAYER_KEYS.WSH_HEATMAP,
+    image: layersState[WSH_LAYER_KEYS.WSH_HEATMAP as LayerKey],
     imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
     palette: BASE.WIND_SPEED_PALETTE as Palette,
@@ -56,8 +56,8 @@ export const getPwhLayers = (layersState: LayersState): Layer[] => [
   }),
 
   new WeatherLayers.ParticleLayer({
-    id: PWH_LAYER_KEYS.PWH_UV,
-    image: layersState[PWH_LAYER_KEYS.PWH_UV as LayerKey],
+    id: WSH_LAYER_KEYS.WSH_UV,
+    image: layersState[WSH_LAYER_KEYS.WSH_UV as LayerKey],
     imageType: 'VECTOR',
     imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
@@ -77,19 +77,19 @@ export const getPwhLayers = (layersState: LayersState): Layer[] => [
 export async function getPwhLayersData(): Promise<LayersState> {
   try {
     const [
-      pwhHeatmapData,
-      pwhUvData
+      wshHeatmapData,
+      wshUvData
     ] = await Promise.all([
-      handleImageDataLoad(BASE.WNI_PWH_HEATMAP_URL),
-      handleImageDataLoad(BASE.WNI_PWH_UV_URL)
+      handleImageDataLoad(BASE.WNI_WSH_HEATMAP_URL),
+      handleImageDataLoad(BASE.WNI_WSH_UV_URL)
     ])
 
     return {
-      [PWH_LAYER_KEYS.PWH_HEATMAP]: pwhHeatmapData,
-      [PWH_LAYER_KEYS.PWH_UV]: pwhUvData
+      [WSH_LAYER_KEYS.WSH_HEATMAP]: wshHeatmapData,
+      [WSH_LAYER_KEYS.WSH_UV]: wshUvData
     }
   } catch (e) {
     console.error(e)
-    return PWH_INITIAL_LAYERS_STATE
+    return WSH_INITIAL_LAYERS_STATE
   }
 }
