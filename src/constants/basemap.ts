@@ -18,8 +18,9 @@ export const WINDMAP_URL = API_URL + 'wind_data.png'
 export const WIND_HEATMAP_URL = API_URL + 'wind_data_heatmap.png'
 export const WIND_DIRECTION_HEATMAP_URL = API_URL + 'wind_data_direction_heatmap.png'
 
-/* WNI_PSWD */
-export const WNI_PSWD_HEATMAP_URL = API_URL + 'wni_pswd_heatmap_degrees.png'
+/* WNI_PSWH */
+export const WNI_PSWH_HEATMAP_URL = API_URL + 'wni_pswh_heatmap_feet.png'
+export const WNI_PSWH_UV_URL = API_URL + 'wni_pswh_uv_feet.png'
 
 /* WNI_PWH */
 export const WNI_PWH_HEATMAP_URL = API_URL + 'wni_pwh_heatmap_feet.png'

@@ -1,11 +1,11 @@
 const WIND = 'wind'
-const PSWD = 'pswd'
+const PSWH = 'pswh'
 const PWH = 'pwh'
 const WSH = 'wsh'
 
 const GROUP_NAMES = [
   WIND,
-  PSWD,
+  PSWH,
   PWH,
   WSH
 ]

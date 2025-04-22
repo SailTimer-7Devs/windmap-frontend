@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react'
 import type { TextureData } from 'weatherlayers-gl-fork/client'
 
-import { PSWD_LAYER_KEYS } from 'constants/layer/pswd'
+import { PSWH_LAYER_KEYS } from 'constants/layer/pswh'
 import { PWH_LAYER_KEYS } from 'constants/layer/pwh'
 import { WIND_LAYER_KEYS } from 'constants/layer/wind'
 import { WSH_LAYER_KEYS } from 'constants/layer/wsh'
@@ -21,8 +21,9 @@ export type LayerKey =
   | typeof WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP
   | typeof WIND_LAYER_KEYS.WIND_BARBS
 
-  /* WNI_PSWD */
-  | typeof PSWD_LAYER_KEYS.PSWD_HEATMAP
+  /* WNI_PSWH */
+  | typeof PSWH_LAYER_KEYS.PSWH_HEATMAP
+  | typeof PSWH_LAYER_KEYS.PSWH_UV
 
   /* WNI_PWH */
   | typeof PWH_LAYER_KEYS.PWH_HEATMAP
