@@ -2,7 +2,7 @@ import type { ReactElement } from 'react'
 import type { TextureData } from 'weatherlayers-gl-fork/client'
 
 import { WIND_LAYER_KEYS } from 'constants/layer/wind'
-import { WH_LAYER_KEYS } from 'constants/layer/wh'
+import { PSWD_LAYER_KEYS } from 'constants/layer/pswd'
 
 export type MapViewState = {
   longitude: number
@@ -16,8 +16,8 @@ export type LayerKey = typeof WIND_LAYER_KEYS.WIND
   | typeof WIND_LAYER_KEYS.WIND_HEATMAP
   | typeof WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP
   | typeof WIND_LAYER_KEYS.WIND_BARBS
-  | typeof WH_LAYER_KEYS.WH
-  | typeof WH_LAYER_KEYS.WH_HEATMAP
+  /* WNI_PSWD */
+  | typeof PSWD_LAYER_KEYS.PSWD_HEATMAP
 
 export type LayersState = {
   [key in LayerKey]: TextureData | undefined

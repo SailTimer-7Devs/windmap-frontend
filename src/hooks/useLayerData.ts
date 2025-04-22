@@ -3,7 +3,7 @@ import type { LayerMenuProps } from 'types'
 
 import React from 'react'
 
-import * as whLayer from 'constants/layer/wh'
+import * as pswdLayer from 'constants/layer/pswd'
 import * as windLayer from 'constants/layer/wind'
 
 export default function useLayerData(
@@ -35,12 +35,12 @@ export default function useLayerData(
             break
           }
 
-          case whLayer.WH: {
-            const whLayersState = await whLayer.getWhLayersData()
+          case pswdLayer.PSWD_HEATMAP: {
+            const pswdLayersState = await pswdLayer.getPswdLayersData()
 
             if (!isCancelled) {
-              setLayerList(whLayer.getWhLayers(whLayersState))
-              setLayerMenu(whLayer.WH_LAYERS_MENU_LIST)
+              setLayerList(pswdLayer.getPswdLayers(pswdLayersState))
+              setLayerMenu(pswdLayer.PSWD_LAYERS_MENU_LIST)
               setIsLoading(false)
             }
             break

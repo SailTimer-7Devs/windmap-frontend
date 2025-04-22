@@ -13,9 +13,21 @@ export const BASEMAP_VECTOR_STYLE_URL = 'mapbox://styles/s-t-/cm9laauxg00yc01s8f
 
 export const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoicy10LSIsImEiOiJjbTJhZGNldXowZjI2Mmxtdzg5NGl6MTlmIn0.-1-r5B8r6-xIzyL1gsbcEg'
 
+/* WIND */
 export const WINDMAP_URL = API_URL + 'wind_data.png'
 export const WIND_HEATMAP_URL = API_URL + 'wind_data_heatmap.png'
 export const WIND_DIRECTION_HEATMAP_URL = API_URL + 'wind_data_direction_heatmap.png'
+
+/* WNI_PSWD */
+export const WNI_PSWD_HEATMAP_URL = API_URL + 'wni_pswd_heatmap_degrees.png'
+
+/* WNI_PWH */
+export const WNI_PWH_HEATMAP_URL = API_URL + 'wni_pwh_heatmap_feet.png'
+export const WNI_PWH_UV_URL = API_URL + 'wni_pwh_uv_feet.png'
+
+/* WNI_WSH */
+export const WNI_WSH_HEATMAP_URL = API_URL + 'wni_wsh_heatmap_feet.png'
+export const WNI_WSH_UV_URL = API_URL + 'wni_wsh_uv_feet.png'
 
 export const WIND_SPEED_PALETTE = [
   [0, [48, 18, 59, 255]], // 0.00000 * 50 = 0

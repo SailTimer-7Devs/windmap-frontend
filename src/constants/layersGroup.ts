@@ -1,8 +1,8 @@
 const WIND = 'wind'
-const WH = 'wh'
+const PSWD = 'pswd'
 
 const GROUP_NAMES = [
-  WH,
+  PSWD,
   WIND
 ]
 
