@@ -10,7 +10,6 @@ import * as WeatherLayers from 'weatherlayers-gl'
 import * as BASE from 'constants/basemap'
 
 import { handleImageDataLoad } from 'lib/image'
-import { WSH_LAYER_KEYS } from './wsh'
 
 export const PSWH_HEATMAP = 'pswh'
 export const PSWH_UV = 'pswh-uv'
@@ -30,7 +29,7 @@ export const PSWH_INITIAL_LAYERS_STATE: LayersState = {
   [PSWH_UV]: undefined
 }
 
-export const PSWH_LAYERS_MENU_LIST = [
+export const LAYERS_MENU_LIST = [
   {
     id: PSWH_HEATMAP,
     name: 'Pswh Heatmap'

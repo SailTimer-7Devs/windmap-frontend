@@ -37,7 +37,7 @@ export const WIND_INITIAL_LAYERS_STATE: LayersState = {
   [WIND_HEATMAP]: undefined
 }
 
-export const WIND_LAYERS_MENU_LIST = [
+export const LAYERS_MENU_LIST = [
   {
     id: WIND_HEATMAP,
     name: 'Wind Speed'

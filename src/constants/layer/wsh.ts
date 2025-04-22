@@ -29,7 +29,7 @@ export const WSH_INITIAL_LAYERS_STATE: LayersState = {
   [WSH_UV]: undefined
 }
 
-export const WSH_LAYERS_MENU_LIST = [
+export const LAYERS_MENU_LIST = [
   {
     id: WSH_HEATMAP,
     name: 'Wsh Heatmap'

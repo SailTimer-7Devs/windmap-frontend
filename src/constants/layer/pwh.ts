@@ -29,7 +29,7 @@ export const PWH_INITIAL_LAYERS_STATE: LayersState = {
   [PWH_UV]: undefined
 }
 
-export const PWH_LAYERS_MENU_LIST = [
+export const LAYERS_MENU_LIST = [
   {
     id: PWH_HEATMAP,
     name: 'Pwh Heatmap'
