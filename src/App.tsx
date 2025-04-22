@@ -1,7 +1,5 @@
 import { type ReactElement } from 'react'
 
-// import FPSStats from 'react-fps-stats'
-
 import Mapbox from 'components/Mapbox'
 
 export default function App(): ReactElement {
