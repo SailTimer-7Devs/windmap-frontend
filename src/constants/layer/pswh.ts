@@ -10,6 +10,7 @@ import * as WeatherLayers from 'weatherlayers-gl'
 import * as BASE from 'constants/basemap'
 
 import { handleImageDataLoad } from 'lib/image'
+import { setParticlesByDeviceType } from 'lib/layer'
 
 export const PSWH_HEATMAP = 'pswh'
 export const PSWH_UV = 'pswh-uv'
@@ -61,7 +62,7 @@ export const getPswhLayers = (layersState: LayersState): Layer[] => [
     imageType: 'VECTOR',
     imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
-    numParticles: 5000,
+    numParticles: setParticlesByDeviceType(),
     maxAge: 30,
     speedFactor: 4,
     width: 15,
