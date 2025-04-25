@@ -109,7 +109,7 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
     imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
     numParticles: 5000,
-    maxAge: 40,
+    maxAge: 60,
     speedFactor: 10,
     width: 3,
     opacity: 0.1,
