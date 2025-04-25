@@ -40,8 +40,8 @@ import {
 import DeckGLOverlay from './DeckGLOverlay'
 import LayerGroupMenu from './LayerGroupMenu'
 import LayerListMenu from './LayerListMenu'
+import LegendControl from './LegendControl'
 
-let legendControl
 let tooltipControl: WeatherLayers.TooltipControl
 
 function Mapbox(): ReactElement {
@@ -74,18 +74,6 @@ function Mapbox(): ReactElement {
   const handleMapLoad: MapCallbacks['onLoad'] = (e) => {
     const mapInstance = e.target
 
-    legendControl = new WeatherLayers.LegendControl({
-      title: 'Wind speed',
-      unitFormat: {
-        unit: 'knots'
-      },
-      palette: BASE.WIND_SPEED_PALETTE as Palette
-    })
-
-    const el = document.getElementsByClassName('mapboxgl-ctrl-bottom-right')[0] as HTMLElement
-
-    legendControl.addTo(el)
-
     tooltipControl = new WeatherLayers.TooltipControl({
       unitFormat: {
         unit: 'knots'
@@ -93,6 +81,7 @@ function Mapbox(): ReactElement {
       directionFormat: WeatherLayers.DirectionFormat.CARDINAL3,
       followCursor: true
     })
+
     const parentElement = mapInstance.getCanvas().parentElement as HTMLElement
 
     tooltipControl.addTo(parentElement)
@@ -177,6 +166,17 @@ function Mapbox(): ReactElement {
           unit='nautical'
           style={{ borderRadius: '4px' }}
         />
+
+        {/* Will be added different settings for WNI layers in future */}
+        {isWindLayer && (
+          <LegendControl
+            title='Wind speed'
+            unitFormat={{
+              unit: 'knots'
+            }}
+            palette={BASE.WIND_SPEED_PALETTE as Palette}
+          />
+        )}
 
         <DeckGLOverlay<typeof BASE.MAP_VIEW>
           // interleaved
