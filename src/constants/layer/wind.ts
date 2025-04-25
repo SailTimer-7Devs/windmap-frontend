@@ -10,7 +10,10 @@ import * as WeatherLayers from 'weatherlayers-gl'
 import * as BASE from 'constants/basemap'
 
 import { handleImageDataLoad } from 'lib/image'
-import { setParticlesByDeviceType } from 'lib/layer'
+import {
+  setParticlesNumbersByDeviceType,
+  setParticleWidthByDevice
+} from 'lib/layer'
 
 export const WIND = 'wind'
 export const WIND_BARBS = 'wind-barbs'
@@ -109,10 +112,10 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
     imageType: 'VECTOR',
     imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
-    numParticles: setParticlesByDeviceType(),
+    numParticles: setParticlesNumbersByDeviceType(),
     maxAge: 60,
     speedFactor: 10,
-    width: 3,
+    width: setParticleWidthByDevice(),
     opacity: 0.1,
     animate: true,
     extensions: [new ClipExtension()],
