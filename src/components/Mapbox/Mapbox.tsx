@@ -38,7 +38,6 @@ import {
 } from 'lib/layer'
 
 import DeckGLOverlay from './DeckGLOverlay'
-import LayerGroupMenu from './LayerGroupMenu'
 import LayerListMenu from './LayerListMenu'
 import LegendControl from './LegendControl'
 
@@ -122,8 +121,6 @@ function Mapbox(): ReactElement {
   return (
     <>
       <div className='absolute top-[10px] right-[10px] z-10 flex gap-2'>
-        <LayerGroupMenu checked={storageLayer.name} />
-
         <LayerListMenu
           menuList={layerMenu}
           layersId={storageLayer.list}

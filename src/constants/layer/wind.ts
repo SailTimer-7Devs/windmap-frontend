@@ -30,7 +30,6 @@ export const WIND_LAYER_KEYS = {
 export const WIND_VISIBLE_LAYERS = [
   WIND,
   WIND_BARBS,
-  WIND_DIRECTION_HEATMAP,
   WIND_HEATMAP
 ]
 
