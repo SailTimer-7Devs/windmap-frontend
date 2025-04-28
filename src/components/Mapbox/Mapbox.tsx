@@ -122,14 +122,6 @@ function Mapbox(): ReactElement {
   return (
     <>
       <div className='absolute top-[10px] right-[10px] z-10 flex gap-2'>
-        {!isWindLayer &&
-          <img
-            className='w-[48px] h-[48px]'
-            src={logo}
-            alt='WNI Logo'
-          />
-        }
-
         <LayerGroupMenu checked={storageLayer.name} />
 
         <LayerListMenu
@@ -167,16 +159,28 @@ function Mapbox(): ReactElement {
           style={{ borderRadius: '4px' }}
         />
 
-        {/* Will be added different settings for WNI layers in future */}
-        {isWindLayer && (
-          <LegendControl
-            title='Wind speed'
-            unitFormat={{
-              unit: 'knots'
-            }}
-            palette={BASE.WIND_SPEED_PALETTE as Palette}
-          />
-        )}
+        {isWindLayer
+          ? (
+            /* 
+               Will be added different 
+               settings for WNI layers in future 
+            */
+            <LegendControl
+              title='Wind speed'
+              unitFormat={{
+                unit: 'knots'
+              }}
+              palette={BASE.WIND_SPEED_PALETTE as Palette}
+            />
+          )
+          : (
+            <img
+              className='absolute bottom-[20px] right-[10px] h-[60px]'
+              src={logo}
+              alt='WNI Logo'
+            />
+          )
+        }
 
         <DeckGLOverlay<typeof BASE.MAP_VIEW>
           // interleaved
