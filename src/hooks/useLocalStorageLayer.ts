@@ -2,6 +2,11 @@ import type { Dispatch, SetStateAction } from 'react'
 
 import React from 'react'
 
+import {
+  WIND_HEATMAP,
+  WIND_DIRECTION_HEATMAP
+} from 'constants/layer/wind'
+
 type UseLocalStorageProps<T> = {
   value: T
   setValue: Dispatch<SetStateAction<T>>
@@ -20,6 +25,7 @@ export default function useLocalStorageLayer<T extends { name: string, list: str
 
     try {
       const item = window.localStorage.getItem(key)
+
       if (item) {
         const storedValue = JSON.parse(item)
 
@@ -37,6 +43,7 @@ export default function useLocalStorageLayer<T extends { name: string, list: str
       return initialValue
     } catch (error) {
       console.error('Error loading from localStorage: ', error)
+
       return initialValue
     }
   })
@@ -69,10 +76,41 @@ export default function useLocalStorageLayer<T extends { name: string, list: str
 
   const toggle = (item: string) => {
     setValue(prev => {
-      if (prev.list.includes(item)) {
-        return { ...prev, list: prev.list.filter(i => i !== item) }
+      /* 
+        Logic for mutually exclusion layers: 
+        WIND_HEATMAP or WIND_DIRECTION_HEATMAP 
+      */
+      if (item === WIND_HEATMAP || item === WIND_DIRECTION_HEATMAP) {
+        const itemToExclude = item === WIND_HEATMAP
+          ? WIND_DIRECTION_HEATMAP
+          : WIND_HEATMAP
+
+        if (prev.list.includes(item)) {
+          return {
+            ...prev,
+            list: prev.list.filter(i => i !== item)
+          }
+        } else {
+          const newList = [
+            ...prev.list.filter(i => i !== itemToExclude),
+            item
+          ]
+
+          return { ...prev, list: newList }
+        }
       } else {
-        return { ...prev, list: [...prev.list, item] }
+        /* Standard toggle behavior for items */
+        if (prev.list.includes(item)) {
+          return {
+            ...prev,
+            list: prev.list.filter(i => i !== item)
+          }
+        } else {
+          return {
+            ...prev,
+            list: [...prev.list, item]
+          }
+        }
       }
     })
   }
