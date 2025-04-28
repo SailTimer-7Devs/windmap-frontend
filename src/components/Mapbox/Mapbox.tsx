@@ -108,7 +108,7 @@ function Mapbox(): ReactElement {
   }
 
   /* prevent issue with WebGL context is having problems 
-     with buffer reinitialization on show\hide layers   */
+     with buffer reinitialization on show\hide layers */
   const visibleLayers = React.useMemo(() => {
     return layerList.map(layerItem => {
       const props = { ...layerItem.props }
@@ -158,10 +158,7 @@ function Mapbox(): ReactElement {
 
         {isWindLayer
           ? (
-            /* 
-               Will be added different 
-               settings for WNI layers in future 
-            */
+            /* Will be added different settings for WNI layers in future */
             <LegendControl
               title='Wind speed'
               unitFormat={{
