@@ -32,7 +32,6 @@ export const WIND_LAYER_KEYS = {
 export const WIND_VISIBLE_LAYERS = [
   WIND,
   WIND_BARBS,
-  WIND_DIRECTION_HEATMAP,
   WIND_HEATMAP,
   WIND_TOOLTIP
 ]
@@ -61,7 +60,7 @@ export const LAYERS_MENU_LIST = [
   },
   {
     id: WIND_DIRECTION_HEATMAP,
-    name: 'Wind Direction Contour Lines'
+    name: 'Wind Zones'
   }
 ]
 
