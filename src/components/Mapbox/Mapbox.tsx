@@ -176,8 +176,8 @@ function Mapbox(): ReactElement {
           )
         }
 
-        <DeckGLOverlay<typeof BASE.MAP_VIEW>
-          // interleaved
+        <DeckGLOverlay
+          interleaved
           views={BASE.MAP_VIEW}
           controller={true}
           onHover={handleHover}
