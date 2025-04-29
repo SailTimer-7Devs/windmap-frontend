@@ -19,18 +19,22 @@ export const WIND = 'wind'
 export const WIND_BARBS = 'wind-barbs'
 export const WIND_DIRECTION_HEATMAP = 'wind-direction-heatmap'
 export const WIND_HEATMAP = 'wind-heatmap'
+export const WIND_TOOLTIP = 'wind-tooltip'
 
 export const WIND_LAYER_KEYS = {
   WIND,
   WIND_BARBS,
   WIND_DIRECTION_HEATMAP,
-  WIND_HEATMAP
+  WIND_HEATMAP,
+  WIND_TOOLTIP
 }
 
 export const WIND_VISIBLE_LAYERS = [
   WIND,
   WIND_BARBS,
-  WIND_HEATMAP
+  WIND_DIRECTION_HEATMAP,
+  WIND_HEATMAP,
+  WIND_TOOLTIP
 ]
 
 export const WIND_INITIAL_LAYERS_STATE: LayersState = {
@@ -57,7 +61,7 @@ export const LAYERS_MENU_LIST = [
   },
   {
     id: WIND_DIRECTION_HEATMAP,
-    name: 'Wind Zones'
+    name: 'Wind Direction Contour Lines'
   }
 ]
 
@@ -69,7 +73,6 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
     bounds: BASE.WIND_MAP_BOUNDS,
     palette: BASE.WIND_SPEED_PALETTE as Palette,
     opacity: 0.55,
-    pickable: true,
     imageUnscale: [0, 255],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
@@ -84,8 +87,23 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
     palette: BASE.EXPERIMENTAL_WIND_PALETTE_0_16 as Palette,
     imageInterpolation: 'NEAREST',
     opacity: 0.55,
-    pickable: true,
     imageUnscale: [0, 16],
+    extensions: [new ClipExtension()],
+    clipBounds: BASE.CLIP_BOUNDS,
+    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
+  }),
+
+  //for tooltip
+  new WeatherLayers.RasterLayer({
+    id: WIND_LAYER_KEYS.WIND_TOOLTIP,
+    image: layersState[WIND_LAYER_KEYS.WIND as LayerKey],
+    imageType: 'VECTOR',
+    imageUnscale: BASE.IMAGE_UNSCALE,
+    bounds: BASE.WIND_MAP_BOUNDS,
+    palette: BASE.EXPERIMENTAL_WIND_PALETTE_0_16 as Palette,
+    imageInterpolation: 'CUBIC',
+    opacity: 0,
+    pickable: true,
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
