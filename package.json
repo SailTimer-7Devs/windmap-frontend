@@ -1,24 +1,45 @@
 {
   "name": "windmap",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.5.2",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "vite --port 8000",
+    "build": "tsc -b && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
-  "devDependencies": {
-    "vite": "^6.1.0"
-  },
   "dependencies": {
-    "@deck.gl/aggregation-layers": "^8.9.36",
-    "@deck.gl/core": "^8.9.36",
-    "@deck.gl/layers": "^8.9.36",
-    "@deck.gl/mapbox": "^8.9.36",
-    "@luma.gl/core": "^8.5.21",
-    "geodesy-fn": "^1.1.0",
-    "is-mobile": "^5.0.0",
-    "mapbox-gl": "^2.15.0"
+    "@deck.gl/extensions": "^9.1.11",
+    "@deck.gl/mapbox": "^9.1.11",
+    "@headlessui/react": "^2.2.2",
+    "@tailwindcss/vite": "^4.1.4",
+    "deck.gl": "^9.1.11",
+    "mapbox-gl": "^3.11.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-map-gl": "^8.0.4",
+    "rollup-plugin-worker-factory": "^0.5.7",
+    "sass": "^1.87.0",
+    "ua-parser-js": "^2.0.3",
+    "weatherlayers-gl": "^2025.3.0",
+    "weatherlayers-gl-fork": "^2025.3.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.1",
+    "@tailwindcss/postcss": "^4.1.4",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react-swc": "^3.9.0",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.25.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.4",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.31.1",
+    "vite": "^6.3.3"
   }
 }
