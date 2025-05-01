@@ -26,7 +26,7 @@ export function setParticlesNumbersByDeviceType(): number {
   switch (deviceType) {
     case 'mobile': return 2000
     case 'tablet': return 3000
-    default: return 5000
+    default: return 3000
   }
 }
 
