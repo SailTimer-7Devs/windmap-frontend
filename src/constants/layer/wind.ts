@@ -86,7 +86,7 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
     palette: BASE.EXPERIMENTAL_WIND_PALETTE_0_16 as Palette,
     imageInterpolation: 'NEAREST',
     opacity: 0.4,
-    imageUnscale: [0, 50],
+    imageUnscale: [0, 16],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
