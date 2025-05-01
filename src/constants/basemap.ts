@@ -6,7 +6,8 @@ import type { MapViewState } from 'types'
 
 import { MapView } from 'deck.gl'
 
-export const API_URL = 'https://d3s2may00o9nmt.cloudfront.net/public/latest/'
+/* Legacy API URL: https://d3s2may00o9nmt.cloudfront.net */
+export const API_URL = 'https://data.sailtimer.info/public/latest/'
 
 export const BASEMAP_VECTOR_LAYER_BEFORE_ID = 'waterway-label'
 export const BASEMAP_VECTOR_STYLE_URL = 'mapbox://styles/s-t-/cma44zdsv002n01sg1o6sbnkm'
