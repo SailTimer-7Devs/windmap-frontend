@@ -22,7 +22,7 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 
 import * as WeatherLayers from 'weatherlayers-gl'
 
-import logo from 'assets/images/wni_logo.png'
+import logo from 'assets/images/wni_logo.jpg'
 
 import * as BASE from 'constants/basemap'
 import { STORAGE_LAYER_KEY } from 'constants/localStorage'
