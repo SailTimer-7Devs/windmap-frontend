@@ -1,11 +1,9 @@
-import { UAParser } from 'ua-parser-js'
-
 import { WIND, WIND_VISIBLE_LAYERS } from 'constants/layer/wind'
 import { PSWH_HEATMAP, PSWH_VISIBLE_LAYERS } from 'constants/layer/pswh'
 import { PWH_HEATMAP, PWH_VISIBLE_LAYERS } from 'constants/layer/pwh'
 import { WSH_HEATMAP, WSH_VISIBLE_LAYERS } from 'constants/layer/wsh'
 
-const deviceType = new UAParser().getDevice().type
+import { deviceType } from 'lib/device'
 
 export function getVisibleLayerList(name: string): string[] {
   switch (name) {

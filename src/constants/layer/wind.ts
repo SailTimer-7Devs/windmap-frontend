@@ -9,6 +9,8 @@ import * as WeatherLayers from 'weatherlayers-gl'
 
 import * as BASE from 'constants/basemap'
 
+import { isAndroid } from 'lib/device'
+import { when } from 'lib/object'
 import { handleImageDataLoad } from 'lib/image'
 import {
   setParticlesNumbersByDeviceType,
@@ -30,14 +32,14 @@ export const WIND_LAYER_KEYS = {
 }
 
 export const WIND_VISIBLE_LAYERS = [
-  WIND,
+  !isAndroid && WIND,
   WIND_BARBS,
   WIND_HEATMAP,
   WIND_TOOLTIP
-]
+].filter(Boolean)
 
 export const WIND_INITIAL_LAYERS_STATE: LayersState = {
-  [WIND]: undefined,
+  ...when(!isAndroid, { [WIND]: undefined }),
   [WIND_BARBS]: undefined,
   [WIND_DIRECTION_HEATMAP]: undefined,
   [WIND_HEATMAP]: undefined
@@ -49,7 +51,7 @@ export const LAYERS_MENU_LIST = [
     name: 'Wind Speed'
   },
 
-  {
+  !isAndroid && {
     id: WIND,
     name: 'Wind Animation'
   },
@@ -58,11 +60,12 @@ export const LAYERS_MENU_LIST = [
     id: WIND_BARBS,
     name: 'Wind Barbs'
   },
+
   {
     id: WIND_DIRECTION_HEATMAP,
     name: 'Wind Zones'
   }
-]
+].filter(Boolean)
 
 export const getWindLayers = (layersState: LayersState): Layer[] => [
   new WeatherLayers.RasterLayer({
@@ -122,7 +125,7 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
     clipBounds: BASE.CLIP_BOUNDS
   }),
 
-  new WeatherLayers.ParticleLayer({
+  !isAndroid && new WeatherLayers.ParticleLayer({
     id: WIND_LAYER_KEYS.WIND,
     image: layersState[WIND_LAYER_KEYS.WIND as LayerKey],
     imageType: 'VECTOR',
@@ -139,7 +142,7 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
     getPolygonOffset: () => [0, -1000],
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   })
-]
+].filter(Boolean) as Layer[]
 
 export async function getWindLayersData(): Promise<LayersState> {
   try {
@@ -154,7 +157,7 @@ export async function getWindLayersData(): Promise<LayersState> {
     ])
 
     return {
-      [WIND_LAYER_KEYS.WIND]: windData,
+      ...when(!isAndroid, { [WIND_LAYER_KEYS.WIND]: windData }),
       [WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP]: windDirectionHeatmapData,
       [WIND_LAYER_KEYS.WIND_HEATMAP]: windHeatmapData,
       [WIND_LAYER_KEYS.WIND_BARBS]: windData

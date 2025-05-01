@@ -9,7 +9,9 @@ import * as WeatherLayers from 'weatherlayers-gl'
 
 import * as BASE from 'constants/basemap'
 
+import { isAndroid } from 'lib/device'
 import { handleImageDataLoad } from 'lib/image'
+import { when } from 'lib/object'
 
 export const WSH_HEATMAP = 'wsh'
 export const WSH_UV = 'wsh-uv'
@@ -21,12 +23,12 @@ export const WSH_LAYER_KEYS = {
 
 export const WSH_VISIBLE_LAYERS = [
   WSH_HEATMAP,
-  WSH_UV
-]
+  !isAndroid && WSH_UV
+].filter(Boolean)
 
 export const WSH_INITIAL_LAYERS_STATE: LayersState = {
   [WSH_HEATMAP]: undefined,
-  [WSH_UV]: undefined
+  ...when(!isAndroid, { [WSH_UV]: undefined })
 }
 
 export const LAYERS_MENU_LIST = [
@@ -34,7 +36,7 @@ export const LAYERS_MENU_LIST = [
     id: WSH_HEATMAP,
     name: 'Wsh Heatmap'
   },
-  {
+  !isAndroid && {
     id: WSH_UV,
     name: 'Wsh Speed'
   }
@@ -55,7 +57,7 @@ export const getWshLayers = (layersState: LayersState): Layer[] => [
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   }),
 
-  new WeatherLayers.ParticleLayer({
+  !isAndroid && new WeatherLayers.ParticleLayer({
     id: WSH_LAYER_KEYS.WSH_UV,
     image: layersState[WSH_LAYER_KEYS.WSH_UV as LayerKey],
     imageType: 'VECTOR',
@@ -72,21 +74,22 @@ export const getWshLayers = (layersState: LayersState): Layer[] => [
     getPolygonOffset: () => [0, -1000],
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   })
-]
+].filter(Boolean) as Layer[]
 
 export async function getWshLayersData(): Promise<LayersState> {
   try {
-    const [
-      wshHeatmapData,
-      wshUvData
-    ] = await Promise.all([
+    const promises = [
       handleImageDataLoad(BASE.WNI_WSH_HEATMAP_URL),
-      handleImageDataLoad(BASE.WNI_WSH_UV_URL)
-    ])
+      !isAndroid ? handleImageDataLoad(BASE.WNI_WSH_UV_URL) : null
+    ]
+
+    const [wshHeatmapData, wshUvData] = await Promise.all(
+      promises.map(p => p ?? Promise.resolve(undefined))
+    )
 
     return {
       [WSH_LAYER_KEYS.WSH_HEATMAP]: wshHeatmapData,
-      [WSH_LAYER_KEYS.WSH_UV]: wshUvData
+      ...when(!isAndroid, { [WSH_LAYER_KEYS.WSH_UV]: wshUvData })
     }
   } catch (e) {
     console.error(e)
