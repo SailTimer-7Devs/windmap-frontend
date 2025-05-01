@@ -40,8 +40,7 @@ import {
 import DeckGLOverlay from './DeckGLOverlay'
 import LayerListMenu from './LayerListMenu'
 import LegendControl from './LegendControl'
-
-let tooltipControl: WeatherLayers.TooltipControl
+import TooltipControl from './TooltipControl'
 
 function Mapbox(): ReactElement {
   const layerName = getUrlParams()
@@ -55,6 +54,7 @@ function Mapbox(): ReactElement {
 
   const mapRef = React.useRef<MapRef>(null)
   const geolocateControlRef = React.useRef<GeolocateControlInstance>(null)
+  const tooltipControlRef = React.useRef<WeatherLayers.TooltipControl | null>(null)
 
   useUrlChange((url) => {
     const urlParams = new URL(url)
@@ -70,28 +70,14 @@ function Mapbox(): ReactElement {
     }
   })
 
-  const handleMapLoad: MapCallbacks['onLoad'] = (e) => {
-    const mapInstance = e.target
-
-    tooltipControl = new WeatherLayers.TooltipControl({
-      unitFormat: {
-        unit: 'knots'
-      },
-      directionFormat: WeatherLayers.DirectionFormat.CARDINAL3,
-      followCursor: true
-    })
-
-    const parentElement = mapInstance.getCanvas().parentElement as HTMLElement
-
-    tooltipControl.addTo(parentElement)
-
+  const handleMapLoad: MapCallbacks['onLoad'] = () => {
     if (geolocateControlRef.current) {
       geolocateControlRef.current.trigger()
     }
   }
 
   const handleHover: DeckProps['onHover'] = (e) => {
-    tooltipControl && tooltipControl.updatePickingInfo(e)
+    tooltipControlRef.current?.updatePickingInfo(e)
   }
 
   const handleGeolocate = (position: GeolocateResultEvent) => {
@@ -156,14 +142,21 @@ function Mapbox(): ReactElement {
           style={{ borderRadius: '4px' }}
         />
 
+        {isWindLayer && (
+          <TooltipControl
+            mapInstance={mapRef}
+            ref={tooltipControlRef}
+            unitFormat={{ unit: 'knots' }}
+            directionFormat={WeatherLayers.DirectionFormat.CARDINAL3}
+          />
+        )}
+
         {isWindLayer
           ? (
             /* Will be added different settings for WNI layers in future */
             <LegendControl
               title='Wind speed'
-              unitFormat={{
-                unit: 'knots'
-              }}
+              unitFormat={{ unit: 'knots' }}
               palette={BASE.WIND_SPEED_PALETTE as Palette}
             />
           )
