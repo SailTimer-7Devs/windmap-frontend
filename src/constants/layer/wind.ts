@@ -63,7 +63,7 @@ export const LAYERS_MENU_LIST = [
 
   {
     id: WIND_DIRECTION_HEATMAP,
-    name: 'Wind Zones'
+    name: 'Wind Direction Zones'
   }
 ].filter(Boolean)
 
