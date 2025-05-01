@@ -65,7 +65,7 @@ export default function useLayerData(
         switch (name) {
           case windLayer.WIND: {
             await setLayerData(
-              windLayer,
+              windLayer as LayerModule,
               windLayer.getWindLayersData,
               windLayer.getWindLayers
             )
@@ -74,7 +74,7 @@ export default function useLayerData(
 
           case pswhLayer.PSWH_HEATMAP: {
             await setLayerData(
-              pswhLayer,
+              pswhLayer as LayerModule,
               pswhLayer.getPswhLayersData,
               pswhLayer.getPswhLayers
             )
@@ -83,7 +83,7 @@ export default function useLayerData(
 
           case pwhLayer.PWH_HEATMAP: {
             await setLayerData(
-              pwhLayer,
+              pwhLayer as LayerModule,
               pwhLayer.getPwhLayersData,
               pwhLayer.getPwhLayers
             )
@@ -92,7 +92,7 @@ export default function useLayerData(
 
           case wshLayer.WSH_HEATMAP: {
             await setLayerData(
-              wshLayer,
+              wshLayer as LayerModule,
               wshLayer.getWshLayersData,
               wshLayer.getWshLayers
             )
@@ -101,7 +101,7 @@ export default function useLayerData(
 
           default: {
             await setLayerData(
-              windLayer,
+              windLayer as LayerModule,
               windLayer.getWindLayersData,
               windLayer.getWindLayers
             )

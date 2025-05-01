@@ -7,12 +7,12 @@ import { deviceType } from 'lib/device'
 
 export function getVisibleLayerList(name: string): string[] {
   switch (name) {
-    case WIND: return WIND_VISIBLE_LAYERS
-    case PSWH_HEATMAP: return PSWH_VISIBLE_LAYERS
-    case PWH_HEATMAP: return PWH_VISIBLE_LAYERS
-    case WSH_HEATMAP: return WSH_VISIBLE_LAYERS
+    case WIND: return WIND_VISIBLE_LAYERS as string[]
+    case PSWH_HEATMAP: return PSWH_VISIBLE_LAYERS as string[]
+    case PWH_HEATMAP: return PWH_VISIBLE_LAYERS as string[]
+    case WSH_HEATMAP: return WSH_VISIBLE_LAYERS as string[]
 
-    default: return WIND_VISIBLE_LAYERS
+    default: return WIND_VISIBLE_LAYERS as string[]
   }
 }
 
