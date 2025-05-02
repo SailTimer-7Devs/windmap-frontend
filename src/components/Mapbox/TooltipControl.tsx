@@ -18,7 +18,7 @@ const TooltipControl = ({
   ...restProps
 }: TooltipControlProps): null => {
   React.useEffect(() => {
-    if (!mapInstance || !mapInstance.current) return
+    if (!mapInstance?.current) return
 
     const tooltipControl = new WeatherLayers.TooltipControl({
       unitFormat,

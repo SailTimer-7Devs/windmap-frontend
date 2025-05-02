@@ -5,8 +5,10 @@ import type {
   MapCallbacks,
   MapRef
 } from 'react-map-gl/mapbox'
-import type { DeckProps } from 'deck.gl'
+import type { DeckProps, PickingInfo } from 'deck.gl'
 import type { Palette } from 'cpt2js'
+
+import type { RasterPointProperties } from 'weatherlayers-gl'
 
 import React from 'react'
 
@@ -36,11 +38,15 @@ import {
   getVisibleLayerList,
   isWind
 } from 'lib/layer'
+import { convertMetersPerSecondsToKnots } from 'lib/units'
 
 import DeckGLOverlay from './DeckGLOverlay'
 import LayerListMenu from './LayerListMenu'
 import LegendControl from './LegendControl'
 import TooltipControl from './TooltipControl'
+interface DeckGLOverlayHoverEventProps extends PickingInfo {
+  raster?: RasterPointProperties
+}
 
 function Mapbox(): ReactElement {
   const layerName = getUrlParams()
@@ -76,8 +82,22 @@ function Mapbox(): ReactElement {
     }
   }
 
-  const handleHover: DeckProps['onHover'] = (e) => {
-    tooltipControlRef.current?.updatePickingInfo(e)
+  const handleHover: DeckProps['onHover'] = (e: DeckGLOverlayHoverEventProps) => {
+    const raster = e.raster
+
+    if (!tooltipControlRef.current || !raster) return
+
+    const convertedValue = isWindLayer
+      ? convertMetersPerSecondsToKnots(raster.value)
+      : raster.value
+
+    tooltipControlRef.current.updatePickingInfo({
+      ...e,
+      raster: {
+        ...raster,
+        value: convertedValue
+      }
+    })
   }
 
   const handleGeolocate = (position: GeolocateResultEvent) => {
