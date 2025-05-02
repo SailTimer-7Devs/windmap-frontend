@@ -10,6 +10,8 @@ import {
 
 import { ChevronDownIcon } from 'icons/ChevronDown'
 
+const ITEM_STYLES = 'w-full group flex gap-2 text-left rounded-lg py-1.5 px-3 data-[focus]:bg-white/10'
+
 const DropdownMenu = ({ caption, options }: DropdownMenuProps): ReactElement => {
   const handleMenuClick = (
     e: React.MouseEvent<HTMLButtonElement>,
@@ -35,17 +37,35 @@ const DropdownMenu = ({ caption, options }: DropdownMenuProps): ReactElement => 
         anchor='bottom end'
         className='w-52 origin-top-right rounded-xl border border-white/5 bg-gray-800 p-1 text-sm/6 text-white transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0'
       >
-        {options.map(({ label, icon, onClick }) => (
+        {options.map(({ label, icon, onClick, href }) => (
           <MenuItem key={label}>
-            {({ close }) => (
-              <button
-                className='w-full group flex gap-2 text-left capitalize rounded-lg py-1.5 px-3 data-[focus]:bg-white/10'
-                onClick={(e) => handleMenuClick(e, onClick, close)}
-              >
-                {icon}
-                {label}
-              </button>
-            )}
+            {({ close }) => {
+              if (href) {
+                return (
+                  <a
+                    href={href}
+                    rel='nofollow noopener noreferrer'
+                    target='_blank'
+                    className={ITEM_STYLES}
+                    onClick={close}
+                  >
+                    {icon}
+                    {label}
+                  </a>
+                )
+              } else {
+                return (
+                  <button
+                    className={`${ITEM_STYLES} capitalize`}
+                    type='button'
+                    onClick={(e) => handleMenuClick(e, onClick, close)}
+                  >
+                    {icon}
+                    {label}
+                  </button>
+                )
+              }
+            }}
           </MenuItem>
         ))}
       </MenuItems>

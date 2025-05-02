@@ -40,6 +40,7 @@ import {
 } from 'lib/layer'
 import { convertMetersPerSecondsToKnots } from 'lib/units'
 
+import BrandMenu from 'components/Mapbox/BrandMenu'
 import DeckGLOverlay from './DeckGLOverlay'
 import LayerListMenu from './LayerListMenu'
 import LegendControl from './LegendControl'
@@ -127,6 +128,8 @@ function Mapbox(): ReactElement {
   return (
     <>
       <div className='absolute top-[10px] right-[10px] z-10 flex gap-2'>
+        <BrandMenu />
+
         <LayerListMenu
           menuList={layerMenu}
           layersId={storageLayer.list}

@@ -55,7 +55,8 @@ export type DropdownMenuProps = {
   caption: string
   options: {
     label: string
-    icon: ReactElement
-    onClick: () => void
+    icon?: ReactElement
+    onClick?: () => void
+    href?: string
   }[]
 }
