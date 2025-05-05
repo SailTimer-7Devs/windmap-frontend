@@ -24,8 +24,6 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 
 import * as WeatherLayers from 'weatherlayers-gl'
 
-import logo from 'assets/images/wni_logo.jpg'
-
 import * as BASE from 'constants/basemap'
 import { STORAGE_LAYER_KEY } from 'constants/localStorage'
 
@@ -45,6 +43,7 @@ import DeckGLOverlay from './DeckGLOverlay'
 import LayerListMenu from './LayerListMenu'
 import LegendControl from './LegendControl'
 import TooltipControl from './TooltipControl'
+import WniLogo from './WniLogo'
 interface DeckGLOverlayHoverEventProps extends PickingInfo {
   raster?: RasterPointProperties
 }
@@ -183,13 +182,7 @@ function Mapbox(): ReactElement {
               palette={BASE.WIND_SPEED_PALETTE as Palette}
             />
           )
-          : (
-            <img
-              className='absolute bottom-[20px] right-[10px] h-[60px]'
-              src={logo}
-              alt='WNI Logo'
-            />
-          )
+          : (<WniLogo />)
         }
 
         <DeckGLOverlay
