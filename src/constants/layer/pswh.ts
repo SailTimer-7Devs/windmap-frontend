@@ -9,10 +9,8 @@ import * as WeatherLayers from 'weatherlayers-gl'
 
 import * as BASE from 'constants/basemap'
 
-import { isAndroid } from 'lib/device'
 import { handleImageDataLoad } from 'lib/image'
 import { setParticlesNumbersByDeviceType } from 'lib/layer'
-import { when } from 'lib/object'
 
 export const PSWH_HEATMAP = 'pswh'
 export const PSWH_UV = 'pswh-uv'
@@ -24,12 +22,12 @@ export const PSWH_LAYER_KEYS = {
 
 export const PSWH_VISIBLE_LAYERS = [
   PSWH_HEATMAP,
-  !isAndroid && PSWH_UV
-].filter(Boolean)
+  PSWH_UV
+]
 
 export const PSWH_INITIAL_LAYERS_STATE: LayersState = {
   [PSWH_HEATMAP]: undefined,
-  ...when(!isAndroid, { [PSWH_UV]: undefined })
+  [PSWH_UV]: undefined
 }
 
 export const LAYERS_MENU_LIST = [
@@ -37,11 +35,11 @@ export const LAYERS_MENU_LIST = [
     id: PSWH_HEATMAP,
     name: 'Swell Heatmap'
   },
-  !isAndroid && {
+  {
     id: PSWH_UV,
     name: 'Swell UV'
   }
-].filter(Boolean)
+]
 
 export const getPswhLayers = (layersState: LayersState): Layer[] => [
   new WeatherLayers.RasterLayer({
@@ -58,7 +56,7 @@ export const getPswhLayers = (layersState: LayersState): Layer[] => [
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   }),
 
-  !isAndroid && new WeatherLayers.ParticleLayer({
+  new WeatherLayers.ParticleLayer({
     id: PSWH_LAYER_KEYS.PSWH_UV,
     image: layersState[PSWH_LAYER_KEYS.PSWH_UV as LayerKey],
     imageType: 'VECTOR',
@@ -75,22 +73,21 @@ export const getPswhLayers = (layersState: LayersState): Layer[] => [
     getPolygonOffset: () => [0, -1000],
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   })
-].filter(Boolean) as Layer[]
+]
 
 export async function getPswhLayersData(): Promise<LayersState> {
   try {
-    const promises = [
+    const [
+      pswhHeatmapData,
+      pswhUvData
+    ] = await Promise.all([
       handleImageDataLoad(BASE.WNI_PSWH_HEATMAP_URL),
-      !isAndroid ? handleImageDataLoad(BASE.WNI_PSWH_UV_URL) : null
-    ]
-
-    const [pswhHeatmapData, pswhUvData] = await Promise.all(
-      promises.map(p => p ?? Promise.resolve(undefined))
-    )
+      handleImageDataLoad(BASE.WNI_PSWH_UV_URL)
+    ])
 
     return {
       [PSWH_LAYER_KEYS.PSWH_HEATMAP]: pswhHeatmapData,
-      ...when(!isAndroid, { [PSWH_LAYER_KEYS.PSWH_UV]: pswhUvData })
+      [PSWH_LAYER_KEYS.PSWH_UV]: pswhUvData
     }
   } catch (e) {
     console.error(e)

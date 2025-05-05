@@ -9,9 +9,7 @@ import * as WeatherLayers from 'weatherlayers-gl'
 
 import * as BASE from 'constants/basemap'
 
-import { isAndroid } from 'lib/device'
 import { handleImageDataLoad } from 'lib/image'
-import { when } from 'lib/object'
 
 export const PWH_HEATMAP = 'pwh'
 export const PWH_UV = 'pwh-uv'
@@ -23,12 +21,12 @@ export const PWH_LAYER_KEYS = {
 
 export const PWH_VISIBLE_LAYERS = [
   PWH_HEATMAP,
-  !isAndroid && PWH_UV
-].filter(Boolean)
+  PWH_UV
+]
 
 export const PWH_INITIAL_LAYERS_STATE: LayersState = {
   [PWH_HEATMAP]: undefined,
-  ...when(!isAndroid, { [PWH_UV]: undefined })
+  [PWH_UV]: undefined
 }
 
 export const LAYERS_MENU_LIST = [
@@ -36,11 +34,11 @@ export const LAYERS_MENU_LIST = [
     id: PWH_HEATMAP,
     name: 'Waves Heatmap'
   },
-  !isAndroid && {
+  {
     id: PWH_UV,
     name: 'Waves Speed'
   }
-].filter(Boolean)
+]
 
 export const getPwhLayers = (layersState: LayersState): Layer[] => [
   new WeatherLayers.RasterLayer({
@@ -57,7 +55,7 @@ export const getPwhLayers = (layersState: LayersState): Layer[] => [
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   }),
 
-  !isAndroid && new WeatherLayers.ParticleLayer({
+  new WeatherLayers.ParticleLayer({
     id: PWH_LAYER_KEYS.PWH_UV,
     image: layersState[PWH_LAYER_KEYS.PWH_UV as LayerKey],
     imageType: 'VECTOR',
@@ -74,22 +72,21 @@ export const getPwhLayers = (layersState: LayersState): Layer[] => [
     getPolygonOffset: () => [0, -1000],
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   })
-].filter(Boolean) as Layer[]
+]
 
 export async function getPwhLayersData(): Promise<LayersState> {
   try {
-    const promises = [
+    const [
+      pwhHeatmapData,
+      pwhUvData
+    ] = await Promise.all([
       handleImageDataLoad(BASE.WNI_PWH_HEATMAP_URL),
-      !isAndroid ? handleImageDataLoad(BASE.WNI_PWH_UV_URL) : null
-    ]
-
-    const [pwhHeatmapData, pwhUvData] = await Promise.all(
-      promises.map(p => p ?? Promise.resolve(undefined))
-    )
+      handleImageDataLoad(BASE.WNI_PWH_UV_URL)
+    ])
 
     return {
       [PWH_LAYER_KEYS.PWH_HEATMAP]: pwhHeatmapData,
-      ...when(!isAndroid, { [PWH_LAYER_KEYS.PWH_UV]: pwhUvData })
+      [PWH_LAYER_KEYS.PWH_UV]: pwhUvData
     }
   } catch (e) {
     console.error(e)
