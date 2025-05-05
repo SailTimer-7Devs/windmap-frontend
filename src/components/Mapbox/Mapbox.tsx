@@ -26,6 +26,7 @@ import * as WeatherLayers from 'weatherlayers-gl'
 
 import * as BASE from 'constants/basemap'
 import { STORAGE_LAYER_KEY } from 'constants/localStorage'
+import { WIND_LAYER_KEYS } from 'constants/layer/wind'
 
 import useLayerData from 'hooks/useLayerData'
 import useLocalStorageLayer from 'hooks/useLocalStorageLayer'
@@ -124,6 +125,10 @@ function Mapbox(): ReactElement {
     })
   }, [layerList, storageLayer.list])
 
+  const isWindHeatMapLayer = React.useMemo(() => {
+    return storageLayer.list.includes(WIND_LAYER_KEYS.WIND_HEATMAP)
+  }, [storageLayer.list])
+
   return (
     <>
       <div className='absolute top-[10px] right-[10px] z-10 flex gap-2'>
@@ -173,17 +178,15 @@ function Mapbox(): ReactElement {
           />
         )}
 
-        {isWindLayer
-          ? (
-            /* Will be added different settings for WNI layers in future */
-            <LegendControl
-              title='Wind speed'
-              unitFormat={{ unit: 'knots' }}
-              palette={BASE.WIND_SPEED_PALETTE as Palette}
-            />
-          )
-          : (<WniLogo />)
-        }
+        {isWindHeatMapLayer && (
+          <LegendControl
+            title='Wind speed'
+            unitFormat={{ unit: 'knots' }}
+            palette={BASE.WIND_SPEED_PALETTE as Palette}
+          />
+        )}
+
+        {!isWindLayer && <WniLogo />}
 
         <DeckGLOverlay
           interleaved
