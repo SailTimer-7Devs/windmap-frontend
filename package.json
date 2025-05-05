@@ -1,7 +1,7 @@
 {
   "name": "windmap",
   "private": true,
-  "version": "0.5.9",
+  "version": "0.6.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host --port 8000",
@@ -22,8 +22,7 @@
     "rollup-plugin-worker-factory": "^0.5.7",
     "sass": "^1.87.0",
     "ua-parser-js": "^2.0.3",
-    "weatherlayers-gl": "^2025.5.0",
-    "weatherlayers-gl-fork": "^2025.3.3"
+    "weatherlayers-gl": "^2025.5.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",

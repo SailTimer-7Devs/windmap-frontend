@@ -1,4 +1,4 @@
-import type { TextureData } from 'weatherlayers-gl-fork/client'
+import type { TextureData } from 'weatherlayers-gl/client'
 
 export function handleImageDataLoad(url: string): Promise<TextureData> {
   return new Promise((resolve, reject) => {

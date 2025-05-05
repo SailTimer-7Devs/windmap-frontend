@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import type { TextureData } from 'weatherlayers-gl-fork/client'
+import type { TextureData } from 'weatherlayers-gl/client'
 
 import { PSWH_LAYER_KEYS } from 'constants/layer/pswh'
 import { PWH_LAYER_KEYS } from 'constants/layer/pwh'
