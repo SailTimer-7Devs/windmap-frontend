@@ -1,6 +1,6 @@
 export default [
   {
-    label: 'More accurate',
+    label: 'More accurate: video',
     href: 'https://sailtimermaps.com/share/Only_from_SailTimer.mov'
   },
 
