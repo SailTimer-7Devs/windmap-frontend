@@ -38,6 +38,7 @@ import {
   isWind
 } from 'lib/layer'
 import { convertMetersPerSecondsToKnots } from 'lib/units'
+import { setMetaData } from 'lib/meta'
 
 import BrandMenu from 'components/Mapbox/BrandMenu'
 import DeckGLOverlay from './DeckGLOverlay'
@@ -128,6 +129,10 @@ function Mapbox(): ReactElement {
   const isWindHeatMapLayer = React.useMemo(() => {
     return storageLayer.list.includes(WIND_LAYER_KEYS.WIND_HEATMAP)
   }, [storageLayer.list])
+
+  React.useEffect(() => {
+    setMetaData({ isWindLayer })
+  }, [isWindLayer])
 
   return (
     <>
