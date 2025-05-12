@@ -33,11 +33,11 @@ export const PSWH_INITIAL_LAYERS_STATE: LayersState = {
 export const LAYERS_MENU_LIST = [
   {
     id: PSWH_HEATMAP,
-    name: 'Pswh Heatmap'
+    name: 'Swell Height'
   },
   {
     id: PSWH_UV,
-    name: 'Pswh UV'
+    name: 'Swell Animation'
   }
 ]
 

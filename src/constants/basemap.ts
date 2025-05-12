@@ -1,15 +1,16 @@
 import type { CSSProperties } from 'react'
 import type { ControlPosition } from 'react-map-gl/mapbox'
 import type { BitmapBoundingBox } from '@deck.gl/layers'
-import type { ImageUnscale } from 'weatherlayers-gl-fork/client'
+import type { ImageUnscale } from 'weatherlayers-gl/client'
 import type { MapViewState } from 'types'
 
 import { MapView } from 'deck.gl'
 
-export const API_URL = 'https://d3s2may00o9nmt.cloudfront.net/public/latest/'
+/* Legacy API URL: https://d3s2may00o9nmt.cloudfront.net */
+export const API_URL = 'https://data.sailtimer.info/public/latest/'
 
 export const BASEMAP_VECTOR_LAYER_BEFORE_ID = 'waterway-label'
-export const BASEMAP_VECTOR_STYLE_URL = 'mapbox://styles/s-t-/cm9v8ruig00g801pg8en6ffz7'
+export const BASEMAP_VECTOR_STYLE_URL = 'mapbox://styles/s-t-/cma54p1ta003y01s3do2987f5'
 
 export const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoicy10LSIsImEiOiJjbTJhZGNldXowZjI2Mmxtdzg5NGl6MTlmIn0.-1-r5B8r6-xIzyL1gsbcEg'
 

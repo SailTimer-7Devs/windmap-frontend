@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import type { TextureData } from 'weatherlayers-gl-fork/client'
+import type { TextureData } from 'weatherlayers-gl/client'
 
 import { PSWH_LAYER_KEYS } from 'constants/layer/pswh'
 import { PWH_LAYER_KEYS } from 'constants/layer/pwh'
@@ -55,7 +55,8 @@ export type DropdownMenuProps = {
   caption: string
   options: {
     label: string
-    icon: ReactElement
-    onClick: () => void
+    icon?: ReactElement
+    onClick?: () => void
+    href?: string
   }[]
 }

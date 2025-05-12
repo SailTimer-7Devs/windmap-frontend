@@ -5,8 +5,10 @@ import type {
   MapCallbacks,
   MapRef
 } from 'react-map-gl/mapbox'
-import type { DeckProps } from 'deck.gl'
+import type { DeckProps, PickingInfo } from 'deck.gl'
 import type { Palette } from 'cpt2js'
+
+import type { RasterPointProperties } from 'weatherlayers-gl'
 
 import React from 'react'
 
@@ -22,10 +24,9 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 
 import * as WeatherLayers from 'weatherlayers-gl'
 
-import logo from 'assets/images/wni_logo.png'
-
 import * as BASE from 'constants/basemap'
 import { STORAGE_LAYER_KEY } from 'constants/localStorage'
+import { WIND_LAYER_KEYS } from 'constants/layer/wind'
 
 import useLayerData from 'hooks/useLayerData'
 import useLocalStorageLayer from 'hooks/useLocalStorageLayer'
@@ -36,12 +37,18 @@ import {
   getVisibleLayerList,
   isWind
 } from 'lib/layer'
+import { convertMetersPerSecondsToKnots } from 'lib/units'
+import { setMetaData } from 'lib/meta'
 
+import BrandMenu from 'components/Mapbox/BrandMenu'
 import DeckGLOverlay from './DeckGLOverlay'
 import LayerListMenu from './LayerListMenu'
 import LegendControl from './LegendControl'
-
-let tooltipControl: WeatherLayers.TooltipControl
+import TooltipControl from './TooltipControl'
+import WniLogo from './WniLogo'
+interface DeckGLOverlayHoverEventProps extends PickingInfo {
+  raster?: RasterPointProperties
+}
 
 function Mapbox(): ReactElement {
   const layerName = getUrlParams()
@@ -55,6 +62,7 @@ function Mapbox(): ReactElement {
 
   const mapRef = React.useRef<MapRef>(null)
   const geolocateControlRef = React.useRef<GeolocateControlInstance>(null)
+  const tooltipControlRef = React.useRef<WeatherLayers.TooltipControl | null>(null)
 
   useUrlChange((url) => {
     const urlParams = new URL(url)
@@ -70,28 +78,28 @@ function Mapbox(): ReactElement {
     }
   })
 
-  const handleMapLoad: MapCallbacks['onLoad'] = (e) => {
-    const mapInstance = e.target
-
-    tooltipControl = new WeatherLayers.TooltipControl({
-      unitFormat: {
-        unit: 'knots'
-      },
-      directionFormat: WeatherLayers.DirectionFormat.CARDINAL3,
-      followCursor: true
-    })
-
-    const parentElement = mapInstance.getCanvas().parentElement as HTMLElement
-
-    tooltipControl.addTo(parentElement)
-
+  const handleMapLoad: MapCallbacks['onLoad'] = () => {
     if (geolocateControlRef.current) {
       geolocateControlRef.current.trigger()
     }
   }
 
-  const handleHover: DeckProps['onHover'] = (e) => {
-    tooltipControl && tooltipControl.updatePickingInfo(e)
+  const handleHover: DeckProps['onHover'] = (e: DeckGLOverlayHoverEventProps) => {
+    const raster = e.raster
+
+    if (!tooltipControlRef.current || !raster) return
+
+    const convertedValue = isWindLayer
+      ? convertMetersPerSecondsToKnots(raster.value)
+      : raster.value
+
+    tooltipControlRef.current.updatePickingInfo({
+      ...e,
+      raster: {
+        ...raster,
+        value: convertedValue
+      }
+    })
   }
 
   const handleGeolocate = (position: GeolocateResultEvent) => {
@@ -118,9 +126,19 @@ function Mapbox(): ReactElement {
     })
   }, [layerList, storageLayer.list])
 
+  const isWindHeatMapLayer = React.useMemo(() => {
+    return storageLayer.list.includes(WIND_LAYER_KEYS.WIND_HEATMAP)
+  }, [storageLayer.list])
+
+  React.useEffect(() => {
+    setMetaData({ isWindLayer })
+  }, [isWindLayer])
+
   return (
     <>
       <div className='absolute top-[10px] right-[10px] z-10 flex gap-2'>
+        <BrandMenu />
+
         <LayerListMenu
           menuList={layerMenu}
           layersId={storageLayer.list}
@@ -156,25 +174,24 @@ function Mapbox(): ReactElement {
           style={{ borderRadius: '4px' }}
         />
 
-        {isWindLayer
-          ? (
-            /* Will be added different settings for WNI layers in future */
-            <LegendControl
-              title='Wind speed'
-              unitFormat={{
-                unit: 'knots'
-              }}
-              palette={BASE.WIND_SPEED_PALETTE as Palette}
-            />
-          )
-          : (
-            <img
-              className='absolute bottom-[20px] right-[10px] h-[60px]'
-              src={logo}
-              alt='WNI Logo'
-            />
-          )
-        }
+        {isWindLayer && (
+          <TooltipControl
+            mapInstance={mapRef}
+            ref={tooltipControlRef}
+            unitFormat={{ unit: 'knots' }}
+            directionFormat={WeatherLayers.DirectionFormat.CARDINAL3}
+          />
+        )}
+
+        {isWindHeatMapLayer && (
+          <LegendControl
+            title='Wind speed'
+            unitFormat={{ unit: 'knots' }}
+            palette={BASE.WIND_SPEED_PALETTE as Palette}
+          />
+        )}
+
+        {!isWindLayer && <WniLogo />}
 
         <DeckGLOverlay
           interleaved
