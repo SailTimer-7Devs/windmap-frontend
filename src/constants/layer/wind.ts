@@ -114,7 +114,7 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
     image: layersState[WIND_LAYER_KEYS.WIND_BARBS as LayerKey],
     bounds: BASE.WIND_MAP_BOUNDS,
     imageUnscale: BASE.IMAGE_UNSCALE,
-    density: 0,
+    density: -0.5,
     iconSize: 50,
     imageType: 'VECTOR',
     color: [255, 255, 255, 200],
