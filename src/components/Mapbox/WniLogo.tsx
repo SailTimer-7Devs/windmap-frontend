@@ -6,7 +6,7 @@ const WniLogo = (): ReactElement => {
   return (
     <a
       className='absolute bottom-[20px] right-[10px]'
-      href='https://global.weathernews.com/'
+      href='https://sea.weathernews.com/'
       rel='nofollow noopener noreferrer'
       target='_blank'
     >
