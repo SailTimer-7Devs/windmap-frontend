@@ -2,11 +2,13 @@ import type { ReactElement } from 'react'
 
 import logo from 'assets/images/wni_logo.jpg'
 
+const PATH = 'https://sea.weathernews.com'
+
 const WniLogo = (): ReactElement => {
   return (
     <a
       className='absolute bottom-[20px] right-[10px]'
-      href='https://sea.weathernews.com/'
+      href={PATH}
       rel='nofollow noopener noreferrer'
       target='_blank'
     >
@@ -15,6 +17,10 @@ const WniLogo = (): ReactElement => {
         src={logo}
         alt='WNI Logo'
       />
+
+      <p className='text-sm bg-white text-center pt-[4px]'>
+        {PATH}
+      </p>
     </a>
   )
 }
