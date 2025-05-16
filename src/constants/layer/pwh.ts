@@ -32,11 +32,11 @@ export const PWH_INITIAL_LAYERS_STATE: LayersState = {
 export const LAYERS_MENU_LIST = [
   {
     id: PWH_HEATMAP,
-    name: 'Waves Height'
+    name: 'Wave Height'
   },
   {
     id: PWH_UV,
-    name: 'Waves Animation'
+    name: 'Wave Animation'
   }
 ]
 
