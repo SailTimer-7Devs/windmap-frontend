@@ -1,7 +1,7 @@
 {
   "name": "windmap",
   "private": true,
-  "version": "0.6.9",
+  "version": "0.6.10",
   "type": "module",
   "scripts": {
     "dev": "vite --host --port 8000",
@@ -27,7 +27,7 @@
   "devDependencies": {
     "@eslint/js": "^9.27.0",
     "@tailwindcss/postcss": "^4.1.7",
-    "@types/react": "^19.1.4",
+    "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
     "@vitejs/plugin-react-swc": "^3.9.0",
     "autoprefixer": "^10.4.21",
