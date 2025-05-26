@@ -1,7 +1,7 @@
 export default [
   {
     label: 'More accurate: video',
-    href: 'https://sailtimermaps.com/share/Only_from_SailTimer.mov'
+    href: 'https://www.youtube.com/embed/OLxTKQ1ClYw'
   },
 
   {
