@@ -22,9 +22,9 @@ export function isWind(name: string): boolean {
 
 export function setParticlesNumbersByDeviceType(): number {
   switch (deviceType) {
-    case 'mobile': return 1000
-    case 'tablet': return 2000
-    default: return 1500
+    case 'mobile': return 150
+    case 'tablet': return 150
+    default: return 300
   }
 }
 
