@@ -1,7 +1,7 @@
 import type { LayersState, LayerKey } from 'types'
 import type { Layer } from 'deck.gl'
-
 import type { Palette } from 'cpt2js'
+
 import { ClipExtension } from '@deck.gl/extensions'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
