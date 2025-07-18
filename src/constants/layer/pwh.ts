@@ -11,7 +11,15 @@ import * as BASE from 'constants/basemap'
 
 import { handleImageDataLoad } from 'lib/image'
 
-export const PWH_HEATMAP = 'pwh'
+import {
+  createTimelineLayerFileByGroup,
+  createTimelineDatetimes
+} from 'lib/timeline'
+
+import { PWH as PWH_NAME } from './names'
+import { WNI_PWH_FILES } from './files'
+
+export const PWH_HEATMAP = PWH_NAME
 export const PWH_UV = 'pwh-uv'
 
 export const PWH_LAYER_KEYS = {
@@ -74,22 +82,40 @@ export const getPwhLayers = (layersState: LayersState): Layer[] => [
   })
 ]
 
-export async function getPwhLayersData(): Promise<LayersState> {
+export const pwhTimelineFiles = {
+  pwhHeatmap: createTimelineLayerFileByGroup(PWH_NAME, WNI_PWH_FILES.HEATMAP),
+  pwhUv: createTimelineLayerFileByGroup(PWH_NAME, WNI_PWH_FILES.UV),
+  datetime: createTimelineDatetimes()
+}
+
+const pwhCache = new Map<number, LayersState>()
+
+export async function getPwhLayersData(timelineIndex: number = 0): Promise<LayersState> {
+  if (pwhCache.has(timelineIndex)) {
+    return pwhCache.get(timelineIndex)!
+  }
+
   try {
     const [
       pwhHeatmapData,
       pwhUvData
     ] = await Promise.all([
-      handleImageDataLoad(BASE.WNI_PWH_HEATMAP_URL),
-      handleImageDataLoad(BASE.WNI_PWH_UV_URL)
+      handleImageDataLoad(pwhTimelineFiles.pwhHeatmap[timelineIndex]),
+      handleImageDataLoad(pwhTimelineFiles.pwhUv[timelineIndex])
     ])
 
-    return {
+    const result = {
       [PWH_LAYER_KEYS.PWH_HEATMAP]: pwhHeatmapData,
       [PWH_LAYER_KEYS.PWH_UV]: pwhUvData
     }
+
+    pwhCache.set(timelineIndex, result)
+
+    return result
+
   } catch (e) {
     console.error(e)
+
     return PWH_INITIAL_LAYERS_STATE
   }
 }

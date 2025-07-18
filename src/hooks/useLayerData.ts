@@ -3,121 +3,41 @@ import type { LayerMenuProps } from 'types'
 
 import React from 'react'
 
-import * as pswhLayer from 'constants/layer/pswh'
-import * as pwhLayer from 'constants/layer/pwh'
-import * as windLayer from 'constants/layer/wind'
-import * as wshLayer from 'constants/layer/wsh'
+import { getLayersConfig } from 'lib/layers'
 
 interface LayerState {
   layerList: Layer[]
   layerMenu: LayerMenuProps[]
-  isLoading: boolean
-}
-
-interface LayerModule {
-  LAYERS_MENU_LIST: LayerMenuProps[]
-}
-
-type UseLayerDataReturnProps = {
-  layerList: Layer[]
-  layerMenu: LayerMenuProps[]
-  layerLoading: boolean
 }
 
 export default function useLayerData(
-  name: string
-): UseLayerDataReturnProps {
+  name: string,
+  timelineIndex: number = 0
+): LayerState {
   const [layerState, setLayerState] = React.useState<LayerState>({
     layerList: [],
-    layerMenu: [],
-    isLoading: true
+    layerMenu: []
   })
 
   React.useEffect(() => {
     let isCancelled = false
 
-    /* start loading */
-    setLayerState(prev => ({
-      ...prev,
-      isLoading: true
-    }))
-
-    async function setLayerData<T>(
-      layerModule: LayerModule,
-      getDataFn: () => Promise<T>,
-      getLayersFn: (state: T) => Layer[]
-    ) {
-      if (isCancelled) return
-
-      const layersState = await getDataFn()
-
-      if (!isCancelled) {
-        setLayerState({
-          layerList: getLayersFn(layersState),
-          layerMenu: layerModule.LAYERS_MENU_LIST,
-          isLoading: false
-        })
-      }
-    }
-
     async function loadData() {
       try {
-        switch (name) {
-          case windLayer.WIND: {
-            await setLayerData(
-              windLayer as LayerModule,
-              windLayer.getWindLayersData,
-              windLayer.getWindLayers
-            )
-            break
-          }
+        const config = getLayersConfig(name)
 
-          case pswhLayer.PSWH_HEATMAP: {
-            await setLayerData(
-              pswhLayer as LayerModule,
-              pswhLayer.getPswhLayersData,
-              pswhLayer.getPswhLayers
-            )
-            break
-          }
+        if (isCancelled) return
 
-          case pwhLayer.PWH_HEATMAP: {
-            await setLayerData(
-              pwhLayer as LayerModule,
-              pwhLayer.getPwhLayersData,
-              pwhLayer.getPwhLayers
-            )
-            break
-          }
+        const layersState = await config.getDataFn(timelineIndex)
 
-          case wshLayer.WSH_HEATMAP: {
-            await setLayerData(
-              wshLayer as LayerModule,
-              wshLayer.getWshLayersData,
-              wshLayer.getWshLayers
-            )
-            break
-          }
-
-          default: {
-            await setLayerData(
-              windLayer as LayerModule,
-              windLayer.getWindLayersData,
-              windLayer.getWindLayers
-            )
-            break
-          }
+        if (!isCancelled) {
+          setLayerState({
+            layerList: config.getLayersFn(layersState),
+            layerMenu: config.module.LAYERS_MENU_LIST
+          })
         }
       } catch (error) {
         console.error(error)
-
-        /* end loading */
-        if (!isCancelled) {
-          setLayerState(prev => ({
-            ...prev,
-            isLoading: false
-          }))
-        }
       }
     }
 
@@ -127,11 +47,10 @@ export default function useLayerData(
       isCancelled = true
     }
 
-  }, [name])
+  }, [name, timelineIndex])
 
   return {
     layerList: layerState.layerList,
-    layerMenu: layerState.layerMenu,
-    layerLoading: layerState.isLoading
+    layerMenu: layerState.layerMenu
   }
 }

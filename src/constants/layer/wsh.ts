@@ -11,7 +11,15 @@ import * as BASE from 'constants/basemap'
 
 import { handleImageDataLoad } from 'lib/image'
 
-export const WSH_HEATMAP = 'wsh'
+import {
+  createTimelineLayerFileByGroup,
+  createTimelineDatetimes
+} from 'lib/timeline'
+
+import { WSH as WSH_NAME } from './names'
+import { WNI_WSH_FILES } from './files'
+
+export const WSH_HEATMAP = WSH_NAME
 export const WSH_UV = 'wsh-uv'
 
 export const WSH_LAYER_KEYS = {
@@ -74,22 +82,40 @@ export const getWshLayers = (layersState: LayersState): Layer[] => [
   })
 ]
 
-export async function getWshLayersData(): Promise<LayersState> {
+export const wshTimelineFiles = {
+  wshHeatmap: createTimelineLayerFileByGroup(WSH_NAME, WNI_WSH_FILES.HEATMAP),
+  wshUv: createTimelineLayerFileByGroup(WSH_NAME, WNI_WSH_FILES.UV),
+  datetime: createTimelineDatetimes()
+}
+
+const wshCache = new Map<number, LayersState>()
+
+export async function getWshLayersData(timelineIndex: number = 0): Promise<LayersState> {
+  if (wshCache.has(timelineIndex)) {
+    return wshCache.get(timelineIndex)!
+  }
+
   try {
     const [
       wshHeatmapData,
       wshUvData
     ] = await Promise.all([
-      handleImageDataLoad(BASE.WNI_WSH_HEATMAP_URL),
-      handleImageDataLoad(BASE.WNI_WSH_UV_URL)
+      handleImageDataLoad(wshTimelineFiles.wshHeatmap[timelineIndex]),
+      handleImageDataLoad(wshTimelineFiles.wshUv[timelineIndex])
     ])
 
-    return {
+    const result = {
       [WSH_LAYER_KEYS.WSH_HEATMAP]: wshHeatmapData,
       [WSH_LAYER_KEYS.WSH_UV]: wshUvData
     }
+
+    wshCache.set(timelineIndex, result)
+
+    return result
+
   } catch (e) {
     console.error(e)
+
     return WSH_INITIAL_LAYERS_STATE
   }
 }
