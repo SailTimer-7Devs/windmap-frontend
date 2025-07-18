@@ -209,7 +209,7 @@ function Mapbox(): ReactElement {
           datetime={timeline.datetime}
           onUpdate={handleTimelineUpdate}
           onPreload={getTimelinePreload}
-          fps={3}
+          fps={1}
         />
 
         {isWindLayer && (
