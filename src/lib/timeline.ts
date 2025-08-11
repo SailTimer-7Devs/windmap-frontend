@@ -1,5 +1,5 @@
 import * as LAYER_NAMES from 'constants/layer/names'
-import { API_URL } from 'constants/basemap'
+import { S3_DATA_URL } from 'constants/basemap'
 
 import {
   MAX_FUTURE_HOURS,
@@ -16,7 +16,7 @@ import { joinPath } from 'lib/url'
 
 export function getGfsUrl(step: string, fileName: string): string {
   return joinPath(
-    API_URL,
+    S3_DATA_URL,
     GFS_URL_SEGMENT,
     `F00${step}`,
     fileName
@@ -25,7 +25,7 @@ export function getGfsUrl(step: string, fileName: string): string {
 
 export function getWniUrl(step: string, fileName: string): string {
   return joinPath(
-    API_URL,
+    S3_DATA_URL,
     WNI_URL_SEGMENT,
     `T00${step}`,
     fileName
