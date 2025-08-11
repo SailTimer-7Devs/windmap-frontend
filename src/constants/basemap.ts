@@ -6,7 +6,7 @@ import type { MapViewState } from 'types'
 
 import { MapView } from 'deck.gl'
 
-export const S3_DATA_URL = import.meta.env.S3_DATA + '/public/current'
+export const S3_DATA_URL = import.meta.env.VITE_S3_DATA + '/public/current'
 
 export const BASEMAP_VECTOR_LAYER_BEFORE_ID = 'waterway-label'
 export const BASEMAP_VECTOR_STYLE_URL = 'mapbox://styles/s-t-/cma54p1ta003y01s3do2987f5'
