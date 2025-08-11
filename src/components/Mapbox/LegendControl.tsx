@@ -16,7 +16,7 @@ const LegendControl = ({
       palette
     })
 
-    const el = document.getElementsByClassName('mapboxgl-ctrl-bottom-right')[0] as HTMLElement
+    const el = document.getElementsByClassName('mapboxgl-ctrl-bottom-left')[0] as HTMLElement
 
     legendControl.addTo(el)
 
