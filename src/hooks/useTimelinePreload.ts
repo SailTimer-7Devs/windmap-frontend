@@ -5,7 +5,7 @@ import React from 'react'
 import { preloadLayersData } from 'lib/layers'
 
 interface UseTimelinePreloadReturn {
-  getTimelinePreload: (requestedDatetimes: string[]) => Promise<void>
+  getTimelinePreload: (requestedDatetimes: string[]) => Promise<void>[]
 }
 
 export default function useTimelinePreload(
@@ -16,21 +16,24 @@ export default function useTimelinePreload(
     () => new globalThis.Map()
   )
 
-  const getTimelinePreload = async (requestedDatetimes: string[]) => {
-    const newCache = new globalThis.Map(cache)
+  const getTimelinePreload = (requestedDatetimes: string[]) => {
+    const promises: Promise<void>[] = requestedDatetimes.map((datetime) => {
+      const timelineIndex = datetimes.findIndex((dt) => dt === datetime)
 
-    await Promise.all(requestedDatetimes.map(
-      async (datetime) => {
-        const timelineIndex = datetimes.findIndex(dt => dt === datetime)
+      if (cache.has(timelineIndex)) {
+        return Promise.resolve()
+      }
 
-        if (newCache.has(timelineIndex)) return
+      return preloadLayersData(layerName, timelineIndex).then((data) => {
+        setCache((prev) => {
+          const updated = new globalThis.Map(prev)
+          updated.set(timelineIndex, data)
+          return updated
+        })
+      })
+    })
 
-        const data = await preloadLayersData(layerName, timelineIndex)
-
-        newCache.set(timelineIndex, data)
-      }))
-
-    setCache(newCache)
+    return promises
   }
 
   return { getTimelinePreload } as const
