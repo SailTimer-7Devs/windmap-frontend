@@ -1,7 +1,7 @@
 import type { LayersState, LayerKey } from 'types'
 import type { Layer } from 'deck.gl'
-
 import type { Palette } from 'cpt2js'
+
 import { ClipExtension } from '@deck.gl/extensions'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
@@ -12,7 +12,15 @@ import * as BASE from 'constants/basemap'
 import { handleImageDataLoad } from 'lib/image'
 import { setParticlesNumbersByDeviceType } from 'lib/layer'
 
-export const PSWH_HEATMAP = 'pswh'
+import {
+  createTimelineLayerFileByGroup,
+  createTimelineDatetimes
+} from 'lib/timeline'
+
+import { PSWH as PSWH_NAME } from './names'
+import { WNI_PWH_FILES } from './files'
+
+export const PSWH_HEATMAP = PSWH_NAME
 export const PSWH_UV = 'pswh-uv'
 
 export const PSWH_LAYER_KEYS = {
@@ -75,22 +83,40 @@ export const getPswhLayers = (layersState: LayersState): Layer[] => [
   })
 ]
 
-export async function getPswhLayersData(): Promise<LayersState> {
+export const pswhTimelineFiles = {
+  pswhHeatmap: createTimelineLayerFileByGroup(PSWH_NAME, WNI_PWH_FILES.HEATMAP),
+  pswhUv: createTimelineLayerFileByGroup(PSWH_NAME, WNI_PWH_FILES.UV),
+  datetime: createTimelineDatetimes()
+}
+
+const pswhCache = new Map<number, LayersState>()
+
+export async function getPswhLayersData(timelineIndex: number = 0): Promise<LayersState> {
+  if (pswhCache.has(timelineIndex)) {
+    return pswhCache.get(timelineIndex)!
+  }
+
   try {
     const [
       pswhHeatmapData,
       pswhUvData
     ] = await Promise.all([
-      handleImageDataLoad(BASE.WNI_PSWH_HEATMAP_URL),
-      handleImageDataLoad(BASE.WNI_PSWH_UV_URL)
+      handleImageDataLoad(pswhTimelineFiles.pswhHeatmap[timelineIndex]),
+      handleImageDataLoad(pswhTimelineFiles.pswhUv[timelineIndex])
     ])
 
-    return {
+    const result = {
       [PSWH_LAYER_KEYS.PSWH_HEATMAP]: pswhHeatmapData,
       [PSWH_LAYER_KEYS.PSWH_UV]: pswhUvData
     }
+
+    pswhCache.set(timelineIndex, result)
+
+    return result
+
   } catch (e) {
     console.error(e)
+
     return PSWH_INITIAL_LAYERS_STATE
   }
 }

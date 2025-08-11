@@ -30,6 +30,7 @@ import { WIND_LAYER_KEYS } from 'constants/layer/wind'
 
 import useLayerData from 'hooks/useLayerData'
 import useLocalStorageLayer from 'hooks/useLocalStorageLayer'
+import useTimelinePreload from 'hooks/useTimelinePreload'
 import useUrlChange from 'hooks/useUrlChange'
 
 import getUrlParams from 'lib/url'
@@ -38,14 +39,17 @@ import {
   isWind
 } from 'lib/layer'
 import { convertMetersPerSecondsToKnots } from 'lib/units'
+import { getDateTimeByLayerName } from 'lib/timeline'
 import { setMetaData } from 'lib/meta'
 
 import BrandMenu from 'components/Mapbox/BrandMenu'
 import DeckGLOverlay from './DeckGLOverlay'
 import LayerListMenu from './LayerListMenu'
 import LegendControl from './LegendControl'
+import TimelineControl from './TimelineControl'
 import TooltipControl from './TooltipControl'
 import WniLogo from './WniLogo'
+
 interface DeckGLOverlayHoverEventProps extends PickingInfo {
   raster?: RasterPointProperties
 }
@@ -55,10 +59,33 @@ function Mapbox(): ReactElement {
   const visibleList = getVisibleLayerList(layerName)
   const isWindLayer = isWind(layerName)
 
+  const datetimes = getDateTimeByLayerName(layerName)
+
+  const [isMapReady, setIsMapReady] = React.useState(false)
+  const [timeline, setTimeline] = React.useState({
+    index: 0,
+    datetime: datetimes[0]
+  })
+
   const storageLayerValue = { name: layerName, list: visibleList }
 
-  const { value: storageLayer, reset, toggle } = useLocalStorageLayer(STORAGE_LAYER_KEY, storageLayerValue)
-  const { layerList, layerMenu, layerLoading } = useLayerData(storageLayer.name)
+  const {
+    value: storageLayer,
+    reset,
+    toggle
+  } = useLocalStorageLayer(STORAGE_LAYER_KEY, storageLayerValue)
+
+  const { layerList, layerMenu } = useLayerData(storageLayer.name, timeline.index)
+  const { getTimelinePreload } = useTimelinePreload(storageLayer.name, datetimes)
+
+  const handleTimelineUpdate = React.useCallback((datetime: string) => {
+    const timelineIndex = datetimes.findIndex(dt => dt === datetime)
+
+    setTimeline({
+      index: timelineIndex,
+      datetime
+    })
+  }, [datetimes])
 
   const mapRef = React.useRef<MapRef>(null)
   const geolocateControlRef = React.useRef<GeolocateControlInstance>(null)
@@ -79,6 +106,8 @@ function Mapbox(): ReactElement {
   })
 
   const handleMapLoad: MapCallbacks['onLoad'] = () => {
+    setIsMapReady(true)
+
     if (geolocateControlRef.current) {
       geolocateControlRef.current.trigger()
     }
@@ -146,9 +175,9 @@ function Mapbox(): ReactElement {
         />
       </div>
 
-      {layerLoading && (
+      {!isMapReady && (
         <div className='absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black/30 z-20'>
-          <p className='text-[2vw] text-white text-shadow-lg'>Loading layers...</p>
+          <p className='text-[2vw] text-white text-shadow-lg'>Map is loading...</p>
         </div>
       )}
 
@@ -171,7 +200,16 @@ function Mapbox(): ReactElement {
 
         <ScaleControl
           unit='nautical'
+          position='bottom-right'
           style={{ borderRadius: '4px' }}
+        />
+
+        <TimelineControl
+          datetimes={datetimes}
+          datetime={timeline.datetime}
+          onUpdate={handleTimelineUpdate}
+          onPreload={getTimelinePreload}
+          fps={1}
         />
 
         {isWindLayer && (

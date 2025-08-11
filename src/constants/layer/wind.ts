@@ -1,7 +1,7 @@
 import type { LayersState, LayerKey } from 'types'
 import type { Layer } from 'deck.gl'
-
 import type { Palette } from 'cpt2js'
+
 import { ClipExtension } from '@deck.gl/extensions'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
@@ -15,7 +15,15 @@ import {
   setParticleWidthByDevice
 } from 'lib/layer'
 
-export const WIND = 'wind'
+import {
+  createTimelineLayerFileByGroup,
+  createTimelineDatetimes
+} from 'lib/timeline'
+
+import { WIND as WIND_NAME } from './names'
+import { WIND_FILES } from './files'
+
+export const WIND = WIND_NAME
 export const WIND_BARBS = 'wind-barbs'
 export const WIND_DIRECTION_HEATMAP = 'wind-direction-heatmap'
 export const WIND_HEATMAP = 'wind-heatmap'
@@ -142,26 +150,45 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
   })
 ]
 
-export async function getWindLayersData(): Promise<LayersState> {
+export const windTimelineFiles = {
+  windMap: createTimelineLayerFileByGroup(WIND_NAME, WIND_FILES.WINDMAP),
+  windDirectionHeatmap: createTimelineLayerFileByGroup(WIND_NAME, WIND_FILES.DIRECTION_HEATMAP),
+  windHeatmap: createTimelineLayerFileByGroup(WIND_NAME, WIND_FILES.HEATMAP),
+  datetime: createTimelineDatetimes()
+}
+
+const windCache = new Map<number, LayersState>()
+
+export async function getWindLayersData(timelineIndex: number = 0): Promise<LayersState> {
+  if (windCache.has(timelineIndex)) {
+    return windCache.get(timelineIndex)!
+  }
+
   try {
     const [
       windData,
       windDirectionHeatmapData,
       windHeatmapData
     ] = await Promise.all([
-      handleImageDataLoad(BASE.WINDMAP_URL),
-      handleImageDataLoad(BASE.WIND_DIRECTION_HEATMAP_URL),
-      handleImageDataLoad(BASE.WIND_HEATMAP_URL)
+      handleImageDataLoad(windTimelineFiles.windMap[timelineIndex]),
+      handleImageDataLoad(windTimelineFiles.windDirectionHeatmap[timelineIndex]),
+      handleImageDataLoad(windTimelineFiles.windHeatmap[timelineIndex])
     ])
 
-    return {
+    const result = {
       [WIND_LAYER_KEYS.WIND]: windData,
       [WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP]: windDirectionHeatmapData,
       [WIND_LAYER_KEYS.WIND_HEATMAP]: windHeatmapData,
       [WIND_LAYER_KEYS.WIND_BARBS]: windData
     }
+
+    windCache.set(timelineIndex, result)
+
+    return result
+
   } catch (e) {
     console.error(e)
+
     return WIND_INITIAL_LAYERS_STATE
   }
 }

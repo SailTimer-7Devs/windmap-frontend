@@ -1,5 +1,5 @@
 import { STORAGE_LAYER_KEY } from 'constants/localStorage'
-import { WIND } from 'constants/layer/wind'
+import { WIND } from 'constants/layer/names'
 
 export default function getUrlParams(
   key = STORAGE_LAYER_KEY,
@@ -10,4 +10,8 @@ export default function getUrlParams(
   const value = params.get(key) || defaultValue
 
   return value
+}
+
+export function joinPath(...segments: string[]): string {
+  return segments.filter(Boolean).join('/')
 }
