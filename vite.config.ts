@@ -21,5 +21,17 @@ export default defineConfig({
       'hooks': path.resolve(__dirname, './src/hooks'),
       'assets': path.resolve(__dirname, './src/assets')
     }
+  },
+  build: {
+    chunkSizeWarningLimit: 1700,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'deck-chunk': ['deck.gl', '@deck.gl/mapbox', '@deck.gl/extensions'],
+          'mapbox-chunk': ['mapbox-gl'],
+          'weatherlayers-gl-chunk': ['weatherlayers-gl']
+        }
+      }
+    }
   }
 })
