@@ -4,8 +4,8 @@
   "version": "0.7.2",
   "type": "module",
   "scripts": {
-    "dev": "cross-env MODE=dev vite --host --port 8000",
-    "build": "cross-env MODE=build tsc -b && vite build",
+    "dev": "cross-env vite --host --port 8000",
+    "build": "cross-env tsc -b && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },

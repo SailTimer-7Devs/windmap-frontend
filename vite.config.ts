@@ -7,14 +7,14 @@ import path from 'path'
 const STAGE = process.env.STAGE || 'dev'
 
 // https://vitejs.dev/config/
-export default ({ mode }) => {
+export default ({ mode }: { mode: string }): ReturnType<typeof defineConfig> => {
   process.env = {
     ...process.env,
     ...mapEnvVars({
       STAGE,
       S3_DATA: process.env.S3_DATA,
-      COGNITO_POOL_ID: process.env.COGNITO_POOL_ID,
-      COGNITO_POOL_CLIENT_ID: process.env.COGNITO_POOL_CLIENT_ID
+      COGNITO_USER_POOL_ID: process.env.COGNITO_USER_POOL_ID,
+      COGNITO_USER_POOL_CLIENT_ID: process.env.COGNITO_USER_POOL_CLIENT_ID
     }),
     ...loadEnv(mode, process.cwd())
   }
@@ -52,10 +52,10 @@ export default ({ mode }) => {
 }
 
 function mapEnvVars(vars: Record<string, unknown>) {
-  const viteVars = {}
+  const viteVars: Record<string, string | undefined> = {}
 
   for (const [key, value] of Object.entries(vars)) {
-    viteVars[`VITE_${key}`] = value
+    viteVars[`VITE_${key}`] = value?.toString()
   }
 
   return viteVars
