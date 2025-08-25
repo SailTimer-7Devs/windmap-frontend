@@ -5,6 +5,14 @@
   --primary-red-alfa: #B22E2E33;
 }
 
+$base-font-size: 14px;
+$base-line-height: 1.2;
+
+@mixin base-font-styles {
+  font-size: $base-font-size;
+  line-height: $base-line-height;
+}
+
 body {
   margin: 0;
   font-family: 'Lucida Grande', 'Trebuchet MS', sans-serif;
@@ -19,23 +27,49 @@ body {
   z-index: 0;
 }
 
-.mapboxgl-ctrl-logo,
-.mapboxgl-ctrl-attrib-inner>* {
-  display: none !important;
-}
+.mapboxgl {
 
-.mapboxgl-marker {
-  z-index: 10;
-}
+  &-ctrl-logo,
+  &-ctrl-attrib-inner>* {
+    display: none !important;
+  }
 
-.mapboxgl-user-location-dot {
-  background-color: var(--primary-red);
+  &-ctrl-scale {
+    @include base-font-styles;
+  }
 
-  &::before {
-    background-color: var(--primary-red);
+  .mapboxgl-marker {
+    z-index: 10;
+  }
+
+  .mapboxgl-user-location {
+    &-dot {
+      background-color: var(--primary-red);
+
+      &::before {
+        background-color: var(--primary-red);
+      }
+    }
+
+    &-accuracy-circle {
+      background-color: var(--primary-red-alfa);
+    }
   }
 }
 
-.mapboxgl-user-location-accuracy-circle {
-  background-color: var(--primary-red-alfa);
+.weatherlayers {
+
+  &-timeline-control,
+  &-legend-control {
+    & * {
+      @include base-font-styles;
+    }
+  }
+
+  &-timeline-control {
+    &__buttons>a {
+      width: 24px;
+      height: 24px;
+    }
+  }
 }
