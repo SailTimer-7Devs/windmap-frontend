@@ -11,10 +11,11 @@ import { windTimelineFiles } from 'constants/layer/wind'
 import { pswhTimelineFiles } from 'constants/layer/pswh'
 import { pwhTimelineFiles } from 'constants/layer/pwh'
 import { wshTimelineFiles } from 'constants/layer/wsh'
+import { weatherWniTimelineFiles } from 'constants/layer/weather_wni'
 
 import { joinPath } from 'lib/url'
 
-export function getGfsUrl(step: string, fileName: string): string {
+function getGfsUrl(step: string, fileName: string): string {
   return joinPath(
     S3_DATA_URL,
     GFS_URL_SEGMENT,
@@ -23,10 +24,22 @@ export function getGfsUrl(step: string, fileName: string): string {
   )
 }
 
-export function getWniUrl(step: string, fileName: string): string {
+function getWniUrl(step: string, fileName: string): string {
   return joinPath(
     S3_DATA_URL,
     WNI_URL_SEGMENT,
+    `T00${step}`,
+    fileName
+  )
+}
+
+function getWeatherWniUrl(step: string, fileName: string): string {
+  const SUB_FOLDER = fileName.includes('ice') ? 'ice' : 'v2'
+
+  return joinPath(
+    S3_DATA_URL,
+    WNI_URL_SEGMENT,
+    SUB_FOLDER,
     `T00${step}`,
     fileName
   )
@@ -55,6 +68,7 @@ export function getTimelineLayerGroupFileURL(
 
   const windUrl = getGfsUrl(stepString, fileName)
   const wniUrl = getWniUrl(stepString, fileName)
+  const weatherWniUrl = getWeatherWniUrl(stepString, fileName)
 
   switch (layerName) {
     case LAYER_NAMES.WIND:
@@ -64,6 +78,9 @@ export function getTimelineLayerGroupFileURL(
     case LAYER_NAMES.PWH:
     case LAYER_NAMES.WSH:
       return wniUrl
+
+    case LAYER_NAMES.WEATHER_WNI:
+      return weatherWniUrl
 
     default:
       return windUrl
@@ -100,6 +117,9 @@ export function getDateTimeByLayerName(name: string): string[] {
 
     case LAYER_NAMES.WSH:
       return wshTimelineFiles.datetime
+
+    case LAYER_NAMES.WEATHER_WNI:
+      return weatherWniTimelineFiles.datetime
 
     default:
       return windTimelineFiles.datetime

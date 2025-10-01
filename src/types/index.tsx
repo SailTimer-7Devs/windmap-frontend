@@ -5,6 +5,7 @@ import { PSWH_LAYER_KEYS } from 'constants/layer/pswh'
 import { PWH_LAYER_KEYS } from 'constants/layer/pwh'
 import { WIND_LAYER_KEYS } from 'constants/layer/wind'
 import { WSH_LAYER_KEYS } from 'constants/layer/wsh'
+import { WEATHER_WNI_LAYER_KEYS } from 'constants/layer/weather_wni'
 
 export type MapViewState = {
   longitude: number
@@ -16,7 +17,7 @@ export type MapViewState = {
 
 export type LayerKey =
   /* WIND */
-  typeof WIND_LAYER_KEYS.WIND
+  | typeof WIND_LAYER_KEYS.WIND
   | typeof WIND_LAYER_KEYS.WIND_HEATMAP
   | typeof WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP
   | typeof WIND_LAYER_KEYS.WIND_BARBS
@@ -32,6 +33,17 @@ export type LayerKey =
   /* WNI_WSH */
   | typeof WSH_LAYER_KEYS.WSH_HEATMAP
   | typeof WSH_LAYER_KEYS.WSH_UV
+
+  /* WEATHER_WNI */
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_INTPCP
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PH1000HPA
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PH500HPA
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_RH700HPA
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_RH850HPA
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP1000HPA
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP850HPA
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_VISIBILITY
 
 export type LayersState = {
   [key in LayerKey]: TextureData | undefined
