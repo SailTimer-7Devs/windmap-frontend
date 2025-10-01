@@ -132,12 +132,11 @@ function Mapbox(): ReactElement {
   }
 
   const handleGeolocate = (position: GeolocateResultEvent) => {
-    if (mapRef.current) {
+    if (mapRef.current && position?.coords) {
+      const { longitude, latitude } = position.coords
+
       mapRef.current.flyTo({
-        center: [
-          position.coords.longitude,
-          position.coords.latitude
-        ],
+        center: [longitude, latitude],
         zoom: 15,
         speed: 1.2
       })
