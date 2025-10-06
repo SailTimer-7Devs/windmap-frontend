@@ -28,7 +28,6 @@ body {
 }
 
 .mapboxgl {
-
   &-ctrl-logo,
   &-ctrl-attrib-inner>* {
     display: none !important;
@@ -58,7 +57,6 @@ body {
 }
 
 .weatherlayers {
-
   &-timeline-control,
   &-legend-control {
     & * {
@@ -67,9 +65,20 @@ body {
   }
 
   &-timeline-control {
-    &__buttons>a {
+    &__buttons > a {
       width: 24px;
       height: 24px;
     }
+  }
+}
+
+@layer base {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-text-fill-color: theme('colors.gray.300');
+    transition: background-color 9999s ease-in-out 0s;
   }
 }

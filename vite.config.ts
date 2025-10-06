@@ -33,7 +33,13 @@ export default ({ mode }: { mode: string }): ReturnType<typeof defineConfig> => 
         'types': path.resolve(__dirname, './src/types'),
         'icons': path.resolve(__dirname, './src/icons'),
         'hooks': path.resolve(__dirname, './src/hooks'),
-        'assets': path.resolve(__dirname, './src/assets')
+        'assets': path.resolve(__dirname, './src/assets'),
+        'bootstrap': path.resolve(__dirname, './src/bootstrap'),
+        'fields': path.resolve(__dirname, './src/fields'),
+        'forms': path.resolve(__dirname, './src/forms'),
+        'sections': path.resolve(__dirname, './src/sections'),
+        'store': path.resolve(__dirname, './src/store'),
+        'templates': path.resolve(__dirname, './src/templates')
       }
     },
     build: {

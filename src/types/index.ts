@@ -72,3 +72,5 @@ export type DropdownMenuProps = {
     href?: string
   }[]
 }
+
+export type GenericObject = Record<string, unknown>
