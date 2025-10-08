@@ -1,7 +1,7 @@
 import { STORAGE_LAYER_KEY } from 'constants/localStorage'
 import { WIND } from 'constants/layer/names'
 
-export default function getUrlParams(
+export function getUrlParams(
   key = STORAGE_LAYER_KEY,
   defaultValue = WIND
 ): string {

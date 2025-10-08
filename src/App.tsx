@@ -11,19 +11,34 @@ import Mapbox from 'components/Mapbox'
 import SignInForm from 'forms/SignIn'
 import LoginTemplate from 'templates/Login'
 
-import getUrlParams from 'lib/url'
+// import { getCookies } from 'lib/cookies'
+import { getUrlParams } from 'lib/url'
 
 import { useAuthStore } from 'store/auth'
 
 export default function App(): ReactElement {
-  const isAuthorized = !!getUrlParams('authorized', '')
+  const accessToken = getUrlParams('accessToken', '')
+
+  console.info('accessToken', accessToken)
+
+  if (accessToken) {
+    /* remove accessToken from url */
+    window.history.replaceState(
+      {},
+      document.title,
+      window.location.pathname
+    )
+
+    /* get cookies and save to all next requests */
+    // getCookies(accessToken)
+  }
 
   const { currentUser } = useAuthStore()
 
   return (
     <QueryClientProvider client={client}>
       <div className='relative w-full h-dvh flex items-center justify-center'>
-        {isAuthorized || currentUser.isAuthorized
+        {accessToken || currentUser.isAuthorized
           ? <Mapbox />
           : (
             <LoginTemplate

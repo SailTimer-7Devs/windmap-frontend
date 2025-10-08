@@ -3,17 +3,14 @@ import type { CurrentUser, SignInPayload } from 'types/user'
 import { create } from 'zustand'
 
 import { Amplify } from 'aws-amplify'
+import { fetchAuthSession } from 'aws-amplify/auth'
 
 import {
   signIn as amplifySignIn,
   signOut as amplifySignOut
 } from 'aws-amplify/auth'
 
-// import CURRENT_USER_QUERY from 'gql/queries/User/Current.gql'
-
-// import { notifySuccess, notifyWarning } from 'lib/toast'
-// import { graphqlRequest } from 'lib/client'
-
+// import { getCookies } from 'lib/cookies'
 import { notifySuccess, notifyError } from 'lib/toast'
 
 const userPoolId = import.meta.env.VITE_COGNITO_USER_POOL_ID
@@ -59,28 +56,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   authUser: async () => {
     return get().currentUser
-    // return get().signOut()
-
-    /*
-    set({ isLoading: true })
-
-    try {
-      const { currentUser } =
-        await graphqlRequest<CurrentUserQueryResult>(CURRENT_USER_QUERY)
-      set({
-        currentUser: {
-          ...currentUser,
-          isAuthorized: true
-        },
-        isLoading: false
-      })
-    } catch (err) {
-      set({
-        currentUser: initialUser,
-        isLoading: !err
-      })
-    }
-    */
   },
 
   signIn: async (payload: SignInPayload) => {
@@ -96,7 +71,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       const isNotConfirmed = nextStep.signInStep === 'CONFIRM_SIGN_UP'
 
       if (isSignedIn) {
-        // await get().authUser()
+        const { accessToken } = (await fetchAuthSession()).tokens ?? {}
+
+        console.info({ accessToken })
+        // await getCookies(accessToken as unknown as string)
+
         set({
           currentUser: {
             isAuthorized: true
