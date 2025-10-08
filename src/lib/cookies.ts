@@ -11,7 +11,7 @@ export async function getCookies(accessToken: string): Promise<void> {
   }
 
   try {
-    const response = await fetch(`${API_URL}`, {
+    const response = await fetch(API_URL, {
       method: 'POST', /* or 'GET' */
       headers: {
         'Authorization': `Bearer ${accessToken}`
@@ -24,6 +24,6 @@ export async function getCookies(accessToken: string): Promise<void> {
     }
 
   } catch (err) {
-    console.error('Error exchanging token for cookies:', err)
+    console.error(err)
   }
 }

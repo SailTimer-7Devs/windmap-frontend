@@ -1,5 +1,7 @@
 import { type ReactElement } from 'react'
 
+import React from 'react'
+
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
@@ -16,24 +18,24 @@ import { getUrlParams } from 'lib/url'
 
 import { useAuthStore } from 'store/auth'
 
+const ACCESS_TOKEN_PARAM = 'accessToken'
+
 export default function App(): ReactElement {
-  const accessToken = getUrlParams('accessToken', '')
+  const accessToken = getUrlParams(ACCESS_TOKEN_PARAM, '')
 
-  console.info('accessToken', accessToken)
-
-  if (accessToken) {
-    /* remove accessToken from url */
-    window.history.replaceState(
-      {},
-      document.title,
-      window.location.pathname
-    )
-
-    /* get cookies and save to all next requests */
-    // getCookies(accessToken)
-  }
+  console.info({ accessToken })
 
   const { currentUser } = useAuthStore()
+  //getCookies(accessToken)
+
+  React.useEffect(() => {
+    if (accessToken) {
+      const url = new URL(window.location.href)
+      url.searchParams.delete(ACCESS_TOKEN_PARAM)
+      window.history.replaceState({}, document.title, url.toString())
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <QueryClientProvider client={client}>
