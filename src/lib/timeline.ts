@@ -1,11 +1,7 @@
 import * as LAYER_NAMES from 'constants/layer/names'
 import { S3_DATA_URL } from 'constants/basemap'
 
-import {
-  MAX_FUTURE_HOURS,
-  GFS_URL_SEGMENT,
-  WNI_URL_SEGMENT
-} from 'constants/timeline'
+import { MAX_FUTURE_HOURS, URL_SEGMENTS } from 'constants/timeline'
 
 import { windTimelineFiles } from 'constants/layer/wind'
 import { pswhTimelineFiles } from 'constants/layer/pswh'
@@ -18,7 +14,7 @@ import { joinPath } from 'lib/url'
 function getGfsUrl(step: string, fileName: string): string {
   return joinPath(
     S3_DATA_URL,
-    GFS_URL_SEGMENT,
+    URL_SEGMENTS.GFS,
     `F00${step}`,
     fileName
   )
@@ -27,18 +23,29 @@ function getGfsUrl(step: string, fileName: string): string {
 function getWniUrl(step: string, fileName: string): string {
   return joinPath(
     S3_DATA_URL,
-    WNI_URL_SEGMENT,
+    URL_SEGMENTS.WNI,
     `T00${step}`,
     fileName
   )
 }
 
+function getWniSubfolder(fileName: string): string {
+  switch (true) {
+    case fileName.includes('ice'):
+      return URL_SEGMENTS.ICE
+    case fileName.includes('_uv_mps'):
+      return URL_SEGMENTS.GHI
+    default:
+      return URL_SEGMENTS.V2
+  }
+}
+
 function getWeatherWniUrl(step: string, fileName: string): string {
-  const SUB_FOLDER = fileName.includes('ice') ? 'ice' : 'v2'
+  const SUB_FOLDER = getWniSubfolder(fileName)
 
   return joinPath(
     S3_DATA_URL,
-    WNI_URL_SEGMENT,
+    URL_SEGMENTS.WNI,
     SUB_FOLDER,
     `T00${step}`,
     fileName

@@ -27,11 +27,9 @@ export const WNI_WSH_FILES = {
 export const WEATHER_WNI_FILES = {
   ICE: 'wni_ice_pack_heatmap.png',
   INTPCP: 'wni_v2_intpcp_heatmap.png',
-  PH1000HPA: 'wni_v2_ph1000hpa_heatmap.png',
-  PH500HPA: 'wni_v2_ph500hpa_heatmap.png',
-  RH700HPA: 'wni_v2_rh700hpa_heatmap.png',
-  RH850HPA: 'wni_v2_rh850hpa_heatmap.png',
   TMP1000HPA: 'wni_v2_tmp1000hpa_heatmap.png',
   TMP850HPA: 'wni_v2_tmp850hpa_heatmap.png',
-  VISIBILITY: 'wni_v2_vis_heatmap.png'
+  VISIBILITY: 'wni_v2_vis_heatmap.png',
+  UV: 'wni_current_uv_mps.png',
+  WIND_UV: 'wni_wind_uv_mps.png'
 }
