@@ -25,10 +25,11 @@ const TimelineControl = (props: TimelineControlConfig): null => {
     const startDate = document.getElementsByClassName('weatherlayers-timeline-control__start-datetime')[0] as HTMLElement
     const endDate = document.getElementsByClassName('weatherlayers-timeline-control__end-datetime')[0] as HTMLElement
 
-    startDate.innerText = formatDateToLocalISOString(datetimes[0])
-    endDate.innerText = formatDateToLocalISOString(datetimes[datetimes.length - 1])
-    current.innerText = formatDateToLocalISOString(datetime)
-
+    if (current && startDate && endDate) {
+      startDate.innerText = formatDateToLocalISOString(datetimes[0])
+      endDate.innerText = formatDateToLocalISOString(datetimes[datetimes.length - 1])
+      current.innerText = formatDateToLocalISOString(datetime)
+    }
   }, [datetime])
 
   return null
