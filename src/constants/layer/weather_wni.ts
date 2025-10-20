@@ -10,6 +10,13 @@ import * as WeatherLayers from 'weatherlayers-gl'
 
 import * as BASE from 'constants/basemap'
 
+import EyeIcon from 'icons/Eye'
+import SnowIcon from 'icons/Snow'
+import TemperatureIcon from 'icons/Temperature'
+import TemperatureHighIcon from 'icons/TemperatureHigh'
+import WindAnimationIcon from 'icons/WindAnimation'
+import WaveIcon from 'icons/Wave'
+
 import { handleImageDataLoad } from 'lib/image'
 import {
   setParticlesNumbersByDeviceType,
@@ -64,7 +71,8 @@ export const WEATHER_WNI_INITIAL_LAYERS_STATE: LayersState = {
 export const LAYERS_MENU_LIST = [
   {
     id: WEATHER_WNI,
-    name: 'Ice Pack'
+    name: 'Ice Pack',
+    icon: SnowIcon
   },
   // {
   //   id: WEATHER_WNI_INTPCP,
@@ -72,23 +80,28 @@ export const LAYERS_MENU_LIST = [
   // },
   {
     id: WEATHER_WNI_TMP850HPA,
-    name: 'Temperature 850 hPa'
+    name: 'Temperature 850 hPa',
+    icon: TemperatureIcon
   },
   {
     id: WEATHER_WNI_TMP1000HPA,
-    name: 'Temperature 1000 hPa'
+    name: 'Temperature 1000 hPa',
+    icon: TemperatureHighIcon
   },
   {
     id: WEATHER_WNI_VISIBILITY,
-    name: 'Visibility'
+    name: 'Visibility',
+    icon: EyeIcon
   },
   {
     id: WEATHER_WNI_UV,
-    name: 'Wave speed'
+    name: 'Wave speed',
+    icon: WaveIcon
   },
   {
     id: WEATHER_WNI_WIND_UV,
-    name: 'Wind speed'
+    name: 'Wind speed',
+    icon: WindAnimationIcon
   }
 ]
 

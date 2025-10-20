@@ -9,6 +9,8 @@ import * as WeatherLayers from 'weatherlayers-gl'
 
 import * as BASE from 'constants/basemap'
 
+import WaveIcon from 'icons/Wave'
+
 import { handleImageDataLoad } from 'lib/image'
 
 import {
@@ -40,11 +42,13 @@ export const PWH_INITIAL_LAYERS_STATE: LayersState = {
 export const LAYERS_MENU_LIST = [
   {
     id: PWH_HEATMAP,
-    name: 'Wave Height'
+    name: 'Wave Height',
+    icon: WaveIcon
   },
   {
     id: PWH_UV,
-    name: 'Wave Animation'
+    name: 'Wave Animation',
+    icon: WaveIcon
   }
 ]
 

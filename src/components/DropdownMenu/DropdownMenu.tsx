@@ -35,7 +35,7 @@ const DropdownMenu = ({ caption, options }: DropdownMenuProps): ReactElement => 
       <MenuItems
         transition
         anchor='bottom end'
-        className='w-52 origin-top-right rounded-xl border border-white/5 bg-gray-800 p-1 text-sm/6 text-white transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0'
+        className='w-62 origin-top-right rounded-xl border border-white/5 bg-gray-800 p-1 text-sm/6 text-white transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0'
       >
         {options.map(({ label, icon, onClick, href }) => (
           <MenuItem key={label}>

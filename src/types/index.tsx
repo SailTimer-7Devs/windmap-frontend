@@ -58,6 +58,7 @@ export type LayersMenuProps = {
   menuList: {
     id: LayerKey
     name: string
+    icon?: ReactElement
   }[]
 }
 

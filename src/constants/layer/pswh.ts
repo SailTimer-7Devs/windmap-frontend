@@ -9,6 +9,9 @@ import * as WeatherLayers from 'weatherlayers-gl'
 
 import * as BASE from 'constants/basemap'
 
+import SwellHeightIcon from 'icons/SwellHeight'
+import SwellAnimationIcon from 'icons/SwellAnimation'
+
 import { handleImageDataLoad } from 'lib/image'
 import { setParticlesNumbersByDeviceType } from 'lib/layer'
 
@@ -41,11 +44,13 @@ export const PSWH_INITIAL_LAYERS_STATE: LayersState = {
 export const LAYERS_MENU_LIST = [
   {
     id: PSWH_HEATMAP,
-    name: 'Swell Height'
+    name: 'Swell Height',
+    icon: SwellHeightIcon
   },
   {
     id: PSWH_UV,
-    name: 'Swell Animation'
+    name: 'Swell Animation',
+    icon: SwellAnimationIcon
   }
 ]
 
