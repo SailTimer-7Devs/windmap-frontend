@@ -12,8 +12,8 @@ import * as BASE from 'constants/basemap'
 
 import EyeIcon from 'icons/Eye'
 import SnowIcon from 'icons/Snow'
-import TemperatureIcon from 'icons/Temperature'
-import TemperatureHighIcon from 'icons/TemperatureHigh'
+// import TemperatureIcon from 'icons/Temperature'
+// import TemperatureHighIcon from 'icons/TemperatureHigh'
 import WindAnimationIcon from 'icons/WindAnimation'
 import WaveIcon from 'icons/Wave'
 
@@ -78,16 +78,16 @@ export const LAYERS_MENU_LIST = [
   //   id: WEATHER_WNI_INTPCP,
   //   name: 'Integrated Precipitation'
   // },
-  {
-    id: WEATHER_WNI_TMP850HPA,
-    name: 'Temperature 850 hPa',
-    icon: TemperatureIcon
-  },
-  {
-    id: WEATHER_WNI_TMP1000HPA,
-    name: 'Temperature 1000 hPa',
-    icon: TemperatureHighIcon
-  },
+  // {
+  //   id: WEATHER_WNI_TMP850HPA,
+  //   name: 'Temperature 850 hPa',
+  //   icon: TemperatureIcon
+  // },
+  // {
+  //   id: WEATHER_WNI_TMP1000HPA,
+  //   name: 'Temperature 1000 hPa',
+  //   icon: TemperatureHighIcon
+  // },
   {
     id: WEATHER_WNI_VISIBILITY,
     name: 'Visibility',
