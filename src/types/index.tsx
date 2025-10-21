@@ -69,5 +69,6 @@ export type DropdownMenuProps = {
     icon?: ReactElement
     onClick?: () => void
     href?: string
+    checked?: boolean
   }[]
 }
