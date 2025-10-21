@@ -11,8 +11,8 @@ export async function getCookies(accessToken: string): Promise<void> {
   }
 
   try {
-    const response = await fetch(API_URL, {
-      method: 'POST', /* or 'GET' */
+    const response = await fetch(`${API_URL}/sign-cookies`, {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`
       },

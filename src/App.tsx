@@ -13,7 +13,7 @@ import Mapbox from 'components/Mapbox'
 import SignInForm from 'forms/SignIn'
 import LoginTemplate from 'templates/Login'
 
-// import { getCookies } from 'lib/cookies'
+import { getCookies } from 'lib/cookies'
 import { getUrlParams } from 'lib/url'
 
 import { useAuthStore } from 'store/auth'
@@ -23,10 +23,10 @@ const ACCESS_TOKEN_PARAM = 'accessToken'
 export default function App(): ReactElement {
   const accessToken = getUrlParams(ACCESS_TOKEN_PARAM, '')
 
-  console.info({ accessToken })
+  console.info({ paramsToken: accessToken })
 
-  const { currentUser } = useAuthStore()
-  //getCookies(accessToken)
+  const { currentUser, signOut } = useAuthStore()
+  getCookies(accessToken)
 
   React.useEffect(() => {
     if (accessToken) {
@@ -51,6 +51,8 @@ export default function App(): ReactElement {
             </LoginTemplate>
           )
         }
+
+        <button onClick={signOut}>Sign out</button>
       </div>
 
       <Toaster

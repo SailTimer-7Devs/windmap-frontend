@@ -10,7 +10,7 @@ import {
   signOut as amplifySignOut
 } from 'aws-amplify/auth'
 
-// import { getCookies } from 'lib/cookies'
+import { getCookies } from 'lib/cookies'
 import { notifySuccess, notifyError } from 'lib/toast'
 
 const userPoolId = import.meta.env.VITE_COGNITO_USER_POOL_ID
@@ -73,8 +73,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       if (isSignedIn) {
         const { accessToken } = (await fetchAuthSession()).tokens ?? {}
 
-        console.info({ accessToken })
-        // await getCookies(accessToken as unknown as string)
+        console.info({ accessToken: accessToken?.toString() })
+        await getCookies(accessToken?.toString() as string)
 
         set({
           currentUser: {
