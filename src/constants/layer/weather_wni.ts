@@ -11,6 +11,9 @@ import * as WeatherLayers from 'weatherlayers-gl'
 import * as BASE from 'constants/basemap'
 
 import EyeIcon from 'icons/Eye'
+import IntegratedPrecipitationIcon from 'icons/IntegratedPrecipitation'
+import OceanIcon from 'icons/Ocean'
+// import SeaTemperatureIcon from 'icons/SeaTemperature'
 import SnowIcon from 'icons/Snow'
 // import TemperatureIcon from 'icons/Temperature'
 // import TemperatureHighIcon from 'icons/TemperatureHigh'
@@ -38,6 +41,9 @@ export const WEATHER_WNI_TMP1000HPA = 'weather_wni_tmp1000hpa'
 export const WEATHER_WNI_VISIBILITY = 'weather_wni_visibility'
 export const WEATHER_WNI_UV = 'weather_wni_uv'
 export const WEATHER_WNI_WIND_UV = 'weather_wni_wind_uv'
+export const WEATHER_WNI_SST = 'weather_wni_sst'
+export const WEATHER_WNI_UUU = 'weather_wni_uuu'
+export const WEATHER_WNI_VVV = 'weather_wni_vvv'
 
 export const WEATHER_WNI_LAYER_KEYS = {
   WEATHER_WNI,
@@ -46,21 +52,19 @@ export const WEATHER_WNI_LAYER_KEYS = {
   WEATHER_WNI_TMP1000HPA,
   WEATHER_WNI_VISIBILITY,
   WEATHER_WNI_UV,
-  WEATHER_WNI_WIND_UV
+  WEATHER_WNI_WIND_UV,
+  WEATHER_WNI_SST,
+  WEATHER_WNI_UUU,
+  WEATHER_WNI_VVV
 }
 
 export const WEATHER_WNI_VISIBLE_LAYERS = [
   WEATHER_WNI
 ]
 
-/*
-  Layer: 'INTPCP' temporary disabled,
-  heatmap without correct data yet
-*/
-
 export const WEATHER_WNI_INITIAL_LAYERS_STATE: LayersState = {
   [WEATHER_WNI]: undefined,
-  // [WEATHER_WNI_INTPCP]: undefined,
+  [WEATHER_WNI_INTPCP]: undefined,
   [WEATHER_WNI_TMP1000HPA]: undefined,
   [WEATHER_WNI_TMP850HPA]: undefined,
   [WEATHER_WNI_VISIBILITY]: undefined,
@@ -74,10 +78,26 @@ export const LAYERS_MENU_LIST = [
     name: 'Ice Pack',
     icon: SnowIcon
   },
+  {
+    id: WEATHER_WNI_INTPCP,
+    name: 'Integrated Precipitation',
+    icon: IntegratedPrecipitationIcon
+  },
   // {
-  //   id: WEATHER_WNI_INTPCP,
-  //   name: 'Integrated Precipitation'
+  //   id: WEATHER_WNI_SST,
+  //   name: 'Sea Surface Temperature',
+  //   icon: SeaTemperatureIcon
   // },
+  {
+    id: WEATHER_WNI_UUU,
+    name: 'Ocean Current U',
+    icon: OceanIcon
+  },
+  {
+    id: WEATHER_WNI_VVV,
+    name: 'Ocean Current V',
+    icon: OceanIcon
+  },
   // {
   //   id: WEATHER_WNI_TMP850HPA,
   //   name: 'Temperature 850 hPa',
@@ -119,18 +139,18 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   }),
 
-  // new WeatherLayers.RasterLayer({
-  //   id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_INTPCP,
-  //   image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_INTPCP as LayerKey],
-  //   imageType: 'SCALAR',
-  //   bounds: BASE.WIND_MAP_BOUNDS,
-  //   palette: BASE.WIND_SPEED_PALETTE as Palette,
-  //   opacity: 0.2,
-  //   imageUnscale: [0, 255],
-  //   extensions: [new ClipExtension()],
-  //   clipBounds: BASE.CLIP_BOUNDS,
-  //   beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
-  // }),
+  new WeatherLayers.RasterLayer({
+    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_INTPCP,
+    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_INTPCP as LayerKey],
+    imageType: 'SCALAR',
+    bounds: BASE.WIND_MAP_BOUNDS,
+    palette: BASE.WIND_SPEED_PALETTE as Palette,
+    opacity: 0.2,
+    imageUnscale: [0, 255],
+    extensions: [new ClipExtension()],
+    clipBounds: BASE.CLIP_BOUNDS,
+    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
+  }),
 
   new WeatherLayers.RasterLayer({
     id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP1000HPA,
@@ -205,17 +225,69 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     clipBounds: BASE.CLIP_BOUNDS,
     getPolygonOffset: () => [0, -1000],
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
+  }),
+
+  new WeatherLayers.RasterLayer({
+    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SST,
+    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SST as LayerKey],
+    imageType: 'SCALAR',
+    bounds: BASE.WIND_MAP_BOUNDS,
+    palette: BASE.WIND_SPEED_PALETTE as Palette,
+    opacity: 0.2,
+    imageUnscale: [0, 255],
+    extensions: [new ClipExtension()],
+    clipBounds: BASE.CLIP_BOUNDS,
+    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
+  }),
+
+  new WeatherLayers.ParticleLayer({
+    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UUU,
+    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UUU as LayerKey],
+    imageType: 'VECTOR',
+    imageUnscale: BASE.IMAGE_UNSCALE,
+    bounds: BASE.WIND_MAP_BOUNDS,
+    numParticles: setParticlesNumbersByDeviceType(),
+    maxAge: 100,
+    speedFactor: 20,
+    width: setParticleWidthByDevice(),
+    opacity: 0.1,
+    animate: true,
+    extensions: [new ClipExtension()],
+    clipBounds: BASE.CLIP_BOUNDS,
+    getPolygonOffset: () => [0, -1000],
+    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
+  }),
+
+  new WeatherLayers.ParticleLayer({
+    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_VVV,
+    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_VVV as LayerKey],
+    imageType: 'VECTOR',
+    imageUnscale: BASE.IMAGE_UNSCALE,
+    bounds: BASE.WIND_MAP_BOUNDS,
+    numParticles: setParticlesNumbersByDeviceType(),
+    maxAge: 100,
+    speedFactor: 20,
+    width: setParticleWidthByDevice(),
+    opacity: 0.1,
+    animate: true,
+    extensions: [new ClipExtension()],
+    clipBounds: BASE.CLIP_BOUNDS,
+    getPolygonOffset: () => [0, -1000],
+    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   })
 ]
 
 export const weatherWniTimelineFiles = {
   weatherWniIce: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.ICE, 1),
-  // weatherWniIntpcp: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.INTPCP, 1),
+  weatherWniIntpcp: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.INTPCP, 1),
   weatherWniTmp850Hpa: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.TMP850HPA, 1),
   weatherWniTmp1000Hpa: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.TMP1000HPA, 1),
   weatherWniVisibility: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.VISIBILITY, 1),
   weatherWniUv: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.UV, 1),
   weatherWniWindUv: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.WIND_UV, 1),
+  weatherWniSst: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.SST, 1),
+  weatherWniUuu: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.UUU, 1),
+  weatherWniVvv: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.VVV, 1),
   datetime: createTimelineDatetimes(1)
 }
 
@@ -229,30 +301,39 @@ export async function getWeatherWniLayersData(timelineIndex: number = 0): Promis
   try {
     const [
       weatherWniIceData,
-      // weatherWniIntpcpData,
-      weatherWniTmp850HpaData,
-      weatherWniTmp1000HpaData,
+      weatherWniIntpcpData,
+      // weatherWniTmp850HpaData,
+      // weatherWniTmp1000HpaData,
       weatherWniVisibilityData,
       weatherWniUvData,
-      weatherWniWindUvData
+      weatherWniWindUvData,
+      // weatherWniSstData,
+      weatherWniUuuData,
+      weatherWniVvvData
     ] = await Promise.all([
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniIce[timelineIndex]),
-      // handleImageDataLoad(weatherWniTimelineFiles.weatherWniIntpcp[timelineIndex]),
-      handleImageDataLoad(weatherWniTimelineFiles.weatherWniTmp850Hpa[timelineIndex]),
-      handleImageDataLoad(weatherWniTimelineFiles.weatherWniTmp1000Hpa[timelineIndex]),
+      handleImageDataLoad(weatherWniTimelineFiles.weatherWniIntpcp[timelineIndex]),
+      // handleImageDataLoad(weatherWniTimelineFiles.weatherWniTmp850Hpa[timelineIndex]),
+      // handleImageDataLoad(weatherWniTimelineFiles.weatherWniTmp1000Hpa[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniVisibility[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniUv[timelineIndex]),
-      handleImageDataLoad(weatherWniTimelineFiles.weatherWniWindUv[timelineIndex])
+      handleImageDataLoad(weatherWniTimelineFiles.weatherWniWindUv[timelineIndex]),
+      // handleImageDataLoad(weatherWniTimelineFiles.weatherWniSst[timelineIndex]),
+      handleImageDataLoad(weatherWniTimelineFiles.weatherWniUuu[timelineIndex]),
+      handleImageDataLoad(weatherWniTimelineFiles.weatherWniVvv[timelineIndex])
     ])
 
     const result = {
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI]: weatherWniIceData,
-      // [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_INTPCP]: weatherWniIntpcpData,
-      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP850HPA]: weatherWniTmp850HpaData,
-      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP1000HPA]: weatherWniTmp1000HpaData,
+      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_INTPCP]: weatherWniIntpcpData,
+      // [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP850HPA]: weatherWniTmp850HpaData,
+      // [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP1000HPA]: weatherWniTmp1000HpaData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_VISIBILITY]: weatherWniVisibilityData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UV]: weatherWniUvData,
-      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV]: weatherWniWindUvData
+      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV]: weatherWniWindUvData,
+      // [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SST]: weatherWniSstData,
+      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UUU]: weatherWniUuuData,
+      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_VVV]: weatherWniVvvData
     }
 
     weatherWniCache.set(timelineIndex, result)

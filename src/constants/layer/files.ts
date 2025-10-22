@@ -31,5 +31,8 @@ export const WEATHER_WNI_FILES = {
   TMP850HPA: 'wni_v2_tmp850hpa_heatmap.png',
   VISIBILITY: 'wni_v2_vis_heatmap.png',
   UV: 'wni_current_uv_mps.png',
-  WIND_UV: 'wni_wind_uv_mps.png'
+  WIND_UV: 'wni_wind_uv_mps.png',
+  SST: 'wni_sst_heatmap.png',
+  UUU: 'wni_current_uv_mps.png',
+  VVV: 'wni_current_uv_mps.png'
 }

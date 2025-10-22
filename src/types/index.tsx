@@ -42,6 +42,9 @@ export type LayerKey =
   | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_VISIBILITY
   | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UV
   | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SST
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UUU
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_VVV
 
 export type LayersState = {
   [key in LayerKey]: TextureData | undefined
