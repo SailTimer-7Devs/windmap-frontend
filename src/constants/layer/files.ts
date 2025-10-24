@@ -33,6 +33,5 @@ export const WEATHER_WNI_FILES = {
   UV: 'wni_current_uv_mps.png',
   WIND_UV: 'wni_wind_uv_mps.png',
   SST: 'wni_sst_heatmap.png',
-  UUU: 'wni_current_uv_mps.png',
-  VVV: 'wni_current_uv_mps.png'
+  UUU: 'wni_current_uv_mps.png'
 }
