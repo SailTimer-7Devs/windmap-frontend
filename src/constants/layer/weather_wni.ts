@@ -78,7 +78,7 @@ export const LAYERS_MENU_LIST = [
   },
   {
     id: WEATHER_WNI_INTPCP,
-    name: 'Integrated Precipitation',
+    name: 'Precipitation',
     icon: IntegratedPrecipitationIcon
   },
   // {
@@ -108,12 +108,12 @@ export const LAYERS_MENU_LIST = [
   },
   {
     id: WEATHER_WNI_UV,
-    name: 'Wave speed',
+    name: 'Wave',
     icon: WaveIcon
   },
   {
     id: WEATHER_WNI_WIND_UV,
-    name: 'Wind speed',
+    name: 'Wind',
     icon: WindAnimationIcon
   }
 ]
