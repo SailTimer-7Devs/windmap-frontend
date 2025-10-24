@@ -21,7 +21,7 @@ import {
 } from 'lib/timeline'
 
 import { PSWH as PSWH_NAME } from './names'
-import { WNI_PWH_FILES } from './files'
+import { WNI_PSWH_FILES } from './files'
 
 export const PSWH_HEATMAP = PSWH_NAME
 export const PSWH_UV = 'pswh-uv'
@@ -89,8 +89,8 @@ export const getPswhLayers = (layersState: LayersState): Layer[] => [
 ]
 
 export const pswhTimelineFiles = {
-  pswhHeatmap: createTimelineLayerFileByGroup(PSWH_NAME, WNI_PWH_FILES.HEATMAP),
-  pswhUv: createTimelineLayerFileByGroup(PSWH_NAME, WNI_PWH_FILES.UV),
+  pswhHeatmap: createTimelineLayerFileByGroup(PSWH_NAME, WNI_PSWH_FILES.HEATMAP),
+  pswhUv: createTimelineLayerFileByGroup(PSWH_NAME, WNI_PSWH_FILES.PSWH_UV),
   datetime: createTimelineDatetimes()
 }
 

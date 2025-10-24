@@ -19,6 +19,8 @@ import SnowIcon from 'icons/Snow'
 // import TemperatureHighIcon from 'icons/TemperatureHigh'
 import WindAnimationIcon from 'icons/WindAnimation'
 import WaveIcon from 'icons/Wave'
+import SwellHeightIcon from 'icons/SwellHeight'
+import SwellAnimationIcon from 'icons/SwellAnimation'
 
 import { handleImageDataLoad } from 'lib/image'
 import {
@@ -31,6 +33,7 @@ import {
   createTimelineDatetimes
 } from 'lib/timeline'
 
+import { PSWH as PSWH_NAME } from './names'
 import { WEATHER_WNI as WEATHER_WNI_NAME } from './names'
 import { WEATHER_WNI_FILES } from './files'
 
@@ -43,6 +46,8 @@ export const WEATHER_WNI_UV = 'weather_wni_uv'
 export const WEATHER_WNI_WIND_UV = 'weather_wni_wind_uv'
 export const WEATHER_WNI_SST = 'weather_wni_sst'
 export const WEATHER_WNI_UUU = 'weather_wni_uuu'
+export const WEATHER_WNI_PSWH_HEATMAP = 'weather_wni_pswh'
+export const WEATHER_WNI_PSWH_UV = 'weather_wni_pswh-uv'
 
 export const WEATHER_WNI_LAYER_KEYS = {
   WEATHER_WNI,
@@ -53,7 +58,9 @@ export const WEATHER_WNI_LAYER_KEYS = {
   WEATHER_WNI_UV,
   WEATHER_WNI_WIND_UV,
   WEATHER_WNI_SST,
-  WEATHER_WNI_UUU
+  WEATHER_WNI_UUU,
+  WEATHER_WNI_PSWH_HEATMAP,
+  WEATHER_WNI_PSWH_UV
 }
 
 export const WEATHER_WNI_VISIBLE_LAYERS = [
@@ -115,6 +122,16 @@ export const LAYERS_MENU_LIST = [
     id: WEATHER_WNI_WIND_UV,
     name: 'Wind',
     icon: WindAnimationIcon
+  },
+  {
+    id: WEATHER_WNI_PSWH_HEATMAP,
+    name: 'Swell Height',
+    icon: SwellHeightIcon
+  },
+  {
+    id: WEATHER_WNI_PSWH_UV,
+    name: 'Swell Animation',
+    icon: SwellAnimationIcon
   }
 ]
 
@@ -249,6 +266,39 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     clipBounds: BASE.CLIP_BOUNDS,
     getPolygonOffset: () => [0, -1000],
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
+  }),
+
+  //pswh
+  new WeatherLayers.RasterLayer({
+    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_HEATMAP,
+    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_HEATMAP as LayerKey],
+    imageType: 'SCALAR',
+    bounds: BASE.WIND_MAP_BOUNDS,
+    palette: BASE.WAVE_HEIGHT_PALETTE_0_50 as Palette,
+    opacity: 0.5,
+    pickable: true,
+    imageUnscale: [0, 255],
+    extensions: [new ClipExtension()],
+    clipBounds: BASE.CLIP_BOUNDS,
+    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
+  }),
+
+  new WeatherLayers.ParticleLayer({
+    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_UV,
+    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_UV as LayerKey],
+    imageType: 'VECTOR',
+    imageUnscale: BASE.IMAGE_UNSCALE,
+    bounds: BASE.WIND_MAP_BOUNDS,
+    numParticles: setParticlesNumbersByDeviceType(),
+    maxAge: 30,
+    speedFactor: 4,
+    width: 15,
+    opacity: 0.15,
+    animate: true,
+    extensions: [new ClipExtension()],
+    clipBounds: BASE.CLIP_BOUNDS,
+    getPolygonOffset: () => [0, -1000],
+    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   })
 ]
 
@@ -262,6 +312,8 @@ export const weatherWniTimelineFiles = {
   weatherWniWindUv: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.WIND_UV, 1),
   weatherWniSst: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.SST, 1),
   weatherWniUuu: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.UUU, 1),
+  pswhHeatmap: createTimelineLayerFileByGroup(PSWH_NAME, WEATHER_WNI_FILES.HEATMAP),
+  pswhUv: createTimelineLayerFileByGroup(PSWH_NAME, WEATHER_WNI_FILES.PSWH_UV),
   datetime: createTimelineDatetimes(1)
 }
 
@@ -282,7 +334,9 @@ export async function getWeatherWniLayersData(timelineIndex: number = 0): Promis
       weatherWniUvData,
       weatherWniWindUvData,
       // weatherWniSstData,
-      weatherWniUuuData
+      weatherWniUuuData,
+      pswhHeatmapData,
+      pswhUvData
     ] = await Promise.all([
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniIce[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniIntpcp[timelineIndex]),
@@ -292,7 +346,9 @@ export async function getWeatherWniLayersData(timelineIndex: number = 0): Promis
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniUv[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniWindUv[timelineIndex]),
       // handleImageDataLoad(weatherWniTimelineFiles.weatherWniSst[timelineIndex]),
-      handleImageDataLoad(weatherWniTimelineFiles.weatherWniUuu[timelineIndex])
+      handleImageDataLoad(weatherWniTimelineFiles.weatherWniUuu[timelineIndex]),
+      handleImageDataLoad(weatherWniTimelineFiles.pswhHeatmap[timelineIndex]),
+      handleImageDataLoad(weatherWniTimelineFiles.pswhUv[timelineIndex])
     ])
 
     const result = {
@@ -304,7 +360,9 @@ export async function getWeatherWniLayersData(timelineIndex: number = 0): Promis
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UV]: weatherWniUvData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV]: weatherWniWindUvData,
       // [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SST]: weatherWniSstData,
-      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UUU]: weatherWniUuuData
+      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UUU]: weatherWniUuuData,
+      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_HEATMAP]: pswhHeatmapData,
+      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_UV]: pswhUvData
     }
 
     weatherWniCache.set(timelineIndex, result)

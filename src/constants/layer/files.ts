@@ -8,7 +8,7 @@ export const WIND_FILES = {
 /* WNI_PSWH */
 export const WNI_PSWH_FILES = {
   HEATMAP: 'wni_pswh_heatmap_feet.png',
-  UV: 'wni_pswh_uv_feet.png'
+  PSWH_UV: 'wni_pswh_uv_feet.png'
 }
 
 /* WNI_PWH */
@@ -33,5 +33,6 @@ export const WEATHER_WNI_FILES = {
   UV: 'wni_current_uv_mps.png',
   WIND_UV: 'wni_wind_uv_mps.png',
   SST: 'wni_sst_heatmap.png',
-  UUU: 'wni_current_uv_mps.png'
+  UUU: 'wni_current_uv_mps.png',
+  ...WNI_PSWH_FILES
 }

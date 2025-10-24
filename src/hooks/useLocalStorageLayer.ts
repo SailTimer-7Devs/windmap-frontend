@@ -6,10 +6,13 @@ import {
   WIND_HEATMAP,
   WIND_DIRECTION_HEATMAP
 } from 'constants/layer/wind'
+import { WEATHER_WNI_PSWH_HEATMAP, WEATHER_WNI_PSWH_UV } from 'constants/layer/weather_wni'
 
 import { WEATHER_WNI_LAYER_KEYS } from 'constants/layer/weather_wni'
 
 const WEATHER_WNI_LAYER_LIST = Object.values(WEATHER_WNI_LAYER_KEYS)
+
+const PSWH_GROUP = [WEATHER_WNI_PSWH_HEATMAP, WEATHER_WNI_PSWH_UV]
 
 const EXCLUSIVE_GROUPS = [
   [WIND_HEATMAP, WIND_DIRECTION_HEATMAP],
@@ -17,6 +20,15 @@ const EXCLUSIVE_GROUPS = [
 ]
 
 const applyExclusiveLayers = (list: string[], item: string): string[] => {
+  if (PSWH_GROUP.includes(item)) {
+    const hasCommon = list.some(item => PSWH_GROUP.includes(item))
+    return list.includes(item)
+      ? list.filter(i => i !== item)
+      : hasCommon
+        ? [...list, item]
+        : [item]
+  }
+
   for (const group of EXCLUSIVE_GROUPS) {
     if (group.includes(item)) {
       return [...list.filter(i => !group.includes(i)), item]
@@ -67,6 +79,8 @@ function useLocalStorageLayer<T extends { name: string, list: string[] }>(
     }
   })
 
+  console.log({ value })
+
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -78,6 +92,7 @@ function useLocalStorageLayer<T extends { name: string, list: string[] }>(
   }, [key, value])
 
   const add = (item: string) => {
+    console.log('add', item)
     setValue(prev => {
       if (!prev.list.includes(item)) {
         return { ...prev, list: [...prev.list, item] }
@@ -87,6 +102,7 @@ function useLocalStorageLayer<T extends { name: string, list: string[] }>(
   }
 
   const remove = (item: string) => {
+    console.log('remove', item)
     setValue(prev => ({
       ...prev,
       list: prev.list.filter(i => i !== item)
@@ -94,9 +110,10 @@ function useLocalStorageLayer<T extends { name: string, list: string[] }>(
   }
 
   const toggle = (item: string) => {
+    console.log('toggle', item)
     setValue(prev => {
       const isActive = prev.list.includes(item)
-
+      console.log({ isActive, prev })
       if (isActive) {
         /* Standard toggle behavior for items */
         return {
@@ -106,8 +123,9 @@ function useLocalStorageLayer<T extends { name: string, list: string[] }>(
       } else {
         /* Logic for mutually exclusion layers */
         const newList = applyExclusiveLayers(prev.list, item)
-
+        console.log({ newList })
         if (!newList.includes(item)) {
+          console.log('newListnotIncludes')
           return {
             ...prev,
             list: [...prev.list, item]
