@@ -27,6 +27,7 @@ import * as WeatherLayers from 'weatherlayers-gl'
 import * as BASE from 'constants/basemap'
 import { STORAGE_LAYER_KEY } from 'constants/localStorage'
 import { WIND_LAYER_KEYS } from 'constants/layer/wind'
+import { WEATHER_WNI_LAYER_KEYS } from 'constants/layer/weather_wni'
 
 import useLayerData from 'hooks/useLayerData'
 import useLocalStorageLayer from 'hooks/useLocalStorageLayer'
@@ -38,7 +39,7 @@ import {
   getVisibleLayerList,
   isWind
 } from 'lib/layer'
-import { convertMetersPerSecondsToKnots } from 'lib/units'
+import { convertMetersPerSecondsToKnots, getUnitFormat } from 'lib/units'
 import { getDateTimeByLayerName } from 'lib/timeline'
 import { setMetaData } from 'lib/meta'
 
@@ -66,6 +67,7 @@ function Mapbox(): ReactElement {
     index: 0,
     datetime: datetimes[0]
   })
+  const [unit, setUnit] = React.useState<string>('knots')
 
   const storageLayerValue = { name: layerName, list: visibleList }
 
@@ -77,6 +79,10 @@ function Mapbox(): ReactElement {
 
   const { layerList, layerMenu } = useLayerData(storageLayer.name, timeline.index)
   const { getTimelinePreload } = useTimelinePreload(storageLayer.name, datetimes)
+
+  const isWindSpeadLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV)
+  const isWaveSpeedLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UV)
+  const hasTooltip = isWindLayer || isWindSpeadLayer || isWaveSpeedLayer
 
   const handleTimelineUpdate = React.useCallback((datetime: string) => {
     const timelineIndex = datetimes.findIndex(dt => dt === datetime)
@@ -121,6 +127,8 @@ function Mapbox(): ReactElement {
     const convertedValue = isWindLayer
       ? convertMetersPerSecondsToKnots(raster.value)
       : raster.value
+
+    setUnit(getUnitFormat(e.layer?.id))
 
     tooltipControlRef.current.updatePickingInfo({
       ...e,
@@ -211,11 +219,11 @@ function Mapbox(): ReactElement {
           fps={2}
         />
 
-        {isWindLayer && (
+        {hasTooltip && (
           <TooltipControl
             mapInstance={mapRef}
             ref={tooltipControlRef}
-            unitFormat={{ unit: 'knots' }}
+            unitFormat={{ unit }}
             directionFormat={WeatherLayers.DirectionFormat.CARDINAL3}
           />
         )}
