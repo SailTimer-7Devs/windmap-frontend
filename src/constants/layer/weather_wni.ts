@@ -48,6 +48,8 @@ export const WEATHER_WNI_SST = 'weather_wni_sst'
 export const WEATHER_WNI_UUU = 'weather_wni_uuu'
 export const WEATHER_WNI_PSWH_HEATMAP = 'weather_wni_pswh'
 export const WEATHER_WNI_PSWH_UV = 'weather_wni_pswh-uv'
+export const WEATHER_WNI_WIND_TOOLTIP = 'weather_wni_wind-tooltip'
+export const WEATHER_WNI_WAVE_TOOLTIP = 'weather_wni_wave-tooltip'
 
 export const WEATHER_WNI_LAYER_KEYS = {
   WEATHER_WNI,
@@ -60,11 +62,15 @@ export const WEATHER_WNI_LAYER_KEYS = {
   WEATHER_WNI_SST,
   WEATHER_WNI_UUU,
   WEATHER_WNI_PSWH_HEATMAP,
-  WEATHER_WNI_PSWH_UV
+  WEATHER_WNI_PSWH_UV,
+  WEATHER_WNI_WAVE_TOOLTIP,
+  WEATHER_WNI_WIND_TOOLTIP
 }
 
 export const WEATHER_WNI_VISIBLE_LAYERS = [
-  WEATHER_WNI
+  WEATHER_WNI,
+  WEATHER_WNI_WIND_TOOLTIP,
+  WEATHER_WNI_WAVE_TOOLTIP
 ]
 
 export const WEATHER_WNI_INITIAL_LAYERS_STATE: LayersState = {
@@ -95,7 +101,7 @@ export const LAYERS_MENU_LIST = [
   // },
   {
     id: WEATHER_WNI_UUU,
-    name: 'Ocean Current',
+    name: 'Ocean',
     icon: OceanIcon
   },
   // {
@@ -201,6 +207,22 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   }),
 
+  //for wave tooltip
+  new WeatherLayers.RasterLayer({
+    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_TOOLTIP,
+    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UV as LayerKey],
+    imageType: 'VECTOR',
+    imageUnscale: [-128, 127],
+    bounds: BASE.WIND_MAP_BOUNDS,
+    palette: BASE.EXPERIMENTAL_WIND_PALETTE_0_16 as Palette,
+    imageInterpolation: 'CUBIC',
+    opacity: 0,
+    pickable: true,
+    extensions: [new ClipExtension()],
+    clipBounds: BASE.CLIP_BOUNDS,
+    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
+  }),
+
   new WeatherLayers.ParticleLayer({
     id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UV,
     image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UV as LayerKey],
@@ -234,6 +256,22 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     getPolygonOffset: () => [0, -1000],
+    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
+  }),
+
+  //for wind tooltip
+  new WeatherLayers.RasterLayer({
+    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_TOOLTIP,
+    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV as LayerKey],
+    imageType: 'VECTOR',
+    imageUnscale: [-128, 127],
+    bounds: BASE.WIND_MAP_BOUNDS,
+    palette: BASE.EXPERIMENTAL_WIND_PALETTE_0_16 as Palette,
+    imageInterpolation: 'CUBIC',
+    opacity: 0,
+    pickable: true,
+    extensions: [new ClipExtension()],
+    clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   }),
 

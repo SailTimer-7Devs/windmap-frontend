@@ -1,4 +1,4 @@
-import { WIND, WIND_VISIBLE_LAYERS } from 'constants/layer/wind'
+import { WIND, WIND_VISIBLE_LAYERS, WIND_LAYER_KEYS } from 'constants/layer/wind'
 import { PSWH_HEATMAP, PSWH_VISIBLE_LAYERS } from 'constants/layer/pswh'
 import { PWH_HEATMAP, PWH_VISIBLE_LAYERS } from 'constants/layer/pwh'
 import { WSH_HEATMAP, WSH_VISIBLE_LAYERS } from 'constants/layer/wsh'
@@ -22,6 +22,10 @@ export function isWind(name: string): boolean {
   return name === WIND
 }
 
+export const isWeatherWniGroup = (layers: string[]): boolean => {
+  return layers.every(layer => layer.includes('weather_wni'))
+}
+
 export function setParticlesNumbersByDeviceType(): number {
   switch (deviceType) {
     case 'mobile': return 150
@@ -42,4 +46,4 @@ export function setParticleWidthByDevice(): number {
     case 'tablet': return 2
     default: return 2
   }
-}
+} 
