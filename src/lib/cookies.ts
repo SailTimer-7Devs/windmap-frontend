@@ -4,9 +4,9 @@ if (!API_URL) {
   throw new Error('Missing env variables: API_URL')
 }
 
-export async function getCookies(accessToken: string): Promise<void> {
-  if (!accessToken) {
-    console.warn('Access token not provided')
+export async function getCookies(idToken: string): Promise<void> {
+  if (!idToken) {
+    console.warn('ID token not provided')
     return
   }
 
@@ -14,7 +14,7 @@ export async function getCookies(accessToken: string): Promise<void> {
     const response = await fetch(`${API_URL}/sign-cookies`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${accessToken}`
+        'Authorization': `Bearer ${idToken}`
       }
     })
 

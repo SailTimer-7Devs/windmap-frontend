@@ -18,20 +18,21 @@ import { getUrlParams } from 'lib/url'
 
 import { useAuthStore } from 'store/auth'
 
-const ACCESS_TOKEN_PARAM = 'accessToken'
+const ID_TOKEN_PARAM = 'idToken'
 
 export default function App(): ReactElement {
-  const accessToken = getUrlParams(ACCESS_TOKEN_PARAM, '')
+  const idToken = getUrlParams(ID_TOKEN_PARAM, '')
 
-  console.info({ paramsToken: accessToken })
+  console.info({ paramsIdToken: idToken })
 
   const { currentUser, signOut } = useAuthStore()
-  getCookies(accessToken)
 
   React.useEffect(() => {
-    if (accessToken) {
+    if (idToken) {
+      getCookies(idToken)
+
       const url = new URL(window.location.href)
-      url.searchParams.delete(ACCESS_TOKEN_PARAM)
+      url.searchParams.delete(ID_TOKEN_PARAM)
       window.history.replaceState({}, document.title, url.toString())
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -40,7 +41,7 @@ export default function App(): ReactElement {
   return (
     <QueryClientProvider client={client}>
       <div className='relative w-full h-dvh flex items-center justify-center'>
-        {accessToken || currentUser.isAuthorized
+        {idToken || currentUser.isAuthorized
           ? <Mapbox />
           : (
             <LoginTemplate

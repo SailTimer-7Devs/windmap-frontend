@@ -69,12 +69,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       })
 
       const isNotConfirmed = nextStep.signInStep === 'CONFIRM_SIGN_UP'
-
       if (isSignedIn) {
-        const { accessToken } = (await fetchAuthSession()).tokens ?? {}
-
-        console.info({ accessToken: accessToken?.toString() })
-        await getCookies(accessToken?.toString() as string)
+        // It's necessary to use idToken for API Gateway authorizer
+        const session = await fetchAuthSession()
+        const idToken = session.tokens?.idToken?.toString()
+        if (!idToken) throw new Error('Missing ID token')
+        await getCookies(idToken)
 
         set({
           currentUser: {
