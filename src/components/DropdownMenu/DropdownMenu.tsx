@@ -8,9 +8,10 @@ import {
   MenuItems
 } from '@headlessui/react'
 
-import { ChevronDownIcon } from 'icons/ChevronDown'
+import ChevronDownIcon from 'icons/ChevronDown'
+import DotIcon from 'icons/Dot'
 
-const ITEM_STYLES = 'w-full group flex gap-2 text-left rounded-lg py-1.5 px-3 data-[focus]:bg-white/10'
+const ITEM_STYLES = 'w-full group flex justify-between rounded-lg py-1.5 px-3 data-[focus]:bg-white/10'
 
 const DropdownMenu = ({ caption, options }: DropdownMenuProps): ReactElement => {
   const handleMenuClick = (
@@ -27,47 +28,61 @@ const DropdownMenu = ({ caption, options }: DropdownMenuProps): ReactElement => 
 
   return (
     <Menu>
-      <MenuButton className='inline-flex items-center gap-2 rounded-full bg-gray-800 py-3 px-4 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[hover]:bg-gray-700 data-[open]:bg-gray-700 data-[focus]:outline-1 data-[focus]:outline-white transition duration-100'>
+      <MenuButton className='inline-flex items-center gap-2 rounded-xl bg-gray-800 py-3 px-4 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[hover]:bg-gray-700 data-[open]:bg-gray-700 data-[focus]:outline-1 data-[focus]:outline-white transition duration-100'>
         {caption}
+
         <ChevronDownIcon className='size-2 fill-white/60' />
       </MenuButton>
 
       <MenuItems
         transition
         anchor='bottom end'
-        className='w-52 origin-top-right rounded-xl border border-white/5 bg-gray-800 p-1 text-sm/6 text-white transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0'
+        className='w-66 mt-1 origin-top-right rounded-xl border border-white/5 bg-gray-800 p-1 text-sm/6 text-white transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0'
       >
-        {options.map(({ label, icon, onClick, href }) => (
-          <MenuItem key={label}>
-            {({ close }) => {
-              if (href) {
-                return (
-                  <a
-                    href={href}
-                    rel='nofollow noopener noreferrer'
-                    target='_blank'
-                    className={ITEM_STYLES}
-                    onClick={close}
-                  >
-                    {icon}
-                    {label}
-                  </a>
-                )
-              } else {
-                return (
-                  <button
-                    className={`${ITEM_STYLES} capitalize`}
-                    type='button'
-                    onClick={(e) => handleMenuClick(e, onClick, close)}
-                  >
-                    {icon}
-                    {label}
-                  </button>
-                )
-              }
-            }}
-          </MenuItem>
-        ))}
+        {options.map(({ label, icon, onClick, href, checked }) => {
+          const ItemContent = () => {
+            return (
+              <>
+                <p className='flex gap-3'>
+                  {icon}
+                  {label}
+                </p>
+
+                {checked && <DotIcon />}
+              </>
+            )
+          }
+
+          return (
+            <MenuItem key={label}>
+              {({ close }) => {
+                if (href) {
+                  return (
+                    <a
+                      href={href}
+                      rel='nofollow noopener noreferrer'
+                      target='_blank'
+                      className={ITEM_STYLES}
+                      onClick={close}
+                    >
+                      <ItemContent />
+                    </a>
+                  )
+                } else {
+                  return (
+                    <button
+                      className={`${ITEM_STYLES} capitalize`}
+                      type='button'
+                      onClick={(e) => handleMenuClick(e, onClick, close)}
+                    >
+                      <ItemContent />
+                    </button>
+                  )
+                }
+              }}
+            </MenuItem>
+          )
+        })}
       </MenuItems>
     </Menu>
   )

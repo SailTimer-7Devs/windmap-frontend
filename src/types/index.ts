@@ -42,6 +42,8 @@ export type LayerKey =
   | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_VISIBILITY
   | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UV
   | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SST
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UUU
 
 export type LayersState = {
   [key in LayerKey]: TextureData | undefined
@@ -58,6 +60,7 @@ export type LayersMenuProps = {
   menuList: {
     id: LayerKey
     name: string
+    icon?: ReactElement
   }[]
 }
 
@@ -68,6 +71,7 @@ export type DropdownMenuProps = {
     icon?: ReactElement
     onClick?: () => void
     href?: string
+    checked?: boolean
   }[]
 }
 

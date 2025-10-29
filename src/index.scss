@@ -68,6 +68,14 @@ body {
     &__buttons > a {
       width: 24px;
       height: 24px;
+
+      &.weatherlayers-timeline-control__play-button {
+        display: none;
+      }
+    }
+
+    &__loader {
+      visibility: hidden
     }
   }
 }

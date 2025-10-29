@@ -9,6 +9,11 @@ import * as WeatherLayers from 'weatherlayers-gl'
 
 import * as BASE from 'constants/basemap'
 
+import WindSpeedIcon from 'icons/WindSpeed'
+import WindAnimationIcon from 'icons/WindAnimation'
+import WindBarbsIcon from 'icons/WindBarbs'
+import WindDirectionIcon from 'icons/WindDirection'
+
 import { handleImageDataLoad } from 'lib/image'
 import {
   setParticlesNumbersByDeviceType,
@@ -54,22 +59,26 @@ export const WIND_INITIAL_LAYERS_STATE: LayersState = {
 export const LAYERS_MENU_LIST = [
   {
     id: WIND_HEATMAP,
-    name: 'Wind Speed'
+    name: 'Wind Speed',
+    icon: WindSpeedIcon
   },
 
   {
     id: WIND,
-    name: 'Wind Animation'
+    name: 'Wind Animation',
+    icon: WindAnimationIcon
   },
 
   {
     id: WIND_BARBS,
-    name: 'Wind Barbs'
+    name: 'Wind Barbs',
+    icon: WindBarbsIcon
   },
 
   {
     id: WIND_DIRECTION_HEATMAP,
-    name: 'Wind Direction Zones'
+    name: 'Wind Direction Zones',
+    icon: WindDirectionIcon
   }
 ]
 

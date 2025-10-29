@@ -6,10 +6,19 @@ import {
   WIND_HEATMAP,
   WIND_DIRECTION_HEATMAP
 } from 'constants/layer/wind'
+import { WEATHER_WNI_PSWH_HEATMAP, WEATHER_WNI_PSWH_UV } from 'constants/layer/weather_wni'
 
-import { WEATHER_WNI_LAYER_KEYS } from 'constants/layer/weather_wni'
+import {
+  WEATHER_WNI_LAYER_KEYS,
+  WEATHER_WNI_WAVE_TOOLTIP,
+  WEATHER_WNI_WIND_TOOLTIP
+} from 'constants/layer/weather_wni'
+
+import { isWeatherWniGroup } from 'lib/layer'
 
 const WEATHER_WNI_LAYER_LIST = Object.values(WEATHER_WNI_LAYER_KEYS)
+
+const WEATHER_WNI_PSWH_GROUP = [WEATHER_WNI_PSWH_HEATMAP, WEATHER_WNI_PSWH_UV]
 
 const EXCLUSIVE_GROUPS = [
   [WIND_HEATMAP, WIND_DIRECTION_HEATMAP],
@@ -17,9 +26,25 @@ const EXCLUSIVE_GROUPS = [
 ]
 
 const applyExclusiveLayers = (list: string[], item: string): string[] => {
+  if (WEATHER_WNI_PSWH_GROUP.includes(item)) {
+    const hasCommon = list.some(item => WEATHER_WNI_PSWH_GROUP.includes(item))
+    const newList = list.includes(item)
+      ? list.filter(i => i !== item)
+      : hasCommon
+        ? [...list, item]
+        : [item]
+
+    return [...newList, WEATHER_WNI_WAVE_TOOLTIP, WEATHER_WNI_WIND_TOOLTIP]
+  }
+
   for (const group of EXCLUSIVE_GROUPS) {
     if (group.includes(item)) {
-      return [...list.filter(i => !group.includes(i)), item]
+      const isWeatherWni = isWeatherWniGroup(group)
+      const newList = [...list.filter(i => !group.includes(i)), item]
+
+      return isWeatherWni
+        ? [...newList, WEATHER_WNI_WAVE_TOOLTIP, WEATHER_WNI_WIND_TOOLTIP]
+        : newList
     }
   }
 
@@ -96,7 +121,6 @@ function useLocalStorageLayer<T extends { name: string, list: string[] }>(
   const toggle = (item: string) => {
     setValue(prev => {
       const isActive = prev.list.includes(item)
-
       if (isActive) {
         /* Standard toggle behavior for items */
         return {
@@ -106,7 +130,6 @@ function useLocalStorageLayer<T extends { name: string, list: string[] }>(
       } else {
         /* Logic for mutually exclusion layers */
         const newList = applyExclusiveLayers(prev.list, item)
-
         if (!newList.includes(item)) {
           return {
             ...prev,

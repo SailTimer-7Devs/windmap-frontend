@@ -22,6 +22,10 @@ export function isWind(name: string): boolean {
   return name === WIND
 }
 
+export const isWeatherWniGroup = (layers: string[]): boolean => {
+  return layers.every(layer => layer.includes('weather_wni'))
+}
+
 export function setParticlesNumbersByDeviceType(): number {
   switch (deviceType) {
     case 'mobile': return 150
@@ -42,4 +46,4 @@ export function setParticleWidthByDevice(): number {
     case 'tablet': return 2
     default: return 2
   }
-}
+} 
