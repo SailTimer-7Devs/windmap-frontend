@@ -34,7 +34,7 @@ import useLocalStorageLayer from 'hooks/useLocalStorageLayer'
 import useTimelinePreload from 'hooks/useTimelinePreload'
 import useUrlChange from 'hooks/useUrlChange'
 
-import getUrlParams from 'lib/url'
+import { getUrlParams } from 'lib/url'
 import {
   getVisibleLayerList,
   isWind

@@ -74,3 +74,5 @@ export type DropdownMenuProps = {
     checked?: boolean
   }[]
 }
+
+export type GenericObject = Record<string, unknown>
