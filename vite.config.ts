@@ -12,6 +12,7 @@ export default ({ mode }: { mode: string }): ReturnType<typeof defineConfig> => 
     ...process.env,
     ...mapEnvVars({
       STAGE,
+      API_URL: process.env.API_URL,
       S3_DATA: process.env.S3_DATA,
       COGNITO_USER_POOL_ID: process.env.COGNITO_USER_POOL_ID,
       COGNITO_USER_POOL_CLIENT_ID: process.env.COGNITO_USER_POOL_CLIENT_ID
