@@ -26,8 +26,6 @@ const ID_TOKEN_PARAM = 'idToken'
 export default function App(): ReactElement {
   const idToken = getUrlParams(ID_TOKEN_PARAM, '')
 
-  console.info({ paramsIdToken: idToken })
-
   const { currentUser, isLoading, authUser } = useAuthStore()
 
   React.useEffect(() => {

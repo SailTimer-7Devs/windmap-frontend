@@ -7,7 +7,7 @@ import { fetchAuthSession } from 'aws-amplify/auth'
 
 import {
   signIn as amplifySignIn,
-  signOut as amplifySignOut,
+  signOut as amplifySignOut
   // getCurrentUser
 } from 'aws-amplify/auth'
 
@@ -63,7 +63,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
         await getCookies(idToken)
         set({
           currentUser: {
-            isAuthorized: true,
+            isAuthorized: true
           },
           isLoading: false
         })
@@ -71,7 +71,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       } else {
         set({
           currentUser: {
-            isAuthorized: false,
+            isAuthorized: false
           },
           isLoading: false
         })
