@@ -15,7 +15,8 @@ export async function getCookies(idToken: string): Promise<void> {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${idToken}`
-      }
+      },
+      credentials: 'include'
     })
 
     if (!response.ok) {
