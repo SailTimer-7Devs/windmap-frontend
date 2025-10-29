@@ -178,9 +178,9 @@ function Mapbox(): ReactElement {
       })
       const blob = await resp.blob()
       const url = URL.createObjectURL(blob)
-      document.getElementById('img')!.src = url
+      // document.getElementById('img')!.src = url
 
-      console.info({ blobUrl: url })
+      console.info({ blob, url })
     }
     fetchImage()
 
