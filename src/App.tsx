@@ -1,5 +1,5 @@
 import { type ReactElement } from 'react'
-import { jwtDecode } from "jwt-decode"
+import { jwtDecode } from 'jwt-decode'
 
 import React from 'react'
 

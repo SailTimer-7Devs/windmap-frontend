@@ -5,7 +5,7 @@ import type {
   MapCallbacks,
   MapRef
 } from 'react-map-gl/mapbox'
-import type { DeckProps, PickingInfo } from 'deck.gl'
+import { log, type DeckProps, type PickingInfo } from 'deck.gl'
 import type { Palette } from 'cpt2js'
 
 import type { RasterPointProperties } from 'weatherlayers-gl'
@@ -169,6 +169,22 @@ function Mapbox(): ReactElement {
   React.useEffect(() => {
     setMetaData({ isWindLayer })
   }, [isWindLayer])
+
+  /* TEMPORARY DEBUGGING */
+  React.useEffect(() => {
+    const fetchImage = async () => {
+      const resp = await fetch('https://dev-data.sailtimer.info/public/current/gfs/F000/wind_data_heatmap.png', {
+        credentials: 'include'
+      })
+      const blob = await resp.blob()
+      const url = URL.createObjectURL(blob)
+      document.getElementById('img')!.src = url
+
+      console.info({ blobUrl: url })
+    }
+    fetchImage()
+
+  }, [])
 
   return (
     <>
