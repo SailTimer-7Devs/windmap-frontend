@@ -1,4 +1,5 @@
 import { type ReactElement } from 'react'
+import { jwtDecode } from "jwt-decode"
 
 import React from 'react'
 
@@ -13,7 +14,6 @@ import Mapbox from 'components/Mapbox'
 import SignInForm from 'forms/SignIn'
 import LoginTemplate from 'templates/Login'
 
-import { getCookies } from 'lib/cookies'
 import { getUrlParams } from 'lib/url'
 
 import { useAuthStore } from 'store/auth'
@@ -25,23 +25,30 @@ export default function App(): ReactElement {
 
   console.info({ paramsIdToken: idToken })
 
-  const { currentUser, signOut } = useAuthStore()
+  const { currentUser, signOut, authUser } = useAuthStore()
 
   React.useEffect(() => {
     if (idToken) {
-      getCookies(idToken)
+      const decoded = jwtDecode<{ aud: string; email: string }>(idToken)
+      const localStorageKey = ['CognitoIdentityServiceProvider', decoded.aud, decoded.email].join('.')
+      const IdTokenKey = [localStorageKey, 'idToken'].join('.')
+      const lastAuthUserKey = [localStorageKey,'LastAuthUser'].join('.')
+
+      localStorage.setItem(IdTokenKey, idToken)
+      localStorage.setItem(lastAuthUserKey, decoded.email)
 
       const url = new URL(window.location.href)
       url.searchParams.delete(ID_TOKEN_PARAM)
       window.history.replaceState({}, document.title, url.toString())
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    authUser()
   }, [])
 
   return (
     <QueryClientProvider client={client}>
       <div className='relative w-full h-dvh flex items-center justify-center'>
-        {idToken || currentUser.isAuthorized
+        {currentUser.isAuthorized
           ? <Mapbox />
           : (
             <LoginTemplate

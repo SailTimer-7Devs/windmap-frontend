@@ -7,7 +7,8 @@ import { fetchAuthSession } from 'aws-amplify/auth'
 
 import {
   signIn as amplifySignIn,
-  signOut as amplifySignOut
+  signOut as amplifySignOut,
+  // getCurrentUser
 } from 'aws-amplify/auth'
 
 import { getCookies } from 'lib/cookies'
@@ -38,9 +39,8 @@ const messages = {
 
 interface AuthStore {
   currentUser: Partial<CurrentUser>
-  isLoading: boolean
 
-  authUser: () => Promise<Partial<CurrentUser>>
+  authUser: () => Promise<void>
 
   signIn: (payload: SignInPayload) => Promise<void>
   signOut: () => Promise<void>
@@ -50,12 +50,29 @@ const initialUser: Partial<CurrentUser> = {
   isAuthorized: false
 }
 
-export const useAuthStore = create<AuthStore>((set, get) => ({
+export const useAuthStore = create<AuthStore>((set) => ({
   currentUser: initialUser,
-  isLoading: true,
 
   authUser: async () => {
-    return get().currentUser
+    try {
+      const session = await restoreAmplifySession()
+      const { idToken, from } = session || {}
+      if (idToken) {
+        await getCookies(idToken)
+        set({
+          currentUser: {
+            isAuthorized: true
+          }
+        })
+        console.info(`[authUser] Authorized via ${from}`)
+      } else {
+        set({ currentUser: initialUser })
+        console.info('[authUser] No active session')
+      }
+    } catch (error) {
+      console.error('[authUser] unexpected error:', error)
+      set({ currentUser: initialUser })
+    }
   },
 
   signIn: async (payload: SignInPayload) => {
@@ -79,8 +96,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         set({
           currentUser: {
             isAuthorized: true
-          },
-          isLoading: false
+          }
         })
         notifySuccess(messages.signInSuccess)
       } else if (isNotConfirmed) {
@@ -98,11 +114,53 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     try {
       await amplifySignOut()
 
-      set({ currentUser: initialUser, isLoading: false })
+      set({
+        currentUser: initialUser
+      })
       notifySuccess(messages.signOutSuccess)
     } catch (err) {
-      set({ currentUser: initialUser, isLoading: false })
+      set({ currentUser: initialUser })
       console.error('signOut', err)
     }
   }
 }))
+
+function getIdTokenFromLocalStorage() {
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i)
+    if (key && key.includes('idToken')) {
+      const value = localStorage.getItem(key)
+      return { key, value }
+    }
+  }
+  return null
+}
+
+async function restoreAmplifySession() {
+  try {
+    const session = await fetchAuthSession()
+    const idToken = session.tokens?.idToken?.toString()
+    if (idToken) {
+      console.info('[restoreAmplifySession] Active session restored from Amplify')
+      return { idToken, from: 'amplify' }
+    }
+  } catch (error) {
+    const err = error as { name?: string }
+    if (err.name === 'UserUnAuthenticatedException') {
+      console.warn('[restoreAmplifySession] No active session in Amplify')
+    } else {
+      console.error('[restoreAmplifySession] Unexpected error:', error)
+    }
+  }
+
+  try {
+    const tokenData = getIdTokenFromLocalStorage()
+    if (tokenData && tokenData.value) {
+      const { key: tokenKey, value: idToken } = tokenData
+      console.info(`[restoreAmplifySession] idToken restored from localStorage key: ${tokenKey}`)
+      return { idToken, from: 'localStorage' }
+    }
+  } catch (error) {
+    console.error('[restoreAmplifySession] Failed to read idToken from localStorage:', error)
+  }
+}
