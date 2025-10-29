@@ -39,6 +39,7 @@ const messages = {
 
 interface AuthStore {
   currentUser: Partial<CurrentUser>
+  isLoading: boolean
 
   authUser: () => Promise<void>
 
@@ -52,6 +53,7 @@ const initialUser: Partial<CurrentUser> = {
 
 export const useAuthStore = create<AuthStore>((set) => ({
   currentUser: initialUser,
+  isLoading: true,
 
   authUser: async () => {
     try {
@@ -61,17 +63,26 @@ export const useAuthStore = create<AuthStore>((set) => ({
         await getCookies(idToken)
         set({
           currentUser: {
-            isAuthorized: true
-          }
+            isAuthorized: true,
+          },
+          isLoading: false
         })
         console.info(`[authUser] Authorized via ${from}`)
       } else {
-        set({ currentUser: initialUser })
+        set({
+          currentUser: {
+            isAuthorized: false,
+          },
+          isLoading: false
+        })
         console.info('[authUser] No active session')
       }
     } catch (error) {
       console.error('[authUser] unexpected error:', error)
-      set({ currentUser: initialUser })
+      set({
+        currentUser: initialUser,
+        isLoading: false
+      })
     }
   },
 
@@ -96,7 +107,8 @@ export const useAuthStore = create<AuthStore>((set) => ({
         set({
           currentUser: {
             isAuthorized: true
-          }
+          },
+          isLoading: false
         })
         notifySuccess(messages.signInSuccess)
       } else if (isNotConfirmed) {
@@ -115,11 +127,15 @@ export const useAuthStore = create<AuthStore>((set) => ({
       await amplifySignOut()
 
       set({
-        currentUser: initialUser
+        currentUser: initialUser,
+        isLoading: false
       })
       notifySuccess(messages.signOutSuccess)
     } catch (err) {
-      set({ currentUser: initialUser })
+      set({
+        currentUser: initialUser,
+        isLoading: false
+      })
       console.error('signOut', err)
     }
   }

@@ -11,7 +11,10 @@ import { Toaster } from 'sonner'
 import { client, isDevMode } from 'bootstrap'
 
 import Mapbox from 'components/Mapbox'
+import Spinner from 'components/Spinner'
+
 import SignInForm from 'forms/SignIn'
+
 import LoginTemplate from 'templates/Login'
 
 import { getUrlParams } from 'lib/url'
@@ -25,14 +28,14 @@ export default function App(): ReactElement {
 
   console.info({ paramsIdToken: idToken })
 
-  const { currentUser, signOut, authUser } = useAuthStore()
+  const { currentUser, isLoading, authUser } = useAuthStore()
 
   React.useEffect(() => {
     if (idToken) {
       const decoded = jwtDecode<{ aud: string; email: string }>(idToken)
       const localStorageKey = ['CognitoIdentityServiceProvider', decoded.aud, decoded.email].join('.')
       const IdTokenKey = [localStorageKey, 'idToken'].join('.')
-      const lastAuthUserKey = [localStorageKey,'LastAuthUser'].join('.')
+      const lastAuthUserKey = [localStorageKey, 'LastAuthUser'].join('.')
 
       localStorage.setItem(IdTokenKey, idToken)
       localStorage.setItem(lastAuthUserKey, decoded.email)
@@ -44,6 +47,14 @@ export default function App(): ReactElement {
 
     authUser()
   }, [])
+
+  if (isLoading) {
+    return (
+      <div className='relative w-full h-dvh flex items-center justify-center'>
+        <Spinner show={isLoading} />
+      </div>
+    )
+  }
 
   return (
     <QueryClientProvider client={client}>
@@ -59,8 +70,6 @@ export default function App(): ReactElement {
             </LoginTemplate>
           )
         }
-
-        <button onClick={signOut}>Sign out</button>
       </div>
 
       <Toaster
