@@ -5,7 +5,7 @@ import type {
   MapCallbacks,
   MapRef
 } from 'react-map-gl/mapbox'
-import { log, type DeckProps, type PickingInfo } from 'deck.gl'
+import { type DeckProps, type PickingInfo } from 'deck.gl'
 import type { Palette } from 'cpt2js'
 
 import type { RasterPointProperties } from 'weatherlayers-gl'
