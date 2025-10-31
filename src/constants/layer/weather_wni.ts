@@ -13,10 +13,10 @@ import * as BASE from 'constants/basemap'
 import EyeIcon from 'icons/Eye'
 import IntegratedPrecipitationIcon from 'icons/IntegratedPrecipitation'
 import OceanIcon from 'icons/Ocean'
-// import SeaTemperatureIcon from 'icons/SeaTemperature'
+import SeaTemperatureIcon from 'icons/SeaTemperature'
 import SnowIcon from 'icons/Snow'
 // import TemperatureIcon from 'icons/Temperature'
-// import TemperatureHighIcon from 'icons/TemperatureHigh'
+import TemperatureHighIcon from 'icons/TemperatureHigh'
 import WindAnimationIcon from 'icons/WindAnimation'
 import WaveIcon from 'icons/Wave'
 import SwellHeightIcon from 'icons/SwellHeight'
@@ -94,11 +94,21 @@ export const LAYERS_MENU_LIST = [
     name: 'Precipitation',
     icon: IntegratedPrecipitationIcon
   },
-  // {
-  //   id: WEATHER_WNI_SST,
-  //   name: 'Sea Surface Temperature',
-  //   icon: SeaTemperatureIcon
-  // },
+   {
+    id: WEATHER_WNI_TMP1000HPA,
+    name: 'Temperature 1000 hPa',
+    icon: TemperatureHighIcon
+  },
+  {
+    id: WEATHER_WNI_VISIBILITY,
+    name: 'Visibility',
+    icon: EyeIcon
+  },
+  {
+    id: WEATHER_WNI_SST,
+    name: 'Sea Surface Temperature',
+    icon: SeaTemperatureIcon
+  },
   {
     id: WEATHER_WNI_UUU,
     name: 'Ocean',
@@ -109,16 +119,6 @@ export const LAYERS_MENU_LIST = [
   //   name: 'Temperature 850 hPa',
   //   icon: TemperatureIcon
   // },
-  // {
-  //   id: WEATHER_WNI_TMP1000HPA,
-  //   name: 'Temperature 1000 hPa',
-  //   icon: TemperatureHighIcon
-  // },
-  {
-    id: WEATHER_WNI_VISIBILITY,
-    name: 'Visibility',
-    icon: EyeIcon
-  },
   {
     id: WEATHER_WNI_UV,
     name: 'Wave',
@@ -367,11 +367,11 @@ export async function getWeatherWniLayersData(timelineIndex: number = 0): Promis
       weatherWniIceData,
       weatherWniIntpcpData,
       // weatherWniTmp850HpaData,
-      // weatherWniTmp1000HpaData,
+      weatherWniTmp1000HpaData,
       weatherWniVisibilityData,
       weatherWniUvData,
       weatherWniWindUvData,
-      // weatherWniSstData,
+      weatherWniSstData,
       weatherWniUuuData,
       pswhHeatmapData,
       pswhUvData
@@ -379,11 +379,11 @@ export async function getWeatherWniLayersData(timelineIndex: number = 0): Promis
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniIce[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniIntpcp[timelineIndex]),
       // handleImageDataLoad(weatherWniTimelineFiles.weatherWniTmp850Hpa[timelineIndex]),
-      // handleImageDataLoad(weatherWniTimelineFiles.weatherWniTmp1000Hpa[timelineIndex]),
+      handleImageDataLoad(weatherWniTimelineFiles.weatherWniTmp1000Hpa[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniVisibility[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniUv[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniWindUv[timelineIndex]),
-      // handleImageDataLoad(weatherWniTimelineFiles.weatherWniSst[timelineIndex]),
+      handleImageDataLoad(weatherWniTimelineFiles.weatherWniSst[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniUuu[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.pswhHeatmap[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.pswhUv[timelineIndex])
@@ -393,11 +393,11 @@ export async function getWeatherWniLayersData(timelineIndex: number = 0): Promis
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI]: weatherWniIceData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_INTPCP]: weatherWniIntpcpData,
       // [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP850HPA]: weatherWniTmp850HpaData,
-      // [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP1000HPA]: weatherWniTmp1000HpaData,
+      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP1000HPA]: weatherWniTmp1000HpaData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_VISIBILITY]: weatherWniVisibilityData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UV]: weatherWniUvData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV]: weatherWniWindUvData,
-      // [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SST]: weatherWniSstData,
+      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SST]: weatherWniSstData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UUU]: weatherWniUuuData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_HEATMAP]: pswhHeatmapData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_UV]: pswhUvData
