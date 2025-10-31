@@ -5,9 +5,9 @@ export const convertMetersPerSecondsToKnots = (value: number): number => value *
 
 export function getUnitFormat(layerId: string | undefined): string {
   switch (layerId) {
-    case WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_TOOLTIP:
     case WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_TOOLTIP:
       return 'm/s'
+    case WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_TOOLTIP:
     case WIND_LAYER_KEYS.WIND_TOOLTIP:
       return 'knots'
     default:

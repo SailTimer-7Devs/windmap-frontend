@@ -124,7 +124,7 @@ function Mapbox(): ReactElement {
 
     if (!tooltipControlRef.current || !raster) return
 
-    const convertedValue = isWindLayer
+    const convertedValue = isWindLayer || isWindSpeadLayer
       ? convertMetersPerSecondsToKnots(raster.value)
       : raster.value
 
