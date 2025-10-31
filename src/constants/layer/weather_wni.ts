@@ -363,22 +363,9 @@ export async function getWeatherWniLayersData(timelineIndex: number = 0): Promis
   }
 
   try {
-    const [
-      weatherWniIceData,
-      weatherWniIntpcpData,
-      // weatherWniTmp850HpaData,
-      weatherWniTmp1000HpaData,
-      weatherWniVisibilityData,
-      weatherWniUvData,
-      weatherWniWindUvData,
-      weatherWniSstData,
-      weatherWniUuuData,
-      pswhHeatmapData,
-      pswhUvData
-    ] = await Promise.all([
+    const results = await Promise.allSettled([
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniIce[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniIntpcp[timelineIndex]),
-      // handleImageDataLoad(weatherWniTimelineFiles.weatherWniTmp850Hpa[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniTmp1000Hpa[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniVisibility[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniUv[timelineIndex]),
@@ -389,10 +376,22 @@ export async function getWeatherWniLayersData(timelineIndex: number = 0): Promis
       handleImageDataLoad(weatherWniTimelineFiles.pswhUv[timelineIndex])
     ])
 
-    const result = {
+    const [
+      weatherWniIceData,
+      weatherWniIntpcpData,
+      weatherWniTmp1000HpaData,
+      weatherWniVisibilityData,
+      weatherWniUvData,
+      weatherWniWindUvData,
+      weatherWniSstData,
+      weatherWniUuuData,
+      pswhHeatmapData,
+      pswhUvData
+    ] = results.map(r => (r.status === 'fulfilled' ? r.value : undefined))
+
+    const result: LayersState = {
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI]: weatherWniIceData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_INTPCP]: weatherWniIntpcpData,
-      // [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP850HPA]: weatherWniTmp850HpaData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP1000HPA]: weatherWniTmp1000HpaData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_VISIBILITY]: weatherWniVisibilityData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UV]: weatherWniUvData,
@@ -404,12 +403,10 @@ export async function getWeatherWniLayersData(timelineIndex: number = 0): Promis
     }
 
     weatherWniCache.set(timelineIndex, result)
-
     return result
-
   } catch (e) {
     console.error(e)
-
     return WEATHER_WNI_INITIAL_LAYERS_STATE
   }
 }
+
