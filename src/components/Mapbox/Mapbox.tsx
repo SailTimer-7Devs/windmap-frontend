@@ -87,7 +87,10 @@ function Mapbox(): ReactElement {
   const isWindSpeadLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV)
   const isWaveSpeedLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UV)
   const isTemperatureLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP1000HPA)
-  const hasTooltip = isWindLayer || isWindSpeadLayer || isWaveSpeedLayer || isTemperatureLayer
+  const isSSTLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SST)
+  const isPSWHHeatmapLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_HEATMAP)
+  const hasTooltip = isWindLayer || isWindSpeadLayer || isWaveSpeedLayer ||
+    isTemperatureLayer || isSSTLayer || isPSWHHeatmapLayer
 
   const handleTimelineUpdate = React.useCallback((datetime: string) => {
     const timelineIndex = datetimes.findIndex(dt => dt === datetime)
