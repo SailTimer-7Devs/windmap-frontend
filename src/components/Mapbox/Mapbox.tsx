@@ -76,7 +76,7 @@ function Mapbox(): ReactElement {
     datetime: datetimes[0]
   })
   const [unit, setUnit] = React.useState<string>('knots')
-
+  console.log({ unit })
   const storageLayerValue = { name: layerName, list: visibleList }
 
   const {
@@ -130,7 +130,7 @@ function Mapbox(): ReactElement {
   const handleHover: DeckProps['onHover'] = (e: DeckGLOverlayHoverEventProps) => {
     const raster = e.raster
 
-    if (!tooltipControlRef.current || !raster) return
+    if (!tooltipControlRef.current || !raster || !e.layer) return
 
     let convertedValue = raster.value
 
@@ -139,8 +139,8 @@ function Mapbox(): ReactElement {
     } else if (isTemperatureLayer) {
       convertedValue = convertKelvinToCelsius(raster.value)
     }
-
-    setUnit(UNIT_FORMAT[e.layer?.id as LayerKey] || '')
+console.log({ layer: e.layer.id })
+    setUnit(UNIT_FORMAT[e.layer.id as LayerKey] || '')
     tooltipControlRef.current.updatePickingInfo({
       ...e,
       raster: {
