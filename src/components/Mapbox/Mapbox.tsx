@@ -28,11 +28,14 @@ import * as BASE from 'constants/basemap'
 import { STORAGE_LAYER_KEY } from 'constants/localStorage'
 import { WIND_LAYER_KEYS } from 'constants/layer/wind'
 import { WEATHER_WNI_LAYER_KEYS } from 'constants/layer/weather_wni'
+import { UNIT_FORMAT } from 'constants/layer/units'
 
 import useLayerData from 'hooks/useLayerData'
 import useLocalStorageLayer from 'hooks/useLocalStorageLayer'
 import useTimelinePreload from 'hooks/useTimelinePreload'
 import useUrlChange from 'hooks/useUrlChange'
+
+import type { LayerKey } from 'types'
 
 import { getUrlParams } from 'lib/url'
 import {
@@ -42,8 +45,7 @@ import {
 } from 'lib/layer'
 import {
   convertMetersPerSecondsToKnots,
-  convertKelvinToCelsius,
-  getUnitFormat
+  convertKelvinToCelsius
 } from 'lib/units'
 import { getDateTimeByLayerName } from 'lib/timeline'
 import { setMetaData } from 'lib/meta'
@@ -138,8 +140,7 @@ function Mapbox(): ReactElement {
       convertedValue = convertKelvinToCelsius(raster.value)
     }
 
-    setUnit(getUnitFormat(e.layer?.id))
-
+    setUnit(UNIT_FORMAT[e.layer?.id as LayerKey] || '')
     tooltipControlRef.current.updatePickingInfo({
       ...e,
       raster: {
