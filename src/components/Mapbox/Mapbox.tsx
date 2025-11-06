@@ -75,16 +75,16 @@ function Mapbox(): ReactElement {
     index: 0,
     datetime: datetimes[0]
   })
-  const [unit, setUnit] = React.useState<string>('knots')
-  console.log({ unit })
+  const [unit, setUnit] = React.useState<string>('')
   const storageLayerValue = { name: layerName, list: visibleList }
-
+  
   const {
     value: storageLayer,
     reset,
     toggle
   } = useLocalStorageLayer(STORAGE_LAYER_KEY, storageLayerValue)
-
+  
+  console.log({ unit, storageLayer })
   const { layerList, layerMenu } = useLayerData(storageLayer.name, timeline.index)
   const { getTimelinePreload } = useTimelinePreload(storageLayer.name, datetimes)
 
@@ -110,7 +110,7 @@ function Mapbox(): ReactElement {
     const currentLayerName = urlParams.searchParams.get(STORAGE_LAYER_KEY) || layerName
 
     const visibleList = getVisibleLayerList(currentLayerName)
-
+    console.log({ currentLayerName, visibleList })
     if (currentLayerName !== storageLayer.name) {
       reset({
         name: currentLayerName,
@@ -139,7 +139,7 @@ function Mapbox(): ReactElement {
     } else if (isTemperatureLayer) {
       convertedValue = convertKelvinToCelsius(raster.value)
     }
-console.log({ layer: e.layer.id })
+    console.log({ layer: e.layer.id, unit: UNIT_FORMAT[e.layer.id as LayerKey] || '' })
     setUnit(UNIT_FORMAT[e.layer.id as LayerKey] || '')
     tooltipControlRef.current.updatePickingInfo({
       ...e,
@@ -172,6 +172,7 @@ console.log({ layer: e.layer.id })
       return layerItem.clone(props)
     })
   }, [layerList, storageLayer.list])
+  console.log({ visibleLayers })
 
   const isWindHeatMapLayer = React.useMemo(() => {
     return storageLayer.list.includes(WIND_LAYER_KEYS.WIND_HEATMAP)

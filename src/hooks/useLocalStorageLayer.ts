@@ -43,7 +43,7 @@ const applyExclusiveLayers = (list: string[], item: string): string[] => {
       const newList = [...list.filter(i => !group.includes(i)), item]
 
       return isWeatherWni
-        ? [...newList, WEATHER_WNI_WAVE_TOOLTIP, WEATHER_WNI_WIND_TOOLTIP]
+        ? [...newList]
         : newList
     }
   }
