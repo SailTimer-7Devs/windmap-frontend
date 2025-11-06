@@ -37,7 +37,8 @@ import useUrlChange from 'hooks/useUrlChange'
 import { getUrlParams } from 'lib/url'
 import {
   getVisibleLayerList,
-  isWind
+  isWind,
+  isWeatherWni
 } from 'lib/layer'
 import {
   convertMetersPerSecondsToKnots,
@@ -63,6 +64,7 @@ function Mapbox(): ReactElement {
   const layerName = getUrlParams()
   const visibleList = getVisibleLayerList(layerName)
   const isWindLayer = isWind(layerName)
+  const isWeatherWniLayer = isWeatherWni(layerName)
 
   const datetimes = getDateTimeByLayerName(layerName)
 
@@ -85,12 +87,8 @@ function Mapbox(): ReactElement {
   const { getTimelinePreload } = useTimelinePreload(storageLayer.name, datetimes)
 
   const isWindSpeadLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV)
-  const isWaveSpeedLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UV)
   const isTemperatureLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP1000HPA)
-  const isSSTLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SST)
-  const isPSWHHeatmapLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_HEATMAP)
-  const hasTooltip = isWindLayer || isWindSpeadLayer || isWaveSpeedLayer ||
-    isTemperatureLayer || isSSTLayer || isPSWHHeatmapLayer
+  const hasTooltip = isWindLayer || isWeatherWniLayer
 
   const handleTimelineUpdate = React.useCallback((datetime: string) => {
     const timelineIndex = datetimes.findIndex(dt => dt === datetime)
@@ -132,11 +130,13 @@ function Mapbox(): ReactElement {
 
     if (!tooltipControlRef.current || !raster) return
 
-    const convertedValue = isWindLayer || isWindSpeadLayer
-      ? convertMetersPerSecondsToKnots(raster.value)
-      : isTemperatureLayer
-        ? convertKelvinToCelsius(raster.value)
-        : raster.value
+    let convertedValue = raster.value
+
+    if (isWindLayer || isWindSpeadLayer) {
+      convertedValue = convertMetersPerSecondsToKnots(raster.value)
+    } else if (isTemperatureLayer) {
+      convertedValue = convertKelvinToCelsius(raster.value)
+    }
 
     setUnit(getUnitFormat(e.layer?.id))
 

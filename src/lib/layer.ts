@@ -22,6 +22,10 @@ export function isWind(name: string): boolean {
   return name === WIND
 }
 
+export function isWeatherWni(name: string): boolean {
+  return name === WEATHER_WNI
+}
+
 export const isWeatherWniGroup = (layers: string[]): boolean => {
   return layers.every(layer => layer.includes('weather_wni'))
 }
