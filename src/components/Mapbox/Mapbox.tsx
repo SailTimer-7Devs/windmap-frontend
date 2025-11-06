@@ -84,10 +84,9 @@ function Mapbox(): ReactElement {
     toggle
   } = useLocalStorageLayer(STORAGE_LAYER_KEY, storageLayerValue)
 
-  console.log({ unit, storageLayer })
   const { layerList, layerMenu } = useLayerData(storageLayer.name, timeline.index)
   const { getTimelinePreload } = useTimelinePreload(storageLayer.name, datetimes)
-  console.log({ layerList })
+
   const isWindSpeadLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV)
   const isTemperatureLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP1000HPA)
   const hasTooltip = isWindLayer || isWeatherWniLayer
@@ -110,7 +109,7 @@ function Mapbox(): ReactElement {
     const currentLayerName = urlParams.searchParams.get(STORAGE_LAYER_KEY) || layerName
 
     const visibleList = getVisibleLayerList(currentLayerName)
-    console.log({ currentLayerName, visibleList })
+
     if (currentLayerName !== storageLayer.name) {
       reset({
         name: currentLayerName,
@@ -129,7 +128,7 @@ function Mapbox(): ReactElement {
 
   const handleHover: DeckProps['onHover'] = (e: DeckGLOverlayHoverEventProps) => {
     const raster = e.raster
-    console.log({ e })
+
     if (!tooltipControlRef.current || !raster) return
 
     let convertedValue = raster.value
@@ -137,10 +136,11 @@ function Mapbox(): ReactElement {
     if (isWindLayer || isWindSpeadLayer) {
       convertedValue = convertMetersPerSecondsToKnots(raster.value)
     } else if (isTemperatureLayer) {
+      console.log({ raster: raster.value })
       convertedValue = convertKelvinToCelsius(raster.value)
     }
-    console.log({ layer: e.layer?.id, unit: UNIT_FORMAT[e.layer?.id as LayerKey] })
-    setUnit(UNIT_FORMAT[e.layer?.id as LayerKey])
+
+    setUnit(UNIT_FORMAT[e.layer?.id as LayerKey] || '')
     tooltipControlRef.current.updatePickingInfo({
       ...e,
       raster: {
@@ -172,8 +172,6 @@ function Mapbox(): ReactElement {
         return layerItem.clone(props)
       })
   }, [layerList, storageLayer.list])
-
-  console.log({ visibleLayers })
 
   const isWindHeatMapLayer = React.useMemo(() => {
     return storageLayer.list.includes(WIND_LAYER_KEYS.WIND_HEATMAP)

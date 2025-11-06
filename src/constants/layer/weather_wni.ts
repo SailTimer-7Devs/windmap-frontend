@@ -49,7 +49,6 @@ export const WEATHER_WNI_SST = 'weather_wni_sst'
 export const WEATHER_WNI_UUU = 'weather_wni_uuu'
 export const WEATHER_WNI_PSWH_HEATMAP = 'weather_wni_pswh_heatmap'
 export const WEATHER_WNI_PSWH_UV = 'weather_wni_pswh-uv'
-export const WEATHER_WNI_ICE_PACK_TOOLTIP = 'weather_wni_ice_pack-tooltip'
 export const WEATHER_WNI_WIND_TOOLTIP = 'weather_wni_wind_uv-tooltip'
 export const WEATHER_WNI_WAVE_TOOLTIP = 'weather_wni_uv-tooltip'
 export const WEATHER_WNI_UUU_TOOLTIP = 'weather_wni_uuu-tooltip'
@@ -295,6 +294,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     bounds: BASE.WIND_MAP_BOUNDS,
     palette: BASE.WIND_SPEED_PALETTE as Palette,
     opacity: 0.2,
+    pickable: true,
     imageUnscale: [0, 255],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
