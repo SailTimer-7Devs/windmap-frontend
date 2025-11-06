@@ -9,12 +9,8 @@ import {
 import { WEATHER_WNI_PSWH_HEATMAP, WEATHER_WNI_PSWH_UV } from 'constants/layer/weather_wni'
 
 import {
-  WEATHER_WNI_LAYER_KEYS,
-  WEATHER_WNI_WAVE_TOOLTIP,
-  WEATHER_WNI_WIND_TOOLTIP
+  WEATHER_WNI_LAYER_KEYS
 } from 'constants/layer/weather_wni'
-
-import { isWeatherWniGroup } from 'lib/layer'
 
 const WEATHER_WNI_LAYER_LIST = Object.values(WEATHER_WNI_LAYER_KEYS)
 
@@ -28,23 +24,17 @@ const EXCLUSIVE_GROUPS = [
 const applyExclusiveLayers = (list: string[], item: string): string[] => {
   if (WEATHER_WNI_PSWH_GROUP.includes(item)) {
     const hasCommon = list.some(item => WEATHER_WNI_PSWH_GROUP.includes(item))
-    const newList = list.includes(item)
+    return list.includes(item)
       ? list.filter(i => i !== item)
       : hasCommon
         ? [...list, item]
         : [item]
-
-    return [...newList, WEATHER_WNI_WAVE_TOOLTIP, WEATHER_WNI_WIND_TOOLTIP]
   }
 
   for (const group of EXCLUSIVE_GROUPS) {
     if (group.includes(item)) {
-      const isWeatherWni = isWeatherWniGroup(group)
       const newList = [...list.filter(i => !group.includes(i)), item]
-
-      return isWeatherWni
-        ? [...newList]
-        : newList
+      return newList
     }
   }
 

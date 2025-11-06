@@ -87,7 +87,7 @@ function Mapbox(): ReactElement {
   console.log({ unit, storageLayer })
   const { layerList, layerMenu } = useLayerData(storageLayer.name, timeline.index)
   const { getTimelinePreload } = useTimelinePreload(storageLayer.name, datetimes)
-
+  console.log({ layerList })
   const isWindSpeadLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV)
   const isTemperatureLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP1000HPA)
   const hasTooltip = isWindLayer || isWeatherWniLayer
@@ -129,7 +129,7 @@ function Mapbox(): ReactElement {
 
   const handleHover: DeckProps['onHover'] = (e: DeckGLOverlayHoverEventProps) => {
     const raster = e.raster
-console.log({ e })
+    console.log({ e })
     if (!tooltipControlRef.current || !raster) return
 
     let convertedValue = raster.value
@@ -165,13 +165,14 @@ console.log({ e })
   /* prevent issue with WebGL context is having problems 
      with buffer reinitialization on show\hide layers */
   const visibleLayers = React.useMemo(() => {
-    return layerList.map(layerItem => {
-      const props = { ...layerItem.props }
-
-      props.visible = storageLayer.list.includes(layerItem.id)
-      return layerItem.clone(props)
-    })
+    return layerList
+      .filter(({ id }) => storageLayer.list.some(layer => id.includes(layer)))
+      .map(layerItem => {
+        const props = { ...layerItem.props, visible: true }
+        return layerItem.clone(props)
+      })
   }, [layerList, storageLayer.list])
+
   console.log({ visibleLayers })
 
   const isWindHeatMapLayer = React.useMemo(() => {
