@@ -77,13 +77,13 @@ function Mapbox(): ReactElement {
   })
   const [unit, setUnit] = React.useState<string>('')
   const storageLayerValue = { name: layerName, list: visibleList }
-  
+
   const {
     value: storageLayer,
     reset,
     toggle
   } = useLocalStorageLayer(STORAGE_LAYER_KEY, storageLayerValue)
-  
+
   console.log({ unit, storageLayer })
   const { layerList, layerMenu } = useLayerData(storageLayer.name, timeline.index)
   const { getTimelinePreload } = useTimelinePreload(storageLayer.name, datetimes)
@@ -129,8 +129,8 @@ function Mapbox(): ReactElement {
 
   const handleHover: DeckProps['onHover'] = (e: DeckGLOverlayHoverEventProps) => {
     const raster = e.raster
-
-    if (!tooltipControlRef.current || !raster || !e.layer) return
+console.log({ e })
+    if (!tooltipControlRef.current || !raster) return
 
     let convertedValue = raster.value
 
@@ -139,8 +139,8 @@ function Mapbox(): ReactElement {
     } else if (isTemperatureLayer) {
       convertedValue = convertKelvinToCelsius(raster.value)
     }
-    console.log({ layer: e.layer.id, unit: UNIT_FORMAT[e.layer.id as LayerKey] || '' })
-    setUnit(UNIT_FORMAT[e.layer.id as LayerKey] || '')
+    console.log({ layer: e.layer?.id, unit: UNIT_FORMAT[e.layer?.id as LayerKey] })
+    setUnit(UNIT_FORMAT[e.layer?.id as LayerKey])
     tooltipControlRef.current.updatePickingInfo({
       ...e,
       raster: {
