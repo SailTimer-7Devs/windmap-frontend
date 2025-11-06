@@ -38,6 +38,7 @@ import { WEATHER_WNI as WEATHER_WNI_NAME } from './names'
 import { WEATHER_WNI_FILES } from './files'
 
 export const WEATHER_WNI = WEATHER_WNI_NAME
+export const WEATHER_WNI_ICE_PACK = 'weather_wni_ice_pack'
 export const WEATHER_WNI_INTPCP = 'weather_wni_intpcp'
 export const WEATHER_WNI_TMP850HPA = 'weather_wni_tmp850hpa'
 export const WEATHER_WNI_TMP1000HPA = 'weather_wni_tmp1000hpa'
@@ -46,7 +47,7 @@ export const WEATHER_WNI_UV = 'weather_wni_uv'
 export const WEATHER_WNI_WIND_UV = 'weather_wni_wind_uv'
 export const WEATHER_WNI_SST = 'weather_wni_sst'
 export const WEATHER_WNI_UUU = 'weather_wni_uuu'
-export const WEATHER_WNI_PSWH_HEATMAP = 'weather_wni_pswh'
+export const WEATHER_WNI_PSWH_HEATMAP = 'weather_wni_pswh_heatmap'
 export const WEATHER_WNI_PSWH_UV = 'weather_wni_pswh-uv'
 export const WEATHER_WNI_WIND_TOOLTIP = 'weather_wni_wind_uv-tooltip'
 export const WEATHER_WNI_WAVE_TOOLTIP = 'weather_wni_uv-tooltip'
@@ -54,7 +55,7 @@ export const WEATHER_WNI_UUU_TOOLTIP = 'weather_wni_uuu-tooltip'
 export const WEATHER_WNI_PSWH_UV_TOOLTIP = 'weather_wni_pswh-uv-tooltip'
 
 export const WEATHER_WNI_LAYER_KEYS = {
-  WEATHER_WNI,
+  WEATHER_WNI_ICE_PACK,
   WEATHER_WNI_INTPCP,
   WEATHER_WNI_TMP850HPA,
   WEATHER_WNI_TMP1000HPA,
@@ -72,7 +73,7 @@ export const WEATHER_WNI_LAYER_KEYS = {
 }
 
 export const WEATHER_WNI_VISIBLE_LAYERS = [
-  WEATHER_WNI,
+  WEATHER_WNI_ICE_PACK,
   WEATHER_WNI_WIND_TOOLTIP,
   WEATHER_WNI_WAVE_TOOLTIP,
   WEATHER_WNI_UUU_TOOLTIP,
@@ -80,7 +81,7 @@ export const WEATHER_WNI_VISIBLE_LAYERS = [
 ]
 
 export const WEATHER_WNI_INITIAL_LAYERS_STATE: LayersState = {
-  [WEATHER_WNI]: undefined,
+  [WEATHER_WNI_ICE_PACK]: undefined,
   [WEATHER_WNI_INTPCP]: undefined,
   [WEATHER_WNI_TMP1000HPA]: undefined,
   [WEATHER_WNI_TMP850HPA]: undefined,
@@ -91,7 +92,7 @@ export const WEATHER_WNI_INITIAL_LAYERS_STATE: LayersState = {
 
 export const LAYERS_MENU_LIST = [
   {
-    id: WEATHER_WNI,
+    id: WEATHER_WNI_ICE_PACK,
     name: 'Ice Pack',
     icon: SnowIcon
   },
@@ -149,8 +150,8 @@ export const LAYERS_MENU_LIST = [
 
 export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
   new WeatherLayers.RasterLayer({
-    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI,
-    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI as LayerKey],
+    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_ICE_PACK,
+    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_ICE_PACK as LayerKey],
     imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
     palette: BASE.WIND_SPEED_PALETTE as Palette,
@@ -429,7 +430,7 @@ export async function getWeatherWniLayersData(timelineIndex: number = 0): Promis
     ] = results.map(r => (r.status === 'fulfilled' ? r.value : undefined))
 
     const result: LayersState = {
-      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI]: weatherWniIceData,
+      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_ICE_PACK]: weatherWniIceData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_INTPCP]: weatherWniIntpcpData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP1000HPA]: weatherWniTmp1000HpaData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_VISIBILITY]: weatherWniVisibilityData,
