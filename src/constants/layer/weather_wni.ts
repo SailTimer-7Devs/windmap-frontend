@@ -154,7 +154,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_ICE_PACK as LayerKey],
     imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.WIND_SPEED_PALETTE as Palette,
+    palette: BASE.ICE_PACK_PALETTE as Palette,
     opacity: 0.2,
     pickable: true,
     imageUnscale: [0, 255],
