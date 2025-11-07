@@ -88,7 +88,7 @@ function Mapbox(): ReactElement {
   const { getTimelinePreload } = useTimelinePreload(storageLayer.name, datetimes)
 
   const isWindSpeadLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV)
-  const isTemperatureLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP1000HPA)
+  const isTemperatureLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_AIR_TEMPERATURE)
   const hasTooltip = isWindLayer || isWeatherWniLayer
 
   const handleTimelineUpdate = React.useCallback((datetime: string) => {
@@ -136,7 +136,6 @@ function Mapbox(): ReactElement {
     if (isWindLayer || isWindSpeadLayer) {
       convertedValue = convertMetersPerSecondsToKnots(raster.value)
     } else if (isTemperatureLayer) {
-      console.log({ raster: raster.value })
       convertedValue = convertKelvinToCelsius(raster.value)
     }
 

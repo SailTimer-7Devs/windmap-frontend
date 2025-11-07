@@ -27,7 +27,7 @@ export const WNI_WSH_FILES = {
 export const WEATHER_WNI_FILES = {
   ICE: 'wni_ice_pack_heatmap.png',
   INTPCP: 'wni_v2_intpcp_heatmap.png',
-  TMP1000HPA: 'wni_v2_tmp1000hpa_heatmap.png',
+  AIR_TEMPERATURE: 'wni_v2_tmp1000hpa_heatmap.png',
   TMP850HPA: 'wni_v2_tmp850hpa_heatmap.png',
   VISIBILITY: 'wni_v2_vis_heatmap.png',
   UV: 'wni_current_uv_mps.png',

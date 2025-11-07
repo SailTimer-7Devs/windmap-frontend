@@ -41,7 +41,7 @@ export const WEATHER_WNI = WEATHER_WNI_NAME
 export const WEATHER_WNI_ICE_PACK = 'weather_wni_ice_pack'
 export const WEATHER_WNI_INTPCP = 'weather_wni_intpcp'
 export const WEATHER_WNI_TMP850HPA = 'weather_wni_tmp850hpa'
-export const WEATHER_WNI_TMP1000HPA = 'weather_wni_tmp1000hpa'
+export const WEATHER_WNI_AIR_TEMPERATURE = 'weather_wni_tmp1000hpa'
 export const WEATHER_WNI_VISIBILITY = 'weather_wni_visibility'
 export const WEATHER_WNI_UV = 'weather_wni_uv'
 export const WEATHER_WNI_WIND_UV = 'weather_wni_wind_uv'
@@ -58,7 +58,7 @@ export const WEATHER_WNI_LAYER_KEYS = {
   WEATHER_WNI_ICE_PACK,
   WEATHER_WNI_INTPCP,
   WEATHER_WNI_TMP850HPA,
-  WEATHER_WNI_TMP1000HPA,
+  WEATHER_WNI_AIR_TEMPERATURE,
   WEATHER_WNI_VISIBILITY,
   WEATHER_WNI_UV,
   WEATHER_WNI_WIND_UV,
@@ -83,7 +83,7 @@ export const WEATHER_WNI_VISIBLE_LAYERS = [
 export const WEATHER_WNI_INITIAL_LAYERS_STATE: LayersState = {
   [WEATHER_WNI_ICE_PACK]: undefined,
   [WEATHER_WNI_INTPCP]: undefined,
-  [WEATHER_WNI_TMP1000HPA]: undefined,
+  [WEATHER_WNI_AIR_TEMPERATURE]: undefined,
   [WEATHER_WNI_TMP850HPA]: undefined,
   [WEATHER_WNI_VISIBILITY]: undefined,
   [WEATHER_WNI_UV]: undefined,
@@ -102,8 +102,8 @@ export const LAYERS_MENU_LIST = [
     icon: IntegratedPrecipitationIcon
   },
   {
-    id: WEATHER_WNI_TMP1000HPA,
-    name: 'Temperature 1000 hPa',
+    id: WEATHER_WNI_AIR_TEMPERATURE,
+    name: 'Air Temperature',
     icon: TemperatureHighIcon
   },
   {
@@ -178,8 +178,8 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
   }),
 
   new WeatherLayers.RasterLayer({
-    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP1000HPA,
-    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP1000HPA as LayerKey],
+    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_AIR_TEMPERATURE,
+    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_AIR_TEMPERATURE as LayerKey],
     imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
     palette: BASE.WIND_SPEED_PALETTE as Palette,
@@ -390,7 +390,7 @@ export const weatherWniTimelineFiles = {
   weatherWniIce: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.ICE, 1),
   weatherWniIntpcp: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.INTPCP, 1),
   weatherWniTmp850Hpa: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.TMP850HPA, 1),
-  weatherWniTmp1000Hpa: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.TMP1000HPA, 1),
+  weatherWniAirTemperature: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.AIR_TEMPERATURE, 1),
   weatherWniVisibility: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.VISIBILITY, 1),
   weatherWniUv: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.UV, 1),
   weatherWniWindUv: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.WIND_UV, 1),
@@ -412,7 +412,7 @@ export async function getWeatherWniLayersData(timelineIndex: number = 0): Promis
     const results = await Promise.allSettled([
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniIce[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniIntpcp[timelineIndex]),
-      handleImageDataLoad(weatherWniTimelineFiles.weatherWniTmp1000Hpa[timelineIndex]),
+      handleImageDataLoad(weatherWniTimelineFiles.weatherWniAirTemperature[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniVisibility[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniUv[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniWindUv[timelineIndex]),
@@ -425,7 +425,7 @@ export async function getWeatherWniLayersData(timelineIndex: number = 0): Promis
     const [
       weatherWniIceData,
       weatherWniIntpcpData,
-      weatherWniTmp1000HpaData,
+      weatherWniAirTemperatureData,
       weatherWniVisibilityData,
       weatherWniUvData,
       weatherWniWindUvData,
@@ -438,7 +438,7 @@ export async function getWeatherWniLayersData(timelineIndex: number = 0): Promis
     const result: LayersState = {
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_ICE_PACK]: weatherWniIceData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_INTPCP]: weatherWniIntpcpData,
-      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP1000HPA]: weatherWniTmp1000HpaData,
+      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_AIR_TEMPERATURE]: weatherWniAirTemperatureData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_VISIBILITY]: weatherWniVisibilityData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UV]: weatherWniUvData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV]: weatherWniWindUvData,
