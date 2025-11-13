@@ -189,7 +189,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     palette: BASE.WIND_SPEED_PALETTE as Palette,
     opacity: 0.2,
     pickable: true,
-    imageUnscale: [0, 255],
+    imageUnscale: [-50, 50],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
@@ -299,7 +299,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     palette: BASE.SST_PALETTE as Palette,
     opacity: 0.2,
     pickable: true,
-    imageUnscale: [0, 255],
+    imageUnscale: [-50, 50],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
