@@ -43,10 +43,7 @@ import {
   isWind,
   isWeatherWni
 } from 'lib/layer'
-import {
-  convertMetersPerSecondsToKnots,
-  convertKelvinToCelsius
-} from 'lib/units'
+import { convertMetersPerSecondsToKnots } from 'lib/units'
 import { getDateTimeByLayerName } from 'lib/timeline'
 import { setMetaData } from 'lib/meta'
 
@@ -88,7 +85,6 @@ function Mapbox(): ReactElement {
   const { getTimelinePreload } = useTimelinePreload(storageLayer.name, datetimes)
 
   const isWindSpeadLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV)
-  const isTemperatureLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_AIR_TEMPERATURE)
   const hasTooltip = isWindLayer || isWeatherWniLayer
 
   const handleTimelineUpdate = React.useCallback((datetime: string) => {
@@ -135,8 +131,6 @@ function Mapbox(): ReactElement {
 
     if (isWindLayer || isWindSpeadLayer) {
       convertedValue = convertMetersPerSecondsToKnots(raster.value)
-    } else if (isTemperatureLayer) {
-      convertedValue = convertKelvinToCelsius(raster.value)
     }
 
     setUnit(UNIT_FORMAT[e.layer?.id as LayerKey] || '')
