@@ -15,7 +15,6 @@ export default function useTimelinePreload(
   const [cache, setCache] = React.useState<Map<number, LayersState>>(
     () => new globalThis.Map()
   )
-  console.log({ cache })
 
   const getTimelinePreload = (requestedDatetimes: string[]) => {
     const promises: Promise<void>[] = requestedDatetimes.map((datetime) => {

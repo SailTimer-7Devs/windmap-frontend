@@ -61,7 +61,7 @@ export function getNextDatetimeByStep(step: number): string {
   next.setMinutes(0, 0, 0)
 
   /* add + hours to current time */
-  next.setHours(now.getHours() + step + 1)
+  next.setHours(now.getHours() + step)
 
   return next.toISOString()
 }

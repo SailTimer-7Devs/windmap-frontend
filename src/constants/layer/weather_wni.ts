@@ -406,10 +406,9 @@ export const weatherWniTimelineFiles = {
 }
 
 const weatherWniCache = new Map<number, LayersState>()
-console.log({ weatherWniCache, navigator })
+
 export async function getWeatherWniLayersData(timelineIndex: number = 0): Promise<LayersState> {
   if (weatherWniCache.has(timelineIndex)) {
-    console.log({ weatherWniCache, timelineIndex })
     return weatherWniCache.get(timelineIndex)!
   }
 

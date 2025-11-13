@@ -173,6 +173,18 @@ export async function getWindLayersData(timelineIndex: number = 0): Promise<Laye
     return windCache.get(timelineIndex)!
   }
 
+  if (!navigator.onLine) {
+    console.warn('Offline mode detected.')
+
+    if (windCache.size === 0) {
+      alert('Sorry, that data is not available while you are offline.')
+      return WIND_INITIAL_LAYERS_STATE
+    }
+
+    const lastCached = Array.from(windCache.values()).pop()
+    if (lastCached) return lastCached
+  }
+
   try {
     const [
       windData,
