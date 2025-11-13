@@ -402,10 +402,23 @@ export const weatherWniTimelineFiles = {
 }
 
 const weatherWniCache = new Map<number, LayersState>()
-
+console.log({ weatherWniCache, navigator })
 export async function getWeatherWniLayersData(timelineIndex: number = 0): Promise<LayersState> {
   if (weatherWniCache.has(timelineIndex)) {
+    console.log({ weatherWniCache, timelineIndex })
     return weatherWniCache.get(timelineIndex)!
+  }
+
+  if (!navigator.onLine) {
+    console.warn('Offline mode detected.')
+
+    if (weatherWniCache.size === 0) {
+      alert('Sorry, that data is not available while you are offline.')
+      return WEATHER_WNI_INITIAL_LAYERS_STATE
+    }
+
+    const lastCached = Array.from(weatherWniCache.values()).pop()
+    if (lastCached) return lastCached
   }
 
   try {
