@@ -15,6 +15,7 @@ export default function useTimelinePreload(
   const [cache, setCache] = React.useState<Map<number, LayersState>>(
     () => new globalThis.Map()
   )
+  console.log({ cache })
 
   const getTimelinePreload = (requestedDatetimes: string[]) => {
     const promises: Promise<void>[] = requestedDatetimes.map((datetime) => {
@@ -22,6 +23,15 @@ export default function useTimelinePreload(
 
       if (cache.has(timelineIndex)) {
         return Promise.resolve()
+      }
+
+      if (!navigator.onLine) {
+        console.warn('Offline mode detected.')
+  
+        if (cache.size === 0) {
+          alert('Sorry, that data is not available while you are offline.')
+          return Promise.reject()
+        }
       }
 
       return preloadLayersData(layerName, timelineIndex).then((data) => {

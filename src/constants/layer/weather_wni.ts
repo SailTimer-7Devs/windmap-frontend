@@ -84,10 +84,14 @@ export const WEATHER_WNI_INITIAL_LAYERS_STATE: LayersState = {
   [WEATHER_WNI_ICE_PACK]: undefined,
   [WEATHER_WNI_INTPCP]: undefined,
   [WEATHER_WNI_AIR_TEMPERATURE]: undefined,
-  [WEATHER_WNI_TMP850HPA]: undefined,
+  // [WEATHER_WNI_TMP850HPA]: undefined,
   [WEATHER_WNI_VISIBILITY]: undefined,
   [WEATHER_WNI_UV]: undefined,
-  [WEATHER_WNI_WIND_UV]: undefined
+  [WEATHER_WNI_WIND_UV]: undefined,
+  [WEATHER_WNI_SST]: undefined,
+  [WEATHER_WNI_UUU]: undefined,
+  [WEATHER_WNI_PSWH_HEATMAP]: undefined,
+  [WEATHER_WNI_PSWH_UV]: undefined
 }
 
 export const LAYERS_MENU_LIST = [
