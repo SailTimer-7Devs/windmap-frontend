@@ -122,7 +122,7 @@ export const LAYERS_MENU_LIST = [
   },
   {
     id: WEATHER_WNI_UUU,
-    name: 'Ocean',
+    name: 'Ocean Currents',
     icon: OceanIcon
   },
   // {
@@ -132,7 +132,7 @@ export const LAYERS_MENU_LIST = [
   // },
   {
     id: WEATHER_WNI_UV,
-    name: 'Wave',
+    name: 'Waves',
     icon: WaveIcon
   },
   {
