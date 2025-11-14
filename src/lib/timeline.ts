@@ -35,6 +35,8 @@ function getWniSubfolder(fileName: string): string {
       return URL_SEGMENTS.ICE
     case fileName.includes('_uv_mps'):
       return URL_SEGMENTS.GHI
+    case fileName.includes('_feet'):
+      return ''
     default:
       return URL_SEGMENTS.V2
   }
