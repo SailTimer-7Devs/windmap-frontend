@@ -62,18 +62,32 @@ export type LayersMenuProps = {
   menuList: {
     id: LayerKey
     name: string
-    icon?: ReactElement
+    icon?: ReactElement,
+    items?: {
+      id: LayerKey
+      name: string
+      onClick?: () => void
+    }[]
   }[]
 }
 
 export type DropdownMenuProps = {
   caption: string
+  isSubmenuOpen?: boolean
+  submenuAnchor?: string | null
   options: {
     label: string
     icon?: ReactElement
     onClick?: () => void
     href?: string
-    checked?: boolean
+    checked?: boolean,
+    items?: {
+      label: string
+      icon?: ReactElement
+      onClick?: () => void
+      href?: string
+      checked?: boolean
+    }[]
   }[]
 }
 

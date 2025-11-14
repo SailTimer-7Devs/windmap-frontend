@@ -136,19 +136,28 @@ export const LAYERS_MENU_LIST = [
     icon: WaveIcon
   },
   {
-    id: WEATHER_WNI_WIND_UV,
     name: 'Wind',
-    icon: WindAnimationIcon
+    icon: WindAnimationIcon,
+    items: [
+      {
+        id: WEATHER_WNI_WIND_UV,
+        name: 'Speed'
+      }
+    ]
   },
   {
-    id: WEATHER_WNI_PSWH_HEATMAP,
-    name: 'Swell Height',
-    icon: SwellHeightIcon
-  },
-  {
-    id: WEATHER_WNI_PSWH_UV,
-    name: 'Swell Animation',
-    icon: SwellAnimationIcon
+    name: 'Swell',
+    icon: SwellHeightIcon,
+    items: [
+      {
+        id: WEATHER_WNI_PSWH_HEATMAP,
+        name: 'Height'
+      },
+      {
+        id: WEATHER_WNI_PSWH_UV,
+        name: 'Animation'
+      }
+    ]
   }
 ]
 
