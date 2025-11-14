@@ -20,7 +20,6 @@ import TemperatureHighIcon from 'icons/TemperatureHigh'
 import WindAnimationIcon from 'icons/WindAnimation'
 import WaveIcon from 'icons/Wave'
 import SwellHeightIcon from 'icons/SwellHeight'
-import SwellAnimationIcon from 'icons/SwellAnimation'
 
 import { handleImageDataLoad } from 'lib/image'
 import {
