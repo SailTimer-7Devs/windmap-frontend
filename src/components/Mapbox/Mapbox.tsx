@@ -85,6 +85,7 @@ function Mapbox(): ReactElement {
   const { getTimelinePreload } = useTimelinePreload(storageLayer.name, datetimes)
 
   const isWindSpeadLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV)
+  const isOceanCurrentLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UUU)
   const hasTooltip = isWindLayer || isWeatherWniLayer
 
   const handleTimelineUpdate = React.useCallback((datetime: string) => {
@@ -129,7 +130,7 @@ function Mapbox(): ReactElement {
 
     let convertedValue = raster.value
 
-    if (isWindLayer || isWindSpeadLayer) {
+    if (isWindLayer || isWindSpeadLayer || isOceanCurrentLayer) {
       convertedValue = convertMetersPerSecondsToKnots(raster.value)
     }
 
