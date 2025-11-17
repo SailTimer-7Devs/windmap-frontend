@@ -6,7 +6,12 @@ import {
   WIND_HEATMAP,
   WIND_DIRECTION_HEATMAP
 } from 'constants/layer/wind'
-import { WEATHER_WNI_PSWH_HEATMAP, WEATHER_WNI_PSWH_UV } from 'constants/layer/weather_wni'
+import {
+  WEATHER_WNI_PSWH_HEATMAP,
+  WEATHER_WNI_PSWH_UV,
+  WEATHER_WNI_WAVE_HEATMAP,
+  WEATHER_WNI_WAVE_UV
+} from 'constants/layer/weather_wni'
 
 import {
   WEATHER_WNI_LAYER_KEYS
@@ -15,20 +20,30 @@ import {
 const WEATHER_WNI_LAYER_LIST = Object.values(WEATHER_WNI_LAYER_KEYS)
 
 const WEATHER_WNI_PSWH_GROUP = [WEATHER_WNI_PSWH_HEATMAP, WEATHER_WNI_PSWH_UV]
+const WEATHER_WNI_PWH_GROUP = [WEATHER_WNI_WAVE_HEATMAP, WEATHER_WNI_WAVE_UV]
 
 const EXCLUSIVE_GROUPS = [
   [WIND_HEATMAP, WIND_DIRECTION_HEATMAP],
   WEATHER_WNI_LAYER_LIST
 ]
 
+const WEATHER_WNI_TOGGLE_GROUPS = [WEATHER_WNI_PSWH_GROUP, WEATHER_WNI_PWH_GROUP]
+
+const toggleGroup = (list: string[], item: string, group: string[]) => {
+  const hasCommon = list.some(i => group.includes(i))
+
+  return list.includes(item)
+    ? list.filter(i => i !== item)
+    : hasCommon
+      ? [...list, item]
+      : [item]
+}
+
 const applyExclusiveLayers = (list: string[], item: string): string[] => {
-  if (WEATHER_WNI_PSWH_GROUP.includes(item)) {
-    const hasCommon = list.some(item => WEATHER_WNI_PSWH_GROUP.includes(item))
-    return list.includes(item)
-      ? list.filter(i => i !== item)
-      : hasCommon
-        ? [...list, item]
-        : [item]
+  for (const group of WEATHER_WNI_TOGGLE_GROUPS) {
+    if (group.includes(item)) {
+      return toggleGroup(list, item, group)
+    }
   }
 
   for (const group of EXCLUSIVE_GROUPS) {
