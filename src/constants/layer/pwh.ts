@@ -87,8 +87,8 @@ export const getPwhLayers = (layersState: LayersState): Layer[] => [
 ]
 
 export const pwhTimelineFiles = {
-  pwhHeatmap: createTimelineLayerFileByGroup(PWH_NAME, WNI_PWH_FILES.HEATMAP),
-  pwhUv: createTimelineLayerFileByGroup(PWH_NAME, WNI_PWH_FILES.UV),
+  pwhHeatmap: createTimelineLayerFileByGroup(PWH_NAME, WNI_PWH_FILES.WAVE_HEATMAP),
+  pwhUv: createTimelineLayerFileByGroup(PWH_NAME, WNI_PWH_FILES.WAVE_UV),
   datetime: createTimelineDatetimes()
 }
 
