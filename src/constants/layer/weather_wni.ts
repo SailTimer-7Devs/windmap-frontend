@@ -181,7 +181,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     palette: BASE.ICE_PACK_PALETTE as Palette,
     opacity: 0.2,
     pickable: true,
-    imageUnscale: [0, 255],
+    imageUnscale: [0, 1],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
@@ -195,7 +195,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     palette: BASE.WIND_SPEED_PALETTE as Palette,
     opacity: 0.2,
     pickable: true,
-    imageUnscale: [0, 255],
+    imageUnscale: [0, 20],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
@@ -223,7 +223,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     palette: BASE.WIND_SPEED_PALETTE as Palette,
     opacity: 0.2,
     pickable: true,
-    imageUnscale: [0, 255],
+    imageUnscale: [-50, 50],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
@@ -237,7 +237,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     palette: BASE.WIND_SPEED_PALETTE as Palette,
     opacity: 0.2,
     pickable: true,
-    imageUnscale: [0, 255],
+    imageUnscale: [0, 10000],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
@@ -334,7 +334,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     palette: BASE.WAVE_HEIGHT_PALETTE_0_50 as Palette,
     opacity: 0.5,
     pickable: true,
-    imageUnscale: [0, 255],
+    imageUnscale: [0, 25.5],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
@@ -384,7 +384,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     palette: BASE.WAVE_HEIGHT_PALETTE_0_50 as Palette,
     opacity: 0.5,
     pickable: true,
-    imageUnscale: [0, 255],
+    imageUnscale: [0, 25.5],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
