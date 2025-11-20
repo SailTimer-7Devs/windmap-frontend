@@ -28,7 +28,7 @@ import {
 import { WIND as WIND_NAME } from './names'
 import { WIND_FILES } from './files'
 
-export const WIND = WIND_NAME
+export const WIND = 'wind-animation'
 export const WIND_BARBS = 'wind-barbs'
 export const WIND_DIRECTION_HEATMAP = 'wind-direction-heatmap'
 export const WIND_HEATMAP = 'wind-heatmap'
@@ -163,7 +163,6 @@ export const windTimelineFiles = {
   windMap: createTimelineLayerFileByGroup(WIND_NAME, WIND_FILES.WINDMAP),
   windDirectionHeatmap: createTimelineLayerFileByGroup(WIND_NAME, WIND_FILES.DIRECTION_HEATMAP),
   windHeatmap: createTimelineLayerFileByGroup(WIND_NAME, WIND_FILES.HEATMAP),
-  
   datetime: createTimelineDatetimes()
 }
 
