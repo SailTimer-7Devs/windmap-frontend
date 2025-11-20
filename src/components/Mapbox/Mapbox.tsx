@@ -213,7 +213,6 @@ function Mapbox(): ReactElement {
         <ScaleControl
           unit='nautical'
           position='bottom-right'
-          style={{ borderRadius: '4px' }}
         />
 
         <TimelineControl
