@@ -163,6 +163,7 @@ export const windTimelineFiles = {
   windMap: createTimelineLayerFileByGroup(WIND_NAME, WIND_FILES.WINDMAP),
   windDirectionHeatmap: createTimelineLayerFileByGroup(WIND_NAME, WIND_FILES.DIRECTION_HEATMAP),
   windHeatmap: createTimelineLayerFileByGroup(WIND_NAME, WIND_FILES.HEATMAP),
+  
   datetime: createTimelineDatetimes()
 }
 
@@ -195,7 +196,7 @@ export async function getWindLayersData(timelineIndex: number = 0): Promise<Laye
       handleImageDataLoad(windTimelineFiles.windDirectionHeatmap[timelineIndex]),
       handleImageDataLoad(windTimelineFiles.windHeatmap[timelineIndex])
     ])
-
+console.log({ windData, windDirectionHeatmapData, windHeatmapData })
     const result = {
       [WIND_LAYER_KEYS.WIND]: windData,
       [WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP]: windDirectionHeatmapData,

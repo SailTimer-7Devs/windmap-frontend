@@ -167,6 +167,8 @@ function Mapbox(): ReactElement {
       })
   }, [layerList, storageLayer.list])
 
+  console.log({ layerList, storageLayer, visibleLayers })
+
   const isWindHeatMapLayer = React.useMemo(() => {
     return storageLayer.list.includes(WIND_LAYER_KEYS.WIND_HEATMAP)
   }, [storageLayer.list])
