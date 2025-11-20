@@ -1,3 +1,4 @@
+
 import type { ReactElement } from 'react'
 import type { DropdownMenuProps } from 'types'
 
@@ -8,11 +9,12 @@ import {
   MenuItems
 } from '@headlessui/react'
 
-import { ChevronDownIcon } from 'icons/ChevronDown'
+import ChevronDownIcon from 'icons/ChevronDown'
+import DotIcon from 'icons/Dot'
 
-const ITEM_STYLES = 'w-full group flex gap-2 text-left rounded-lg py-1.5 px-3 data-[focus]:bg-white/10'
+const ITEM_STYLES = 'w-full group flex justify-between items-center rounded-lg py-1.5 px-3 data-[focus]:bg-white/10'
 
-const DropdownMenu = ({ caption, options }: DropdownMenuProps): ReactElement => {
+const DropdownMenu = ({ caption, options, isSubmenuOpen, submenuAnchor }: DropdownMenuProps): ReactElement => {
   const handleMenuClick = (
     e: React.MouseEvent<HTMLButtonElement>,
     onClick?: () => void,
@@ -25,52 +27,118 @@ const DropdownMenu = ({ caption, options }: DropdownMenuProps): ReactElement => 
     if (close) return null
   }
 
-  return (
-    <Menu>
-      <MenuButton className='inline-flex items-center gap-2 rounded-full bg-gray-800 py-3 px-4 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[hover]:bg-gray-700 data-[open]:bg-gray-700 data-[focus]:outline-1 data-[focus]:outline-white transition duration-100'>
-        {caption}
-        <ChevronDownIcon className='size-2 fill-white/60' />
-      </MenuButton>
+  const ItemContent = (props: ItemComponentProps) => {
+    const { icon, label, checked, items } = props
+    return (
+      <>
+        <div className='flex items-center justify-between w-full'>
+          <p className='flex gap-3'>
+            {icon}
+            {label}
+          </p>
 
-      <MenuItems
-        transition
-        anchor='bottom end'
-        className='w-52 origin-top-right rounded-xl border border-white/5 bg-gray-800 p-1 text-sm/6 text-white transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0'
+          {checked && <DotIcon />}
+        </div>
+
+        {items && <ChevronDownIcon className='size-2 fill-white/60 ml-1' />}
+      </>
+    )
+  }
+
+const ItemComponent = ({ close, href, icon, label, checked, onClick, items }: ItemComponentProps) => {
+  if (href) {
+    return (
+      <a
+        href={href}
+        rel='nofollow noopener noreferrer'
+        target='_blank'
+        className={ITEM_STYLES}
+        onClick={close}
       >
-        {options.map(({ label, icon, onClick, href }) => (
+        <ItemContent icon={icon} label={label} checked={checked} items={items} />
+      </a>
+    )
+  } else {
+    return (
+      <button
+        className={`${ITEM_STYLES} capitalize`}
+        type='button'
+        onClick={(e) => handleMenuClick(e, onClick, close)}
+      >
+        <ItemContent icon={icon} label={label} checked={checked} items={items} />
+      </button>
+    )
+  }
+}
+
+return (
+  <Menu>
+    <MenuButton className='inline-flex items-center gap-2 rounded-xl bg-gray-800 py-3 px-4 text-sm/6 font-semibold text-white shadow-inner shadow-white/10 focus:outline-none data-[hover]:bg-gray-700 data-[open]:bg-gray-700 data-[focus]:outline-1 data-[focus]:outline-white transition duration-100'>
+      {caption}
+
+      <ChevronDownIcon className='size-2 fill-white/60' />
+    </MenuButton>
+
+    <MenuItems
+      transition
+      anchor='bottom end'
+      className='w-66 mt-1 origin-top-right !overflow-visible rounded-xl border border-white/5 bg-gray-800 p-1 text-sm/6 text-white transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0'
+    >
+      {options.map(({ label, icon, onClick, href, checked, items }) => {
+        return (
           <MenuItem key={label}>
-            {({ close }) => {
-              if (href) {
-                return (
-                  <a
-                    href={href}
-                    rel='nofollow noopener noreferrer'
-                    target='_blank'
-                    className={ITEM_STYLES}
-                    onClick={close}
-                  >
-                    {icon}
-                    {label}
-                  </a>
-                )
-              } else {
-                return (
-                  <button
-                    className={`${ITEM_STYLES} capitalize`}
-                    type='button'
-                    onClick={(e) => handleMenuClick(e, onClick, close)}
-                  >
-                    {icon}
-                    {label}
-                  </button>
-                )
-              }
-            }}
+            {({ close }) => (
+              <div className='relative'>
+                <ItemComponent
+                  items={items}
+                  close={close}
+                  icon={icon}
+                  label={label}
+                  checked={checked}
+                  onClick={onClick}
+                  href={href}
+                />
+
+                {isSubmenuOpen && submenuAnchor === label && items && (
+                  <div className='absolute left-[-60%] bottom-[-4px] w-36 rounded-xl border border-white/5 bg-gray-800 p-1 text-sm text-white shadow-lg transition-all duration-150 ease-out z-20'>
+                    {items.map((sub) => (
+                      <button
+                        key={sub.label}
+                        type='button'
+                        className={`${ITEM_STYLES} capitalize h-9`}
+                        onClick={(e) => handleMenuClick(e, sub.onClick, close)}
+                      >
+                        <ItemContent
+                          label={sub.label}
+                          checked={sub.checked}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </MenuItem>
-        ))}
-      </MenuItems>
-    </Menu>
-  )
+        )
+      })}
+    </MenuItems>
+  </Menu>
+)
+}
+
+type ItemComponentProps = {
+  items?: {
+    label: string
+    icon?: ReactElement
+    onClick?: () => void
+  }[]
+  icon?: ReactElement
+  label?: string
+  checked?: boolean
+  onClick?: () => void | undefined
+  href?: string
+  close?: () => void | ((e: React.MouseEvent<HTMLElement>) => void)
 }
 
 export default DropdownMenu
+

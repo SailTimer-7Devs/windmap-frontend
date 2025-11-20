@@ -28,7 +28,6 @@ body {
 }
 
 .mapboxgl {
-
   &-ctrl-logo,
   &-ctrl-attrib-inner>* {
     display: none !important;
@@ -36,6 +35,27 @@ body {
 
   &-ctrl-scale {
     @include base-font-styles;
+    border-radius: 0 4px 4px 0;
+    border-left: none;
+
+    &::before {
+      content: "Scale";
+      position: absolute;
+      top: 0;
+      left: -49px;
+      font-size: 14px;
+      line-height: 1.2;
+      background-color: #ffffffbf;
+      border-radius: 4px 0 0 4px;
+      border-left: 2px solid #333333;
+      border-top: none;
+      border-bottom: 2px solid #333333;
+      padding: 0 6px;
+    }
+  }
+
+  &-ctrl-attrib.mapboxgl-compact {
+    display: none !important;
   }
 
   .mapboxgl-marker {
@@ -55,10 +75,11 @@ body {
       background-color: var(--primary-red-alfa);
     }
   }
+
+
 }
 
 .weatherlayers {
-
   &-timeline-control,
   &-legend-control {
     & * {
@@ -67,9 +88,28 @@ body {
   }
 
   &-timeline-control {
-    &__buttons>a {
+    &__buttons > a {
       width: 24px;
       height: 24px;
+
+      &.weatherlayers-timeline-control__play-button {
+        display: none;
+      }
     }
+
+    &__loader {
+      visibility: hidden
+    }
+  }
+}
+
+@layer base {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-text-fill-color: theme('colors.gray.300');
+    transition: background-color 9999s ease-in-out 0s;
   }
 }

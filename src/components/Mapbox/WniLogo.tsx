@@ -7,7 +7,7 @@ const PATH = 'https://sea.weathernews.com'
 const WniLogo = (): ReactElement => {
   return (
     <a
-      className='absolute bottom-[20px] right-[10px]'
+      className='absolute bottom-[36px] right-[10px]'
       href={PATH}
       rel='nofollow noopener noreferrer'
       target='_blank'

@@ -5,6 +5,7 @@ import * as pswhLayer from 'constants/layer/pswh'
 import * as pwhLayer from 'constants/layer/pwh'
 import * as windLayer from 'constants/layer/wind'
 import * as wshLayer from 'constants/layer/wsh'
+import * as weatherWniLayer from 'constants/layer/weather_wni'
 
 interface LayerModule {
   LAYERS_MENU_LIST: LayerMenuProps[]
@@ -44,6 +45,13 @@ const LAYERS_CONFIG: Record<string, LayersConfig> = {
     module: wshLayer as LayerModule,
     getDataFn: wshLayer.getWshLayersData,
     getLayersFn: wshLayer.getWshLayers
+  },
+
+  [weatherWniLayer.WEATHER_WNI]: {
+    name: weatherWniLayer.WEATHER_WNI,
+    module: weatherWniLayer as LayerModule,
+    getDataFn: weatherWniLayer.getWeatherWniLayersData,
+    getLayersFn: weatherWniLayer.getWeatherWniLayers
   }
 }
 

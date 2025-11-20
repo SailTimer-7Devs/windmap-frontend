@@ -9,6 +9,9 @@ import * as WeatherLayers from 'weatherlayers-gl'
 
 import * as BASE from 'constants/basemap'
 
+import WshHeatmapIcon from 'icons/WshHeatmap'
+import WshSpeedIcon from 'icons/WshSpeed'
+
 import { handleImageDataLoad } from 'lib/image'
 
 import {
@@ -40,11 +43,13 @@ export const WSH_INITIAL_LAYERS_STATE: LayersState = {
 export const LAYERS_MENU_LIST = [
   {
     id: WSH_HEATMAP,
-    name: 'Wsh Heatmap'
+    name: 'Wsh Heatmap',
+    icon: WshHeatmapIcon
   },
   {
     id: WSH_UV,
-    name: 'Wsh Speed'
+    name: 'Wsh Speed',
+    icon: WshSpeedIcon
   }
 ]
 

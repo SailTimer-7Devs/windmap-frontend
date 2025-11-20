@@ -24,6 +24,15 @@ export default function useTimelinePreload(
         return Promise.resolve()
       }
 
+      if (!navigator.onLine) {
+        console.warn('Offline mode detected.')
+  
+        if (cache.size === 0) {
+          alert('Sorry, that data is not available while you are offline.')
+          return Promise.reject()
+        }
+      }
+
       return preloadLayersData(layerName, timelineIndex).then((data) => {
         setCache((prev) => {
           const updated = new globalThis.Map(prev)

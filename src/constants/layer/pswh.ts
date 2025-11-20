@@ -9,6 +9,9 @@ import * as WeatherLayers from 'weatherlayers-gl'
 
 import * as BASE from 'constants/basemap'
 
+import SwellHeightIcon from 'icons/SwellHeight'
+import SwellAnimationIcon from 'icons/SwellAnimation'
+
 import { handleImageDataLoad } from 'lib/image'
 import { setParticlesNumbersByDeviceType } from 'lib/layer'
 
@@ -18,7 +21,7 @@ import {
 } from 'lib/timeline'
 
 import { PSWH as PSWH_NAME } from './names'
-import { WNI_PWH_FILES } from './files'
+import { WNI_PSWH_FILES } from './files'
 
 export const PSWH_HEATMAP = PSWH_NAME
 export const PSWH_UV = 'pswh-uv'
@@ -41,11 +44,13 @@ export const PSWH_INITIAL_LAYERS_STATE: LayersState = {
 export const LAYERS_MENU_LIST = [
   {
     id: PSWH_HEATMAP,
-    name: 'Swell Height'
+    name: 'Swell Height',
+    icon: SwellHeightIcon
   },
   {
     id: PSWH_UV,
-    name: 'Swell Animation'
+    name: 'Swell Animation',
+    icon: SwellAnimationIcon
   }
 ]
 
@@ -58,7 +63,7 @@ export const getPswhLayers = (layersState: LayersState): Layer[] => [
     palette: BASE.WAVE_HEIGHT_PALETTE_0_50 as Palette,
     opacity: 0.5,
     pickable: true,
-    imageUnscale: [0, 255],
+    imageUnscale: [0, 25.5],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
@@ -84,8 +89,8 @@ export const getPswhLayers = (layersState: LayersState): Layer[] => [
 ]
 
 export const pswhTimelineFiles = {
-  pswhHeatmap: createTimelineLayerFileByGroup(PSWH_NAME, WNI_PWH_FILES.HEATMAP),
-  pswhUv: createTimelineLayerFileByGroup(PSWH_NAME, WNI_PWH_FILES.UV),
+  pswhHeatmap: createTimelineLayerFileByGroup(PSWH_NAME, WNI_PSWH_FILES.HEATMAP),
+  pswhUv: createTimelineLayerFileByGroup(PSWH_NAME, WNI_PSWH_FILES.PSWH_UV),
   datetime: createTimelineDatetimes()
 }
 

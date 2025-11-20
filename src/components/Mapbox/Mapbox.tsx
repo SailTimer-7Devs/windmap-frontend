@@ -27,16 +27,21 @@ import * as WeatherLayers from 'weatherlayers-gl'
 import * as BASE from 'constants/basemap'
 import { STORAGE_LAYER_KEY } from 'constants/localStorage'
 import { WIND_LAYER_KEYS } from 'constants/layer/wind'
+import { WEATHER_WNI_LAYER_KEYS } from 'constants/layer/weather_wni'
+import { UNIT_FORMAT } from 'constants/layer/units'
 
 import useLayerData from 'hooks/useLayerData'
 import useLocalStorageLayer from 'hooks/useLocalStorageLayer'
 import useTimelinePreload from 'hooks/useTimelinePreload'
 import useUrlChange from 'hooks/useUrlChange'
 
-import getUrlParams from 'lib/url'
+import type { LayerKey } from 'types'
+
+import { getUrlParams } from 'lib/url'
 import {
   getVisibleLayerList,
-  isWind
+  isWind,
+  isWeatherWni
 } from 'lib/layer'
 import { convertMetersPerSecondsToKnots } from 'lib/units'
 import { getDateTimeByLayerName } from 'lib/timeline'
@@ -58,6 +63,7 @@ function Mapbox(): ReactElement {
   const layerName = getUrlParams()
   const visibleList = getVisibleLayerList(layerName)
   const isWindLayer = isWind(layerName)
+  const isWeatherWniLayer = isWeatherWni(layerName)
 
   const datetimes = getDateTimeByLayerName(layerName)
 
@@ -66,7 +72,7 @@ function Mapbox(): ReactElement {
     index: 0,
     datetime: datetimes[0]
   })
-
+  const [unit, setUnit] = React.useState<string>('')
   const storageLayerValue = { name: layerName, list: visibleList }
 
   const {
@@ -77,6 +83,10 @@ function Mapbox(): ReactElement {
 
   const { layerList, layerMenu } = useLayerData(storageLayer.name, timeline.index)
   const { getTimelinePreload } = useTimelinePreload(storageLayer.name, datetimes)
+
+  const isWindSpeadLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV)
+  const isOceanCurrentLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UUU)
+  const hasTooltip = isWindLayer || isWeatherWniLayer
 
   const handleTimelineUpdate = React.useCallback((datetime: string) => {
     const timelineIndex = datetimes.findIndex(dt => dt === datetime)
@@ -118,10 +128,13 @@ function Mapbox(): ReactElement {
 
     if (!tooltipControlRef.current || !raster) return
 
-    const convertedValue = isWindLayer
-      ? convertMetersPerSecondsToKnots(raster.value)
-      : raster.value
+    let convertedValue = raster.value
 
+    if (isWindLayer || isWindSpeadLayer || isOceanCurrentLayer) {
+      convertedValue = convertMetersPerSecondsToKnots(raster.value)
+    }
+
+    setUnit(UNIT_FORMAT[e.layer?.id as LayerKey] || '')
     tooltipControlRef.current.updatePickingInfo({
       ...e,
       raster: {
@@ -132,12 +145,11 @@ function Mapbox(): ReactElement {
   }
 
   const handleGeolocate = (position: GeolocateResultEvent) => {
-    if (mapRef.current) {
+    if (mapRef.current && position?.coords) {
+      const { longitude, latitude } = position.coords
+
       mapRef.current.flyTo({
-        center: [
-          position.coords.longitude,
-          position.coords.latitude
-        ],
+        center: [longitude, latitude],
         zoom: 15,
         speed: 1.2
       })
@@ -147,12 +159,12 @@ function Mapbox(): ReactElement {
   /* prevent issue with WebGL context is having problems 
      with buffer reinitialization on show\hide layers */
   const visibleLayers = React.useMemo(() => {
-    return layerList.map(layerItem => {
-      const props = { ...layerItem.props }
-
-      props.visible = storageLayer.list.includes(layerItem.id)
-      return layerItem.clone(props)
-    })
+    return layerList
+      .filter(({ id }) => storageLayer.list.some(layer => id.includes(layer)))
+      .map(layerItem => {
+        const props = { ...layerItem.props, visible: true }
+        return layerItem.clone(props)
+      })
   }, [layerList, storageLayer.list])
 
   const isWindHeatMapLayer = React.useMemo(() => {
@@ -201,7 +213,6 @@ function Mapbox(): ReactElement {
         <ScaleControl
           unit='nautical'
           position='bottom-right'
-          style={{ borderRadius: '4px' }}
         />
 
         <TimelineControl
@@ -212,11 +223,11 @@ function Mapbox(): ReactElement {
           fps={2}
         />
 
-        {isWindLayer && (
+        {hasTooltip && (
           <TooltipControl
             mapInstance={mapRef}
             ref={tooltipControlRef}
-            unitFormat={{ unit: 'knots' }}
+            unitFormat={{ unit }}
             directionFormat={WeatherLayers.DirectionFormat.CARDINAL3}
           />
         )}

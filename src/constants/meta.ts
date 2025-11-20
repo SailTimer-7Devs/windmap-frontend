@@ -1,13 +1,11 @@
-const BASE_DESCRIPTION = 'map is a navigation software that shows sailors the optimal tacking route and your Tacking Time to Destination (TTD).'
-
 export const META = {
   wind: {
     title: 'Crowdsourced wind map',
-    description: `Crowdsourced wind ${BASE_DESCRIPTION}`
+    description: 'Crowdsourced measurements have more accuracy and higher resolution than the GRIB forecast based on satellite imaging from 500 - 22,000 miles up in space. Only from SailTimer.'
   },
 
   wni: {
-    title: 'SailTimer',
-    description: `SailTimer ${BASE_DESCRIPTION}`
+    title: 'WNI marine weather',
+    description: 'The same marine weather forecasts that Weathernews Inc. (WNI) provides to thousands of ships every day.'
   }
 } 

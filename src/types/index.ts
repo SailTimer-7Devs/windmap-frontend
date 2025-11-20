@@ -5,6 +5,7 @@ import { PSWH_LAYER_KEYS } from 'constants/layer/pswh'
 import { PWH_LAYER_KEYS } from 'constants/layer/pwh'
 import { WIND_LAYER_KEYS } from 'constants/layer/wind'
 import { WSH_LAYER_KEYS } from 'constants/layer/wsh'
+import { WEATHER_WNI_LAYER_KEYS } from 'constants/layer/weather_wni'
 
 export type MapViewState = {
   longitude: number
@@ -16,7 +17,7 @@ export type MapViewState = {
 
 export type LayerKey =
   /* WIND */
-  typeof WIND_LAYER_KEYS.WIND
+  | typeof WIND_LAYER_KEYS.WIND
   | typeof WIND_LAYER_KEYS.WIND_HEATMAP
   | typeof WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP
   | typeof WIND_LAYER_KEYS.WIND_BARBS
@@ -33,6 +34,20 @@ export type LayerKey =
   | typeof WSH_LAYER_KEYS.WSH_HEATMAP
   | typeof WSH_LAYER_KEYS.WSH_UV
 
+  /* WEATHER_WNI */
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_ICE_PACK
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_INTPCP
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_AIR_TEMPERATURE
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_TMP850HPA
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_VISIBILITY
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_UV
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_HEATMAP
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SST
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UUU
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_HEATMAP
+  | typeof WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_UV
+
 export type LayersState = {
   [key in LayerKey]: TextureData | undefined
 }
@@ -48,15 +63,33 @@ export type LayersMenuProps = {
   menuList: {
     id: LayerKey
     name: string
+    icon?: ReactElement,
+    items?: {
+      id: LayerKey
+      name: string
+      onClick?: () => void
+    }[]
   }[]
 }
 
 export type DropdownMenuProps = {
   caption: string
+  isSubmenuOpen?: boolean
+  submenuAnchor?: string | null
   options: {
     label: string
     icon?: ReactElement
     onClick?: () => void
     href?: string
+    checked?: boolean,
+    items?: {
+      label: string
+      icon?: ReactElement
+      onClick?: () => void
+      href?: string
+      checked?: boolean
+    }[]
   }[]
 }
+
+export type GenericObject = Record<string, unknown>

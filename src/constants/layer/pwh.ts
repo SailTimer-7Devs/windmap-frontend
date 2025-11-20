@@ -9,6 +9,8 @@ import * as WeatherLayers from 'weatherlayers-gl'
 
 import * as BASE from 'constants/basemap'
 
+import WaveIcon from 'icons/Wave'
+
 import { handleImageDataLoad } from 'lib/image'
 
 import {
@@ -40,11 +42,13 @@ export const PWH_INITIAL_LAYERS_STATE: LayersState = {
 export const LAYERS_MENU_LIST = [
   {
     id: PWH_HEATMAP,
-    name: 'Wave Height'
+    name: 'Wave Height',
+    icon: WaveIcon
   },
   {
     id: PWH_UV,
-    name: 'Wave Animation'
+    name: 'Wave Animation',
+    icon: WaveIcon
   }
 ]
 
@@ -57,7 +61,7 @@ export const getPwhLayers = (layersState: LayersState): Layer[] => [
     palette: BASE.WAVE_HEIGHT_PALETTE_0_50 as Palette,
     opacity: 0.5,
     pickable: true,
-    imageUnscale: [0, 255],
+    imageUnscale: [0, 25.5],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
@@ -83,8 +87,8 @@ export const getPwhLayers = (layersState: LayersState): Layer[] => [
 ]
 
 export const pwhTimelineFiles = {
-  pwhHeatmap: createTimelineLayerFileByGroup(PWH_NAME, WNI_PWH_FILES.HEATMAP),
-  pwhUv: createTimelineLayerFileByGroup(PWH_NAME, WNI_PWH_FILES.UV),
+  pwhHeatmap: createTimelineLayerFileByGroup(PWH_NAME, WNI_PWH_FILES.WAVE_HEATMAP),
+  pwhUv: createTimelineLayerFileByGroup(PWH_NAME, WNI_PWH_FILES.WAVE_UV),
   datetime: createTimelineDatetimes()
 }
 

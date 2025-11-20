@@ -3,6 +3,7 @@ import tseslint from 'typescript-eslint'
 import pluginReact from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
+import tanstackQuery from '@tanstack/eslint-plugin-query'
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -14,7 +15,8 @@ export default [
     ignores: ['dist', 'out', 'node_modules'],
     plugins: {
       'react-hooks': reactHooks,
-      'react-refresh': reactRefresh
+      'react-refresh': reactRefresh,
+      '@tanstack/query': tanstackQuery
     },
     rules: {
       ...reactHooks.configs.recommended.rules,

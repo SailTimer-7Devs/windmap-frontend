@@ -1,6 +1,6 @@
 import type { ReactElement, SVGProps } from 'react'
 
-export const EyeIcon = (props: SVGProps<SVGSVGElement>): ReactElement => {
+const EyeIcon = (props: SVGProps<SVGSVGElement>): ReactElement => {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'

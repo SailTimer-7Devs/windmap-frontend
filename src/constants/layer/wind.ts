@@ -9,6 +9,11 @@ import * as WeatherLayers from 'weatherlayers-gl'
 
 import * as BASE from 'constants/basemap'
 
+import WindSpeedIcon from 'icons/WindSpeed'
+import WindAnimationIcon from 'icons/WindAnimation'
+import WindBarbsIcon from 'icons/WindBarbs'
+import WindDirectionIcon from 'icons/WindDirection'
+
 import { handleImageDataLoad } from 'lib/image'
 import {
   setParticlesNumbersByDeviceType,
@@ -23,7 +28,7 @@ import {
 import { WIND as WIND_NAME } from './names'
 import { WIND_FILES } from './files'
 
-export const WIND = WIND_NAME
+export const WIND = 'wind-animation'
 export const WIND_BARBS = 'wind-barbs'
 export const WIND_DIRECTION_HEATMAP = 'wind-direction-heatmap'
 export const WIND_HEATMAP = 'wind-heatmap'
@@ -54,22 +59,26 @@ export const WIND_INITIAL_LAYERS_STATE: LayersState = {
 export const LAYERS_MENU_LIST = [
   {
     id: WIND_HEATMAP,
-    name: 'Wind Speed'
+    name: 'Wind Speed',
+    icon: WindSpeedIcon
   },
 
   {
     id: WIND,
-    name: 'Wind Animation'
+    name: 'Wind Animation',
+    icon: WindAnimationIcon
   },
 
   {
     id: WIND_BARBS,
-    name: 'Wind Barbs'
+    name: 'Wind Barbs',
+    icon: WindBarbsIcon
   },
 
   {
     id: WIND_DIRECTION_HEATMAP,
-    name: 'Wind Direction Zones'
+    name: 'Wind Direction Zones',
+    icon: WindDirectionIcon
   }
 ]
 
@@ -162,6 +171,18 @@ const windCache = new Map<number, LayersState>()
 export async function getWindLayersData(timelineIndex: number = 0): Promise<LayersState> {
   if (windCache.has(timelineIndex)) {
     return windCache.get(timelineIndex)!
+  }
+
+  if (!navigator.onLine) {
+    console.warn('Offline mode detected.')
+
+    if (windCache.size === 0) {
+      alert('Sorry, that data is not available while you are offline.')
+      return WIND_INITIAL_LAYERS_STATE
+    }
+
+    const lastCached = Array.from(windCache.values()).pop()
+    if (lastCached) return lastCached
   }
 
   try {

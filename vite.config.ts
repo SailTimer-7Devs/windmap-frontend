@@ -12,6 +12,7 @@ export default ({ mode }: { mode: string }): ReturnType<typeof defineConfig> => 
     ...process.env,
     ...mapEnvVars({
       STAGE,
+      API_URL: process.env.API_URL,
       S3_DATA: process.env.S3_DATA,
       COGNITO_USER_POOL_ID: process.env.COGNITO_USER_POOL_ID,
       COGNITO_USER_POOL_CLIENT_ID: process.env.COGNITO_USER_POOL_CLIENT_ID
@@ -33,7 +34,13 @@ export default ({ mode }: { mode: string }): ReturnType<typeof defineConfig> => 
         'types': path.resolve(__dirname, './src/types'),
         'icons': path.resolve(__dirname, './src/icons'),
         'hooks': path.resolve(__dirname, './src/hooks'),
-        'assets': path.resolve(__dirname, './src/assets')
+        'assets': path.resolve(__dirname, './src/assets'),
+        'bootstrap': path.resolve(__dirname, './src/bootstrap'),
+        'fields': path.resolve(__dirname, './src/fields'),
+        'forms': path.resolve(__dirname, './src/forms'),
+        'sections': path.resolve(__dirname, './src/sections'),
+        'store': path.resolve(__dirname, './src/store'),
+        'templates': path.resolve(__dirname, './src/templates')
       }
     },
     build: {

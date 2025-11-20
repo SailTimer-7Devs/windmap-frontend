@@ -1,19 +1,28 @@
 import type { TextureData } from 'weatherlayers-gl/client'
 
-export function handleImageDataLoad(url: string): Promise<TextureData> {
+export async function handleImageDataLoad(url: string): Promise<TextureData> {
+  const response = await fetch(url, {
+    credentials: 'include'
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`)
+  }
+
+  const blob = await response.blob()
+  const objectUrl = URL.createObjectURL(blob)
+
   return new Promise((resolve, reject) => {
     const img = new Image()
 
-    img.crossOrigin = 'anonymous'
-
     img.onload = () => {
-      const canvas = document.createElement('canvas')
+      URL.revokeObjectURL(objectUrl)
 
+      const canvas = document.createElement('canvas')
       canvas.width = img.width
       canvas.height = img.height
 
       const ctx = canvas.getContext('2d')
-
       ctx!.drawImage(img, 0, 0)
 
       const { data } = ctx!.getImageData(0, 0, canvas.width, canvas.height)
@@ -25,8 +34,11 @@ export function handleImageDataLoad(url: string): Promise<TextureData> {
       })
     }
 
-    img.onerror = reject
+    img.onerror = (error) => {
+      URL.revokeObjectURL(objectUrl)
+      reject(error)
+    }
 
-    img.src = url
+    img.src = objectUrl
   })
 }
