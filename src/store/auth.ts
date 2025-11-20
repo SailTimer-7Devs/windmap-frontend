@@ -59,14 +59,17 @@ export const useAuthStore = create<AuthStore>((set) => ({
     try {
       const session = await restoreAmplifySession()
       const { idToken, from } = session || {}
+
       if (idToken) {
         await getCookies(idToken)
+
         set({
           currentUser: {
             isAuthorized: true
           },
           isLoading: false
         })
+
         console.info(`[authUser] Authorized via ${from}`)
       } else {
         set({
@@ -75,10 +78,12 @@ export const useAuthStore = create<AuthStore>((set) => ({
           },
           isLoading: false
         })
+
         console.info('[authUser] No active session')
       }
     } catch (error) {
       console.error('[authUser] unexpected error:', error)
+
       set({
         currentUser: initialUser,
         isLoading: false
@@ -130,12 +135,14 @@ export const useAuthStore = create<AuthStore>((set) => ({
         currentUser: initialUser,
         isLoading: false
       })
+
       notifySuccess(messages.signOutSuccess)
     } catch (err) {
       set({
         currentUser: initialUser,
         isLoading: false
       })
+
       console.error('signOut', err)
     }
   }
@@ -144,8 +151,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
 function getIdTokenFromLocalStorage() {
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i)
+
     if (key && key.includes('idToken')) {
       const value = localStorage.getItem(key)
+
       return { key, value }
     }
   }

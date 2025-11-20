@@ -5,25 +5,19 @@ if (!API_URL) {
 }
 
 export async function getCookies(idToken: string): Promise<void> {
+  if (import.meta.env.VITE_STAGE === 'dev') {
+    return Promise.resolve()
+  }
+
   if (!idToken) {
-    console.warn('ID token not provided')
-    return
+    throw new Error('ID token was not provided')
   }
 
-  try {
-    const response = await fetch(`${API_URL}/sign-cookies`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${idToken}`
-      },
-      credentials: 'include'
-    })
-
-    if (!response.ok) {
-      throw new Error(`Failed to get cookies: ${response.status}`)
-    }
-
-  } catch (err) {
-    console.error(err)
-  }
+  await fetch(`${API_URL}/sign-cookies`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${idToken}`
+    },
+    credentials: 'include'
+  })
 }
