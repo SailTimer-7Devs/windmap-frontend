@@ -98,11 +98,6 @@ export const WEATHER_WNI_INITIAL_LAYERS_STATE: LayersState = {
 
 export const LAYERS_MENU_LIST = [
   {
-    id: WEATHER_WNI_ICE_PACK,
-    name: 'Ice Pack',
-    icon: SnowIcon
-  },
-  {
     id: WEATHER_WNI_INTPCP,
     name: 'Precipitation',
     icon: IntegratedPrecipitationIcon
@@ -133,6 +128,16 @@ export const LAYERS_MENU_LIST = [
   //   icon: TemperatureIcon
   // },
   {
+    name: 'Wind',
+    icon: WindAnimationIcon,
+    items: [
+      {
+        id: WEATHER_WNI_WIND_UV,
+        name: 'Speed'
+      }
+    ]
+  },
+  {
     name: 'Waves',
     icon: WaveIcon,
     items: [
@@ -143,16 +148,6 @@ export const LAYERS_MENU_LIST = [
       {
         id: WEATHER_WNI_WAVE_UV,
         name: 'Animation'
-      }
-    ]
-  },
-  {
-    name: 'Wind',
-    icon: WindAnimationIcon,
-    items: [
-      {
-        id: WEATHER_WNI_WIND_UV,
-        name: 'Speed'
       }
     ]
   },
@@ -169,6 +164,11 @@ export const LAYERS_MENU_LIST = [
         name: 'Animation'
       }
     ]
+  },
+  {
+    id: WEATHER_WNI_ICE_PACK,
+    name: 'Ice Pack',
+    icon: SnowIcon
   }
 ]
 
