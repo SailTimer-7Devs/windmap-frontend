@@ -128,14 +128,9 @@ export const LAYERS_MENU_LIST = [
   //   icon: TemperatureIcon
   // },
   {
-    name: 'Wind',
-    icon: WindAnimationIcon,
-    items: [
-      {
-        id: WEATHER_WNI_WIND_UV,
-        name: 'Speed'
-      }
-    ]
+    id: WEATHER_WNI_WIND_UV,
+    name: 'Wind Speed',
+    icon: WindAnimationIcon
   },
   {
     name: 'Waves',
