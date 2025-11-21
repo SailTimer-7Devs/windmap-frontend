@@ -1,8 +1,10 @@
 import type { TextureData } from 'weatherlayers-gl/client'
 
+const CREDENTIALS = import.meta.env.VITE_STAGE === 'dev' ? 'same-origin' : 'include'
+
 export async function handleImageDataLoad(url: string): Promise<TextureData> {
   const response = await fetch(url, {
-    credentials: 'include'
+    credentials: CREDENTIALS
   })
 
   if (!response.ok) {
