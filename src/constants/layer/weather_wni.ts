@@ -50,7 +50,7 @@ export const WEATHER_WNI_UUU = 'weather_wni_uuu'
 export const WEATHER_WNI_PSWH_HEATMAP = 'weather_wni_pswh_heatmap'
 export const WEATHER_WNI_PSWH_UV = 'weather_wni_pswh-uv'
 export const WEATHER_WNI_WIND_TOOLTIP = 'weather_wni_wind_uv-tooltip'
-export const WEATHER_WNI_WAVE_TOOLTIP = 'weather_wni_uv-tooltip'
+export const WEATHER_WNI_WAVE_TOOLTIP = 'weather_wni_wave_uv-tooltip'
 export const WEATHER_WNI_UUU_TOOLTIP = 'weather_wni_uuu-tooltip'
 export const WEATHER_WNI_PSWH_UV_TOOLTIP = 'weather_wni_pswh-uv-tooltip'
 
@@ -370,7 +370,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   }),
 
-  // pwh
+  // pwh wave height
   new WeatherLayers.RasterLayer({
     id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_HEATMAP,
     image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_HEATMAP as LayerKey],
@@ -385,6 +385,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   }),
 
+// pwh wave animation
   new WeatherLayers.ParticleLayer({
     id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_UV,
     image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_UV as LayerKey],
@@ -403,7 +404,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   }),
 
-  // pwh wave uv tooltip
+  // pwh wave animation tooltip
   new WeatherLayers.RasterLayer({
     id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_TOOLTIP,
     image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_UV as LayerKey],
