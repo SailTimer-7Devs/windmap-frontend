@@ -15,6 +15,7 @@ import AccessWrapper from './AccessWrapper'
 
 const LoginPage = lazyLoadPage('Login')
 const PasswordResetPage = lazyLoadPage('PasswordReset')
+const SignUpPage = lazyLoadPage('SignUp')
 
 const MapPage = lazyLoadPage('Map')
 
@@ -39,6 +40,15 @@ export default [
           <AccessWrapper
             access='guest'
             page={PasswordResetPage}
+          />
+        )
+      },
+      {
+        path: routes.SIGN_UP_ROUTE,
+        element: (
+          <AccessWrapper
+            access='guest'
+            page={SignUpPage}
           />
         )
       },

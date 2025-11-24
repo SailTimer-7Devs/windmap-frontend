@@ -23,3 +23,11 @@ export const RESET_PASSWORD_SCHEMA = yup.object({
     .required(requiredMessage)
     .default('')
 })
+
+export const SIGN_UP_SCHEMA = yup.object({
+  email: yup.string()
+    .label('Email')
+    .email(notValidEmail)
+    .required(requiredMessage)
+    .default('')
+})

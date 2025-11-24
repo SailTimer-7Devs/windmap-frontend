@@ -14,9 +14,11 @@ function TemplateLogin(props: TemplateLoginProps): ReactElement {
           {title}
         </h1>
 
-        <p className='text-sm text-[var(--text-secondary)]'>
-          {description}
-        </p>
+        {description && (
+          <p className='text-sm text-[var(--text-secondary)]'>
+            {description}
+          </p>
+        )}
       </div>
 
       {children}
@@ -26,7 +28,7 @@ function TemplateLogin(props: TemplateLoginProps): ReactElement {
 
 type TemplateLoginProps = {
   children: ReactNode
-  description: string
+  description?: string
   title: string
 }
 
