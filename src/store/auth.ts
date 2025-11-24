@@ -55,6 +55,7 @@ interface AuthStore {
 
   signIn: (payload: SignInPayload) => Promise<void>
   resetPassword: (payload: ResetPasswordPayload) => Promise<void>
+  signUp: (payload: SignUpPayload) => Promise<void>
   signOut: () => Promise<void>
 }
 

@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react'
 import { Navigate } from 'react-router'
 
 import Spinner from 'components/Spinner'
@@ -19,11 +20,19 @@ const SignUpPage = lazyLoadPage('SignUp')
 
 const MapPage = lazyLoadPage('Map')
 
+function HydrateSpinner(): ReactElement {
+  return (
+    <div className='w-full h-dvh flex items-center justify-center'>
+      <Spinner show={true} />
+    </div>
+  )
+}
+
 export default [
   {
     path: '/',
     element: <ExternalLayout />,
-    HydrateFallback: Spinner,
+    HydrateFallback: HydrateSpinner,
     children: [
       {
         path: routes.LOGIN_ROUTE,
@@ -66,7 +75,7 @@ export default [
   {
     path: '/',
     element: <MainLayout />,
-    HydrateFallback: Spinner,
+    HydrateFallback: HydrateSpinner,
     children: [
       {
         index: true,
