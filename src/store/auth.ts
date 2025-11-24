@@ -1,4 +1,4 @@
-import type { CurrentUser, SignInPayload } from 'types/user'
+import type { CurrentUser, SignInPayload, ResetPasswordPayload } from 'types/user'
 
 import { create } from 'zustand'
 
@@ -7,8 +7,8 @@ import { fetchAuthSession } from 'aws-amplify/auth'
 
 import {
   signIn as amplifySignIn,
-  signOut as amplifySignOut
-  // getCurrentUser
+  signOut as amplifySignOut,
+  resetPassword
 } from 'aws-amplify/auth'
 
 import { getCookies } from 'lib/cookies'
@@ -34,7 +34,9 @@ const messages = {
   signInSuccess: 'You have successfully signed in',
   signInNotConfirmed: 'Account is not confirmed',
   signInError: 'Invalid email or password',
-  signOutSuccess: 'You have successfully signed out'
+  signOutSuccess: 'You have successfully signed out',
+  resetPasswordSuccess: 'Password reset email sent',
+  resetPasswordError: 'Failed to send password reset email'
 }
 
 interface AuthStore {
@@ -124,6 +126,15 @@ export const useAuthStore = create<AuthStore>((set) => ({
     } catch (err) {
       notifyError(messages.signInError)
       console.error('signIn:', err)
+    }
+  },
+
+  resetPassword: async (payload: ResetPasswordPayload) => {
+    try {
+      await resetPassword({ username: payload.email })
+    } catch (err) {
+      notifyError(messages.resetPasswordError)
+      console.error('resetPassword:', err)
     }
   },
 

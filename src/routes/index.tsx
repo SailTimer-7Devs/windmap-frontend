@@ -13,10 +13,8 @@ import { lazyLoadPage } from 'lib/page'
 
 import AccessWrapper from './AccessWrapper'
 
-// const LoginConfirmPage = lazyLoadPage('LoginConfirm')
 const LoginPage = lazyLoadPage('Login')
-// const PasswordSetupPage = lazyLoadPage('PasswordSetup')
-// const PasswordResetPage = lazyLoadPage('PasswordReset')
+const PasswordResetPage = lazyLoadPage('PasswordReset')
 
 const MapPage = lazyLoadPage('Map')
 
@@ -35,33 +33,15 @@ export default [
           />
         )
       },
-      // {
-      //   path: routes.LOGIN_CONFIRM_ROUTE,
-      //   element: (
-      //     <AccessWrapper
-      //       access='guest'
-      //       page={LoginConfirmPage}
-      //     />
-      //   )
-      // },
-      // {
-      //   path: routes.PASSWORD_SETUP_ROUTE,
-      //   element: (
-      //     <AccessWrapper
-      //       access='guest'
-      //       page={PasswordSetupPage}
-      //     />
-      //   )
-      // },
-      // {
-      //   path: routes.PASSWORD_RESET_ROUTE,
-      //   element: (
-      //     <AccessWrapper
-      //       access='guest'
-      //       page={PasswordResetPage}
-      //     />
-      //   )
-      // },
+      {
+        path: routes.PASSWORD_RESET_ROUTE,
+        element: (
+          <AccessWrapper
+            access='guest'
+            page={PasswordResetPage}
+          />
+        )
+      },
       {
         path: '*',
         element: (
