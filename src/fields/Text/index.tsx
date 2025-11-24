@@ -57,7 +57,7 @@ function TextField<T extends FieldValues>(
           htmlFor={name}
           className={cx(
             'block mb-1 text-sm',
-            isError ? 'text-red-500' : 'text-gray-500'
+            isError ? 'text-red-500' : 'text-[var(--text-disabled)]'
           )}
         >
           {label}
@@ -73,7 +73,7 @@ function TextField<T extends FieldValues>(
           placeholder={placeholder}
           disabled={disabled}
           className={cx(
-            'w-full rounded-md border px-3 py-3 text-sm focus:outline-none focus:border-blue-500 text-gray-300',
+            'w-full rounded-md border px-3 py-3 text-sm focus:outline-none focus:border-blue-500 text-[var(--text-primary)]',
             isError ? 'border-red-500 focus:ring-red-500 focus:border-red-500 text-red-500' : 'border-gray-500',
             className
           )}
