@@ -24,23 +24,24 @@ function SignInForm({ children }: PropsWithChildren): ReactElement {
 
   return (
     <Form.Redux<SignInPayload>
-      className='w-full flex flex-col gap-2]'
+      className='w-full flex flex-col gap-2'
       name={SIGN_IN_FORM}
       action={signIn}
       schema={SIGN_IN_SCHEMA}
       initialValues={INITIAL_VALUES}
-
     >
       <Form.Field
         component={TextField}
         label={fields.email.label}
         name='email'
+        required
       />
 
       <Form.Field
         component={PasswordField}
         label={fields.password.label}
         name='password'
+        required
       />
 
       {children}

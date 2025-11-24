@@ -8,9 +8,9 @@ function TemplateLogin(props: TemplateLoginProps): ReactElement {
   } = props
 
   return (
-    <div className='max-w-[375px] flex flex-col justify-center gap-10 p-4 mx-auto'>
+    <div className='max-w-[375px] flex flex-col justify-center gap-10 p-4 mx-auto mt-18'>
       <div className='text-white'>
-        <h1 className='text-4xl font-normal mb-4 text-[var(--text-primary)]'>
+        <h1 className='text-[32px] leading-[48px] font-normal mb-4 text-[var(--text-primary)]'>
           {title}
         </h1>
 

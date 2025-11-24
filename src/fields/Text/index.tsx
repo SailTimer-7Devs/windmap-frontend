@@ -1,15 +1,9 @@
 import type { ForwardedRef, ReactElement, ReactNode } from 'react'
 import type { FieldValues, Path } from 'react-hook-form'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { clsx as cx } from 'clsx'
-
-import {
-  Description,
-  Field,
-  Input,
-  Label
-} from '@headlessui/react'
+import { Description, Field, Input, Label } from '@headlessui/react'
 
 import useFormContext from 'hooks/useFormContext'
 import useFormState from 'hooks/useFormState'
@@ -32,64 +26,76 @@ function TextField<T extends FieldValues>(
   const {
     label,
     name,
-    placeholder,
     type = 'text',
     disabled,
     helperText,
     className,
     children,
-    ...rest
+    ...restProps
   } = props
 
-  const { control } = useFormContext()
-
-  const { errors } = useFormState({
-    name,
-    control,
-    exact: true
-  })
+  const { control, getValues } = useFormContext()
+  const { errors } = useFormState({ name, control, exact: true })
   const isError = Boolean(errors[name])
 
-  return (
-    <Field className='relative pb-5 text-gray-500'>
-      {label && (
-        <Label
-          htmlFor={name}
-          className={cx(
-            'block mb-1 text-sm',
-            isError ? 'text-red-500' : 'text-[var(--text-disabled)]'
-          )}
-        >
-          {label}
-        </Label>
-      )}
+  const defaultValue = getValues(name)
+  const [focused, setFocused] = useState(true)
 
+  const isFloating = focused || Boolean(defaultValue)
+
+  React.useEffect(() => {
+    if (defaultValue) {
+      setFocused(false)
+    }
+  }, [])
+
+  return (
+    <Field className='relative pb-5 text-[var(--text-secondary)]'>
       <div className='relative'>
+        {label && (
+          <Label
+            htmlFor={name}
+            className={cx(
+              'absolute left-3 transition-all duration-200 pointer-events-none text-[var(--text-secondary)]',
+              isFloating
+                ? 'top-1 text-xs'
+                : 'top-1/2 -translate-y-1/2 text-base',
+              isError && 'text-red-500'
+            )}
+          >
+            {label}
+          </Label>
+        )}
+
         <Input
           id={name}
           ref={ref}
           name={name}
           type={type}
-          placeholder={placeholder}
           disabled={disabled}
+          value={defaultValue}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           className={cx(
-            'w-full rounded-md border px-3 py-3 text-sm focus:outline-none focus:border-blue-500 text-[var(--text-primary)]',
-            isError ? 'border-red-500 focus:ring-red-500 focus:border-red-500 text-red-500' : 'border-gray-500',
+            'w-full h-14 rounded-md border px-3 pt-5 pb-2 text-sm bg-white',
+            'focus:outline-none focus:border-blue-500 text-[var(--text-primary)]',
+            isError
+              ? 'border-red-500 focus:border-red-500 focus:ring-red-500 text-red-500'
+              : 'border-gray-400',
             className
           )}
-          {...rest}
+          {...restProps}
         />
 
         {typeof children === 'function'
           ? children({ isError })
-          : children
-        }
+          : children}
       </div>
 
       {(isError || helperText) && (
         <Description
           className={cx(
-            'absolute bottom-0 right-0 text-xs',
+            'absolute bottom-0 left-0 text-xs',
             isError ? 'text-red-500' : 'text-gray-500'
           )}
         >
@@ -97,6 +103,7 @@ function TextField<T extends FieldValues>(
         </Description>
       )}
     </Field>
+
   )
 }
 
