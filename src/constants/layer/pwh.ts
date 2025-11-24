@@ -61,7 +61,7 @@ export const getPwhLayers = (layersState: LayersState): Layer[] => [
     palette: BASE.WAVE_HEIGHT_PALETTE_0_50 as Palette,
     opacity: 0.5,
     pickable: true,
-    imageUnscale: [0, 25.5],
+    imageUnscale: [0, 19.6],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
