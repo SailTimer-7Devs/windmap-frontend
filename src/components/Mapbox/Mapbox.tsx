@@ -84,8 +84,8 @@ function Mapbox(): ReactElement {
   const { layerList, layerMenu } = useLayerData(storageLayer.name, timeline.index)
   const { getTimelinePreload } = useTimelinePreload(storageLayer.name, datetimes)
 
-  const isWindSpeadLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV)
-  const isOceanCurrentLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_UUU)
+  const isWindForecastLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV)
+  const isOceanCurrentLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_OCEAN_CURRENT_UV)
   const hasTooltip = isWindLayer || isWeatherWniLayer
 
   const handleTimelineUpdate = React.useCallback((datetime: string) => {
@@ -129,7 +129,7 @@ function Mapbox(): ReactElement {
 
     let convertedValue = raster.value
 
-    if (isWindLayer || isWindSpeadLayer || isOceanCurrentLayer) {
+    if (isWindLayer || isWindForecastLayer || isOceanCurrentLayer) {
       convertedValue = convertMetersPerSecondsToKnots(raster.value)
     }
 
@@ -173,8 +173,6 @@ function Mapbox(): ReactElement {
   React.useEffect(() => {
     setMetaData({ isWindLayer })
   }, [isWindLayer])
-
-  const isMobile = /Mobi|Android/i.test(navigator.userAgent)
 
   return (
     <>
@@ -247,7 +245,7 @@ function Mapbox(): ReactElement {
           interleaved
           views={BASE.MAP_VIEW}
           controller={true}
-          onHover={isMobile ? undefined : handlePick}
+          onHover={handlePick}
           onClick={handlePick}
           layers={visibleLayers}
         />
