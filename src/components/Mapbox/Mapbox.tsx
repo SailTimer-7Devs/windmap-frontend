@@ -247,7 +247,7 @@ function Mapbox(): ReactElement {
           interleaved
           views={BASE.MAP_VIEW}
           controller={true}
-          onHover={!isMobile ? undefined : handlePick}
+          onHover={isMobile ? undefined : handlePick}
           onClick={handlePick}
           layers={visibleLayers}
         />
