@@ -244,11 +244,12 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     imageType: 'VECTOR',
     imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
-    numParticles: setParticlesNumbersByDeviceType(),
-    maxAge: 100,
+    numParticles: setParticlesNumbersByDeviceType() * 9,
+    maxAge: 40,
     speedFactor: 1,
-    width: setParticleWidthByDevice(),
-    opacity: 0.1,
+    width: setParticleWidthByDevice() * 0.8,
+    opacity: 0.15,
+    fadeFactor: 0.96,
     animate: true,
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
@@ -292,11 +293,12 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     imageType: 'VECTOR',
     imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
-    numParticles: setParticlesNumbersByDeviceType(),
+    numParticles: setParticlesNumbersByDeviceType() * 8,
     maxAge: 100,
-    speedFactor: 20,
+    speedFactor: 4,
     width: setParticleWidthByDevice(),
     opacity: 0.1,
+    fadeFactor: 0.96,
     animate: true,
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
@@ -385,7 +387,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   }),
 
-// pwh wave animation
+  // pwh wave animation
   new WeatherLayers.ParticleLayer({
     id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_UV,
     image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_UV as LayerKey],
