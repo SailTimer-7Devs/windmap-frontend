@@ -25,7 +25,6 @@ function AccessWrapper(props: AccessWrapperPropTypes): React.ReactNode {
   
   const { currentUser } = useAuthStore()
   const isAuthorized = currentUser?.isAuthorized
-  console.log({ access, currentUser })
 
   if (access === ACCESS_TYPE_GUEST && isAuthorized) {
     shouldRedirect = true

@@ -10,12 +10,12 @@ function TemplateLogin(props: TemplateLoginProps): ReactElement {
   return (
     <div className='max-w-[390px] flex flex-col justify-center gap-10 p-4 mx-auto mt-18'>
       <div className='text-white'>
-        <h1 className='text-[32px] leading-[48px] font-normal mb-4 text-[var(--text-primary)]'>
+        <h1 className='text-[32px] leading-[48px] font-normal text-[var(--text-primary)]'>
           {title}
         </h1>
 
         {description && (
-          <p className='text-sm text-[var(--text-secondary)]'>
+          <p className='text-sm text-[var(--text-secondary)] mt-4'>
             {description}
           </p>
         )}
