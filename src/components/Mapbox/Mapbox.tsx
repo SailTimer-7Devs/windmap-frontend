@@ -174,6 +174,8 @@ function Mapbox(): ReactElement {
     setMetaData({ isWindLayer })
   }, [isWindLayer])
 
+  const isMobile = /Mobi|Android/i.test(navigator.userAgent)
+
   return (
     <>
       <div className='absolute top-[10px] right-[10px] z-10 flex gap-2'>
@@ -245,7 +247,7 @@ function Mapbox(): ReactElement {
           interleaved
           views={BASE.MAP_VIEW}
           controller={true}
-          onHover={handlePick}
+          onHover={!isMobile ? undefined : handlePick}
           onClick={handlePick}
           layers={visibleLayers}
         />
