@@ -294,7 +294,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
     numParticles: setParticlesNumbersByDeviceType() * 8,
-    maxAge: 100,
+    maxAge: 60,
     speedFactor: 4,
     width: setParticleWidthByDevice(),
     opacity: 0.1,
