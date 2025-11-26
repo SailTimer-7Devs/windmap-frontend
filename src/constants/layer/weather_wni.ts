@@ -175,7 +175,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     bounds: BASE.WIND_MAP_BOUNDS,
     palette: BASE.ICE_PACK_PALETTE as Palette,
     opacity: 0.2,
-    pickable: true,
+    // pickable: true,
     imageUnscale: [0, 1],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
