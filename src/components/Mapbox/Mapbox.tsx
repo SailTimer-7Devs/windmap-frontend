@@ -123,9 +123,8 @@ function Mapbox(): ReactElement {
     }
   }
 
-  const handleHover: DeckProps['onHover'] = (e: DeckGLOverlayHoverEventProps) => {
+  const handlePick: DeckProps['onHover'] & DeckProps['onClick'] = (e: DeckGLOverlayHoverEventProps) => {
     const raster = e.raster
-
     if (!tooltipControlRef.current || !raster) return
 
     let convertedValue = raster.value
@@ -246,7 +245,8 @@ function Mapbox(): ReactElement {
           interleaved
           views={BASE.MAP_VIEW}
           controller={true}
-          onHover={handleHover}
+          onHover={handlePick}
+          onClick={handlePick}
           layers={visibleLayers}
         />
       </Map>
