@@ -78,11 +78,7 @@ export const WEATHER_WNI_LAYER_KEYS = {
 }
 
 export const WEATHER_WNI_VISIBLE_LAYERS = [
-  WEATHER_WNI_ICE_PACK,
-  WEATHER_WNI_WIND_TOOLTIP,
-  WEATHER_WNI_WAVE_TOOLTIP,
-  WEATHER_WNI_OCEAN_CURRENT_TOOLTIP,
-  WEATHER_WNI_PSWH_UV_TOOLTIP
+  WEATHER_WNI_ICE_PACK
 ]
 
 export const WEATHER_WNI_INITIAL_LAYERS_STATE: LayersState = {
@@ -251,7 +247,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     palette: BASE.WIND_SPEED_PALETTE as Palette,
     opacity: 0.2,
     pickable: true,
-    imageUnscale: [0, 255],
+    imageUnscale: [0, 40],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
@@ -262,7 +258,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_TOOLTIP,
     image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV as LayerKey],
     imageType: 'VECTOR',
-    imageUnscale: [-128, 127],
+    imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
     palette: BASE.EXPERIMENTAL_WIND_PALETTE_0_16 as Palette,
     imageInterpolation: 'CUBIC',
