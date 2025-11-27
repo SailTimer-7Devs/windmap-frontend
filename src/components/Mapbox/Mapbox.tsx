@@ -75,6 +75,16 @@ function Mapbox(): ReactElement {
   const [unit, setUnit] = React.useState<string>('')
   const storageLayerValue = { name: layerName, list: visibleList }
 
+  const isMobile = /Mobi|Android/i.test(navigator.userAgent)
+  const [popoverInfo, setPopoverInfo] = React.useState<{
+    x: number
+    y: number
+    value: number
+    unit: string
+    direction?: number
+    directionLabel?: number | string
+  } | null>(null)
+
   const {
     value: storageLayer,
     reset,
@@ -140,6 +150,35 @@ function Mapbox(): ReactElement {
         ...raster,
         value: convertedValue
       }
+    })
+  }
+
+  const handleMobileClick = (e: DeckGLOverlayHoverEventProps) => {
+    if (!e.raster) return
+
+    let value = e.raster.value
+    const direction = e.raster.direction
+
+    if (isWindLayer || isWindForecastLayer || isOceanCurrentLayer) {
+      value = convertMetersPerSecondsToKnots(e.raster.value)
+    }
+
+    let directionLabel: number | string | undefined = direction
+    if (typeof direction === 'number') {
+      directionLabel = WeatherLayers.formatDirection(
+        direction,
+        WeatherLayers.DirectionType.OUTWARD,
+        WeatherLayers.DirectionFormat.CARDINAL3
+      )
+    }
+
+    setPopoverInfo({
+      x: e.x || 0,
+      y: e.y || 0,
+      value,
+      unit: UNIT_FORMAT[e.layer?.id as LayerKey] || '',
+      direction,
+      directionLabel
     })
   }
 
@@ -223,12 +262,49 @@ function Mapbox(): ReactElement {
         />
 
         {hasTooltip && (
-          <TooltipControl
-            mapInstance={mapRef}
-            ref={tooltipControlRef}
-            unitFormat={{ unit }}
-            directionFormat={WeatherLayers.DirectionFormat.CARDINAL3}
-          />
+          isMobile && popoverInfo
+            ? (
+              <div
+                className='absolute z-50 bg-white shadow-lg p-1 rounded flex items-center gap-1'
+                style={{
+                  left: popoverInfo.x,
+                  top: popoverInfo.y,
+                  transform: 'translate(-50%, -100%)'
+                }}
+              >
+                <span>
+                  {popoverInfo.value.toFixed(1)} {popoverInfo.unit}
+                </span>
+
+                {typeof popoverInfo.direction === 'number' && (
+                  <svg
+                    width='14'
+                    height='14'
+                    viewBox='0 0 24 24'
+                    style={{ transform: `rotate(${popoverInfo.direction}deg)` }}
+                  >
+                    <path
+                      d='M12 2 L12 22 M12 2 L8 6 M12 2 L16 6'
+                      stroke='black'
+                      strokeWidth='2'
+                      fill='none'
+                    />
+                  </svg>
+                )}
+
+                <span>
+                  {popoverInfo.directionLabel}
+                </span>
+              </div>
+            )
+            : (
+              <TooltipControl
+                mapInstance={mapRef}
+                ref={tooltipControlRef}
+                unitFormat={{ unit }}
+                directionFormat={WeatherLayers.DirectionFormat.CARDINAL3}
+              />
+            )
         )}
 
         {isWindHeatMapLayer && (
@@ -245,8 +321,8 @@ function Mapbox(): ReactElement {
           interleaved
           views={BASE.MAP_VIEW}
           controller={true}
-          onHover={handlePick}
-          onClick={handlePick}
+          onHover={isMobile ? undefined : handlePick}
+          onClick={isMobile ? handleMobileClick : handlePick}
           layers={visibleLayers}
         />
       </Map>
