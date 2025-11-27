@@ -15,3 +15,19 @@ export const SIGN_IN_SCHEMA = yup.object({
     .min(8, 'Password must be at least 8 characters')
     .default('')
 })
+
+export const RESET_PASSWORD_SCHEMA = yup.object({
+  email: yup.string()
+    .label('Email')
+    .email(notValidEmail)
+    .required(requiredMessage)
+    .default('')
+})
+
+export const SIGN_UP_SCHEMA = yup.object({
+  email: yup.string()
+    .label('Email')
+    .email(notValidEmail)
+    .required(requiredMessage)
+    .default('')
+})

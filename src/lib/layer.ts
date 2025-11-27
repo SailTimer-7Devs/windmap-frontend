@@ -1,4 +1,5 @@
-import { WIND, WIND_VISIBLE_LAYERS } from 'constants/layer/wind'
+import { WIND_VISIBLE_LAYERS } from 'constants/layer/wind'
+import { WIND } from 'constants/layer/names'
 import { PSWH_HEATMAP, PSWH_VISIBLE_LAYERS } from 'constants/layer/pswh'
 import { PWH_HEATMAP, PWH_VISIBLE_LAYERS } from 'constants/layer/pwh'
 import { WSH_HEATMAP, WSH_VISIBLE_LAYERS } from 'constants/layer/wsh'

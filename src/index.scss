@@ -3,6 +3,10 @@
 :root {
   --primary-red: #B22E2E;
   --primary-red-alfa: #B22E2E33;
+  --text-primary: #212B36;
+  --text-secondary: #637381;
+  --text-disabled: #919EAB;
+  --primary-dark: #2653B5;
 }
 
 $base-font-size: 14px;
@@ -17,7 +21,7 @@ body {
   margin: 0;
   font-family: 'Lucida Grande', 'Trebuchet MS', sans-serif;
   font-size: 12px;
-  background: rgb(41, 41, 41);
+  background: #ffffff;
 }
 
 #root {
@@ -42,9 +46,9 @@ body {
       content: "Scale";
       position: absolute;
       top: 0;
-      left: -49px;
-      font-size: 14px;
-      line-height: 1.2;
+      left: -45px;
+      font-size: 12px;
+      line-height: 1;
       background-color: #ffffffbf;
       border-radius: 4px 0 0 4px;
       border-left: 2px solid #333333;

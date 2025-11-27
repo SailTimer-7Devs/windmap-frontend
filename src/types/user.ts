@@ -3,6 +3,17 @@ export type SignInPayload = {
   password: string
 }
 
+export type ResetPasswordPayload = {
+  email: string
+}
+
+export type SignUpPayload = {
+  email: string,
+  attributes: {
+    email: string
+  }
+}
+
 export type CurrentUser = {
   isAuthorized: boolean
 }

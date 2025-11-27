@@ -2,20 +2,10 @@ import { type ReactElement } from 'react'
 import { jwtDecode } from 'jwt-decode'
 
 import React from 'react'
-
-import { QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-
+import { Outlet } from 'react-router'
 import { Toaster } from 'sonner'
 
-import { client, isDevMode } from 'bootstrap'
-
-import Mapbox from 'components/Mapbox'
 import Spinner from 'components/Spinner'
-
-import SignInForm from 'forms/SignIn'
-
-import LoginTemplate from 'templates/Login'
 
 import { getUrlParams } from 'lib/url'
 
@@ -26,7 +16,7 @@ const ID_TOKEN_PARAM = 'idToken'
 export default function App(): ReactElement {
   const idToken = getUrlParams(ID_TOKEN_PARAM, '')
 
-  const { currentUser, isLoading, authUser } = useAuthStore()
+  const { isLoading, authUser } = useAuthStore()
 
   React.useEffect(() => {
     if (idToken) {
@@ -46,29 +36,14 @@ export default function App(): ReactElement {
     authUser()
   }, [])
 
-  if (isLoading) {
-    return (
-      <div className='relative w-full h-dvh flex items-center justify-center'>
-        <Spinner show={isLoading} />
-      </div>
-    )
-  }
-
   return (
-    <QueryClientProvider client={client}>
-      <div className='relative w-full h-dvh flex items-center justify-center'>
-        {currentUser.isAuthorized
-          ? <Mapbox />
-          : (
-            <LoginTemplate
-              title='Welcome'
-              description='In case you decide to use crowdsourced weather maps, please log in. You only need to log in once.'
-            >
-              <SignInForm />
-            </LoginTemplate>
-          )
-        }
-      </div>
+    <>
+      {isLoading
+        ? (
+          <div className='relative w-full h-dvh flex items-center justify-center'>
+            <Spinner show={isLoading} />
+          </div>)
+        : <Outlet />}
 
       <Toaster
         richColors
@@ -78,8 +53,6 @@ export default function App(): ReactElement {
           }
         }}
       />
-
-      {isDevMode && <ReactQueryDevtools />}
-    </QueryClientProvider>
+    </>
   )
 }
