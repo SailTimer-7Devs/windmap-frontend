@@ -6,6 +6,7 @@ export default [
 
   {
     label: 'www.SailTimer.boats',
-    href: 'https://sailtimer.boats'
+    href: 'https://sailtimer.boats',
+    hint: 'Press and hold to open the link'
   }
 ]
