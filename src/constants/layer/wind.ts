@@ -88,7 +88,7 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
     image: layersState[WIND_LAYER_KEYS.WIND_HEATMAP as LayerKey],
     imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.WIND_SPEED_PALETTE as Palette,
+    palette: BASE.WIND_SPEED_PALETTE_1_40 as Palette,
     opacity: 0.2,
     imageUnscale: [0, 255],
     extensions: [new ClipExtension()],

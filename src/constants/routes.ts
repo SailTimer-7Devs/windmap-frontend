@@ -4,3 +4,5 @@ export const LOGIN_CONFIRM_ROUTE = '/login-confirm'
 export const PASSWORD_SETUP_ROUTE = '/password-setup'
 export const PASSWORD_RESET_ROUTE = '/password-reset'
 export const SIGN_UP_ROUTE = '/sign-up'
+
+export const SAILTIMER_APP_ROUTE = 'https://apps.apple.com/us/app/sailtimer/id326309851'

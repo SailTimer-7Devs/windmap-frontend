@@ -84,6 +84,7 @@ export type DropdownMenuProps = {
   submenuAnchor?: string | null
   options: {
     label: string
+    hint?: string
     icon?: ReactElement
     onClick?: () => void
     href?: string

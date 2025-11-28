@@ -78,7 +78,7 @@ export const WEATHER_WNI_LAYER_KEYS = {
 }
 
 export const WEATHER_WNI_VISIBLE_LAYERS = [
-  WEATHER_WNI_ICE_PACK
+  WEATHER_WNI_AIR_TEMPERATURE
 ]
 
 export const WEATHER_WNI_INITIAL_LAYERS_STATE: LayersState = {
@@ -244,7 +244,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_HEATMAP as LayerKey],
     imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.WIND_SPEED_PALETTE as Palette,
+    palette: BASE.WIND_SPEED_PALETTE_1_40 as Palette,
     opacity: 0.2,
     pickable: true,
     imageUnscale: [0, 40],
@@ -260,7 +260,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     imageType: 'VECTOR',
     imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.EXPERIMENTAL_WIND_PALETTE_0_16 as Palette,
+    palette: BASE.WIND_SPEED_PALETTE_1_40 as Palette,
     imageInterpolation: 'CUBIC',
     opacity: 0,
     pickable: true,
@@ -289,9 +289,9 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     imageType: 'VECTOR',
     imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
-    numParticles: setParticlesNumbersByDeviceType() * 18,
+    numParticles: setParticlesNumbersByDeviceType() * 14,
     maxAge: 60,
-    speedFactor: 60,
+    speedFactor: 50,
     width: setParticleWidthByDevice(),
     opacity: 0.6,
     fadeFactor: 0.96,
@@ -308,7 +308,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
     palette: BASE.OCEAN_CURRENTS_PALETTE as Palette,
-    opacity: 0.4,
+    opacity: 0.3,
     pickable: true,
     imageUnscale: [0, 19.6],
     extensions: [new ClipExtension()],
@@ -323,7 +323,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     imageType: 'VECTOR',
     imageUnscale: [-128, 127],
     bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.EXPERIMENTAL_WIND_PALETTE_0_16 as Palette,
+    palette: BASE.OCEAN_CURRENTS_PALETTE as Palette,
     imageInterpolation: 'CUBIC',
     opacity: 0,
     pickable: true,
@@ -338,7 +338,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_HEATMAP as LayerKey],
     imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.WAVE_HEIGHT_PALETTE_0_50 as Palette,
+    palette: BASE.SWELL_HEIGHT_PALETTE_0_50 as Palette,
     opacity: 0.5,
     pickable: true,
     imageUnscale: [0, 19.6],
