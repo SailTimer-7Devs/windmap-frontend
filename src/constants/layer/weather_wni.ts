@@ -258,7 +258,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_TOOLTIP,
     image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV as LayerKey],
     imageType: 'VECTOR',
-    imageUnscale: BASE.IMAGE_UNSCALE,
+    imageUnscale: [-40, 40],
     bounds: BASE.WIND_MAP_BOUNDS,
     palette: BASE.WIND_SPEED_PALETTE_1_40 as Palette,
     imageInterpolation: 'CUBIC',
