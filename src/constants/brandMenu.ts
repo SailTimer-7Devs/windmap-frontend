@@ -1,12 +1,13 @@
 export default [
   {
-    label: 'More accurate: video',
-    href: 'https://www.youtube.com/embed/OLxTKQ1ClYw'
+    label: 'More Accurate: Video',
+    href: ' https://www.youtube.com/watch?v=OLxTKQ1ClYw',
+    hint: '(tap & hold)'
   },
 
   {
     label: 'www.SailTimer.boats',
     href: 'https://sailtimer.boats',
-    hint: 'Press and hold to open the link'
+    hint: '(tap & hold)'
   }
 ]
