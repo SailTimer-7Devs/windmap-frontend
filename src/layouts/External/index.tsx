@@ -6,14 +6,14 @@ import logo from 'assets/images/logo.png'
 
 function ExternalLayout(): React.ReactNode {
   return (
-    <div className='relative w-full h-dvh flex items-center justify-center flex-col p-4'>
-      <img
-        className='h-[108px] mx-auto'
-        src={logo}
-        alt='Logo'
-      />
+    <div className='relative w-full h-dvh overflow-auto p-4'>
+      <div className='flex flex-col items-center justify-center'>
+        <img
+          className='h-[124px] mx-auto shrink-0 mt-12'
+          src={logo}
+          alt='Logo'
+        />
 
-      <div className='w-full h-full'>
         <Outlet />
       </div>
     </div>
