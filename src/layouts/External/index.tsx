@@ -8,7 +8,7 @@ function ExternalLayout(): React.ReactNode {
   return (
     <div className='relative w-full h-dvh flex items-center justify-center flex-col p-4'>
       <img
-        className='h-[108px] mx-auto'
+        className='h-[124px] mx-auto mt-10 shrink-0'
         src={logo}
         alt='Logo'
       />
