@@ -33,9 +33,9 @@ export const isWeatherWniGroup = (layers: string[]): boolean => {
 
 export function setParticlesNumbersByDeviceType(): number {
   switch (deviceType) {
-    case 'mobile': return 150
-    case 'tablet': return 150
-    default: return 300
+    case 'mobile': return 100
+    case 'tablet': return 120
+    default: return 200
   }
 }
 

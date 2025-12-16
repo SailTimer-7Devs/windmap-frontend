@@ -129,17 +129,17 @@ export const LAYERS_MENU_LIST = [
   // },
   {
     id: WEATHER_WNI_WIND_UV,
-    name: 'Wind Forecast',
+    name: 'Offshore Wind',
     icon: WindAnimationIcon
   },
   {
     id: WEATHER_WNI_WAVE_UV,
-    name: 'Waves',
+    name: 'Waves offshore',
     icon: WaveIcon
   },
   {
     id: WEATHER_WNI_PSWH_UV,
-    name: 'Swell',
+    name: 'Swell offshore',
     icon: SwellHeightIcon
   },
   {
@@ -228,7 +228,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     bounds: BASE.WIND_MAP_BOUNDS,
     numParticles: setParticlesNumbersByDeviceType() * 6,
     maxAge: 180,
-    speedFactor: 1,
+    speedFactor: 5,
     width: setParticleWidthByDevice(),
     opacity: 0.15,
     fadeFactor: 0.96,

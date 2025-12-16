@@ -17,11 +17,13 @@ function LoginPage(): ReactElement {
         to={routes.SAILTIMER_APP_ROUTE}
         className='text-sm text-[var(--text-secondary)]'
       >
-        You can use your subscription from the SailTimer app
+        You can use your subscription from the
 
         <span className='hover:text-blue-300 text-[var(--primary-dark)] text-sm ml-1'>
-          here
+          SailTimer app
         </span>
+
+        <span className='ml-1'>in this app.</span>
       </Link>
 
       {/* <span className='text-sm text-[var(--text-secondary)] flex gap-2'>
