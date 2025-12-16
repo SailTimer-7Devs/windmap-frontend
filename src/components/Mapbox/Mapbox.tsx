@@ -149,6 +149,7 @@ function Mapbox(): ReactElement {
       raster: {
         ...raster,
         value: convertedValue
+        // direction: ((raster.direction || 0) + 180) % 360 //for inward arrow and label direction
       }
     })
   }
@@ -167,7 +168,7 @@ function Mapbox(): ReactElement {
     if (typeof direction === 'number') {
       directionLabel = WeatherLayers.formatDirection(
         direction,
-        WeatherLayers.DirectionType.OUTWARD,
+        WeatherLayers.DirectionType.INWARD,
         WeatherLayers.DirectionFormat.CARDINAL3
       )
     }
@@ -281,7 +282,10 @@ function Mapbox(): ReactElement {
                     width='14'
                     height='14'
                     viewBox='0 0 24 24'
-                    style={{ transform: `rotate(${popoverInfo.direction}deg)` }}
+                    // style={{ transform: `rotate(${popoverInfo.direction}deg)` }} //INWARD
+                    style={{
+                      transform: `rotate(${(popoverInfo.direction + 180) % 360}deg)`
+                    }} //OUTWARD
                   >
                     <path
                       d='M12 2 L12 22 M12 2 L8 6 M12 2 L16 6'
@@ -303,6 +307,7 @@ function Mapbox(): ReactElement {
                 ref={tooltipControlRef}
                 unitFormat={{ unit }}
                 directionFormat={WeatherLayers.DirectionFormat.CARDINAL3}
+              // directionType={WeatherLayers.DirectionType.OUTWARD} //for inward arrow and label direction
               />
             )
         )}
