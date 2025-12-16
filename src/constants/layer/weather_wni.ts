@@ -134,12 +134,12 @@ export const LAYERS_MENU_LIST = [
   },
   {
     id: WEATHER_WNI_WAVE_UV,
-    name: 'Waves',
+    name: 'Waves offshore',
     icon: WaveIcon
   },
   {
     id: WEATHER_WNI_PSWH_UV,
-    name: 'Swell',
+    name: 'Swell offshore',
     icon: SwellHeightIcon
   },
   {
