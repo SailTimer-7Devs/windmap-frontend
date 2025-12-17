@@ -46,6 +46,7 @@ import {
 import { convertMetersPerSecondsToKnots } from 'lib/units'
 import { getDateTimeByLayerName } from 'lib/timeline'
 import { setMetaData } from 'lib/meta'
+import { isMobile } from 'lib/device'
 
 import BrandMenu from 'components/Mapbox/BrandMenu'
 import DeckGLOverlay from './DeckGLOverlay'
@@ -74,16 +75,6 @@ function Mapbox(): ReactElement {
   })
   const [unit, setUnit] = React.useState<string>('')
   const storageLayerValue = { name: layerName, list: visibleList }
-
-  const isApple =
-    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-
-  const isAndroid = /Android/i.test(navigator.userAgent)
-
-  const isMobile = isApple || isAndroid
-
-  // const isMobile = /Mobi|Android|iPad/i.test(navigator.userAgent)
 
   const [popoverInfo, setPopoverInfo] = React.useState<{
     x: number
