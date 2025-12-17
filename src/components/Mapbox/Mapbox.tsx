@@ -76,7 +76,7 @@ function Mapbox(): ReactElement {
   const storageLayerValue = { name: layerName, list: visibleList }
 
   const isApple =
-    /iPad|iPhone|iPod/.test(navigator.platform) ||
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
 
   const isAndroid = /Android/i.test(navigator.userAgent)
@@ -314,7 +314,7 @@ function Mapbox(): ReactElement {
               <TooltipControl
                 mapInstance={mapRef}
                 ref={tooltipControlRef}
-                unitFormat={{ unit }}
+                unitFormat={{ unit, decimals: 1 }}
                 directionFormat={WeatherLayers.DirectionFormat.CARDINAL3}
                 directionType={WeatherLayers.DirectionType.OUTWARD} //for inward arrow and label direction
               />
