@@ -46,6 +46,7 @@ import {
 import { convertMetersPerSecondsToKnots } from 'lib/units'
 import { getDateTimeByLayerName } from 'lib/timeline'
 import { setMetaData } from 'lib/meta'
+import { isMobile } from 'lib/device'
 
 import BrandMenu from 'components/Mapbox/BrandMenu'
 import DeckGLOverlay from './DeckGLOverlay'
@@ -75,7 +76,6 @@ function Mapbox(): ReactElement {
   const [unit, setUnit] = React.useState<string>('')
   const storageLayerValue = { name: layerName, list: visibleList }
 
-  const isMobile = /Mobi|Android/i.test(navigator.userAgent)
   const [popoverInfo, setPopoverInfo] = React.useState<{
     x: number
     y: number
@@ -148,8 +148,7 @@ function Mapbox(): ReactElement {
       ...e,
       raster: {
         ...raster,
-        value: convertedValue,
-        direction: ((raster.direction ?? 0) + 180) % 360 //for inward arrow and label direction
+        value: convertedValue
       }
     })
   }
@@ -274,7 +273,10 @@ function Mapbox(): ReactElement {
                 }}
               >
                 <span>
-                  {popoverInfo.value.toFixed(1)} {popoverInfo.unit}
+                  {isOceanCurrentLayer
+                    ? popoverInfo.value.toFixed(1)
+                    : Math.round(popoverInfo.value)
+                  } {popoverInfo.unit}
                 </span>
 
                 {typeof popoverInfo.direction === 'number' && (
@@ -282,10 +284,9 @@ function Mapbox(): ReactElement {
                     width='14'
                     height='14'
                     viewBox='0 0 24 24'
-                    style={{ transform: `rotate(${popoverInfo.direction}deg)` }} //INWARD
-                  // style={{
-                  //   transform: `rotate(${(popoverInfo.direction + 180) % 360}deg)`
-                  // }} //OUTWARD
+                    style={{
+                      transform: `rotate(${(popoverInfo.direction + 180) % 360}deg)`
+                    }} //OUTWARD
                   >
                     <path
                       d='M12 2 L12 22 M12 2 L8 6 M12 2 L16 6'
@@ -305,9 +306,14 @@ function Mapbox(): ReactElement {
               <TooltipControl
                 mapInstance={mapRef}
                 ref={tooltipControlRef}
-                unitFormat={{ unit }}
+                unitFormat={{
+                  unit,
+                  ...(isOceanCurrentLayer
+                    ? { decimals: 1 }
+                    : {}
+                  )
+                }}
                 directionFormat={WeatherLayers.DirectionFormat.CARDINAL3}
-                directionType={WeatherLayers.DirectionType.OUTWARD} //for inward arrow and label direction
               />
             )
         )}
