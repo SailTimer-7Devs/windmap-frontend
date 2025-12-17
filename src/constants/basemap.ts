@@ -329,6 +329,8 @@ export const CLIP_BOUNDS = [-181, -85.051129, 181, 85.051129]
 export const IMAGE_UNSCALE: ImageUnscale = [-128, 127]
 export const WIND_MAP_BOUNDS: BitmapBoundingBox = [-180, -90, 180, 90]
 // const WIND_HEATMAP_BOUNDS: BitmapBoundingBox = [-180, -85.051129, 180, 85.051129]
+// Ocean current data covers lat -78.0 to 85.0, lon 0.0 to 359.9167 (wrapped to -180 to 180)
+export const OCEAN_CURRENT_MAP_BOUNDS: BitmapBoundingBox = [-180, -78, 180, 85]
 
 export const MAP_VIEW = new MapView({
   repeat: true
