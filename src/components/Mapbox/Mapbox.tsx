@@ -274,7 +274,10 @@ function Mapbox(): ReactElement {
                 }}
               >
                 <span>
-                  {popoverInfo.value.toFixed(1)} {popoverInfo.unit}
+                  {isOceanCurrentLayer
+                    ? popoverInfo.value.toFixed(1)
+                    : Math.round(popoverInfo.value)
+                  } {popoverInfo.unit}
                 </span>
 
                 {typeof popoverInfo.direction === 'number' && (
@@ -305,7 +308,13 @@ function Mapbox(): ReactElement {
               <TooltipControl
                 mapInstance={mapRef}
                 ref={tooltipControlRef}
-                unitFormat={{ unit, decimals: 1 }}
+                unitFormat={{
+                  unit,
+                  ...(isOceanCurrentLayer
+                    ? { decimals: 1 }
+                    : {}
+                  )
+                }}
                 directionFormat={WeatherLayers.DirectionFormat.CARDINAL3}
               // directionType={WeatherLayers.DirectionType.OUTWARD} //for inward arrow and label direction
               />
