@@ -3,15 +3,13 @@ import { UAParser } from 'ua-parser-js'
 const parcer = new UAParser()
 
 export const deviceType = parcer.getDevice().type
-export const deviceOsName = parcer.getOS().name
 
-export const isAndroid = deviceOsName === 'Android'
+export const device = await parcer.getDevice().withFeatureCheck()
+export const os = parcer.getOS()
 
-const isIpad =
-    deviceOsName === 'macOS' &&
-    navigator.maxTouchPoints > 1
+export const isAndroid = device.is('Android')
 
 export const isMobile =
-    deviceType === 'mobile' ||
-    deviceType === 'tablet' ||
-    isIpad
+    device.is('iPhone') ||
+    device.is('iPad') ||
+    isAndroid 
