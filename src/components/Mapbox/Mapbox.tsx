@@ -75,7 +75,16 @@ function Mapbox(): ReactElement {
   const [unit, setUnit] = React.useState<string>('')
   const storageLayerValue = { name: layerName, list: visibleList }
 
-  const isMobile = /Mobi|Android/i.test(navigator.userAgent)
+  const isApple =
+    /iPad|iPhone|iPod/.test(navigator.platform) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+
+  const isAndroid = /Android/i.test(navigator.userAgent)
+
+  const isMobile = isApple || isAndroid
+
+  // const isMobile = /Mobi|Android|iPad/i.test(navigator.userAgent)
+
   const [popoverInfo, setPopoverInfo] = React.useState<{
     x: number
     y: number
