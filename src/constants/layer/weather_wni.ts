@@ -31,7 +31,6 @@ import {
   createTimelineLayerFileByGroup,
   createTimelineDatetimes
 } from 'lib/timeline'
-import { MAX_FUTURE_HOURS } from 'constants/timeline'
 
 import { PSWH as PSWH_NAME } from './names'
 import { WEATHER_WNI as WEATHER_WNI_NAME } from './names'
@@ -435,21 +434,21 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
 ]
 
 export const weatherWniTimelineFiles = {
-  weatherWniIce: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.ICE, MAX_FUTURE_HOURS),
-  weatherWniIntpcp: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.INTPCP, MAX_FUTURE_HOURS),
-  weatherWniTmp850Hpa: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.TMP850HPA, MAX_FUTURE_HOURS),
-  weatherWniAirTemperature: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.AIR_TEMPERATURE, MAX_FUTURE_HOURS),
-  weatherWniVisibility: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.VISIBILITY, MAX_FUTURE_HOURS),
-  weatherWniWaveUv: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.WAVE_UV, MAX_FUTURE_HOURS),
-  weatherWniWaveHeatmap: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.WAVE_HEATMAP, MAX_FUTURE_HOURS),
-  weatherWniWindUv: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.WIND_UV, MAX_FUTURE_HOURS),
-  weatherWniWindHeatmap: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.WIND_HEATMAP, MAX_FUTURE_HOURS),
-  weatherWniSst: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.SST, MAX_FUTURE_HOURS),
-  weatherWniOceanCurrentUv: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.OCEAN_CURRENT_UV, MAX_FUTURE_HOURS),
-  weatherWniOceanCurrentHeatmap: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.OCEAN_CURRENT_HEATMAP, MAX_FUTURE_HOURS),
-  pswhHeatmap: createTimelineLayerFileByGroup(PSWH_NAME, WEATHER_WNI_FILES.HEATMAP, MAX_FUTURE_HOURS),
-  pswhUv: createTimelineLayerFileByGroup(PSWH_NAME, WEATHER_WNI_FILES.PSWH_UV, MAX_FUTURE_HOURS),
-  datetime: createTimelineDatetimes(MAX_FUTURE_HOURS)
+  weatherWniIce: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.ICE, 1),
+  weatherWniIntpcp: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.INTPCP, 1),
+  weatherWniTmp850Hpa: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.TMP850HPA, 1),
+  weatherWniAirTemperature: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.AIR_TEMPERATURE, 1),
+  weatherWniVisibility: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.VISIBILITY, 1),
+  weatherWniWaveUv: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.WAVE_UV, 1),
+  weatherWniWaveHeatmap: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.WAVE_HEATMAP, 1),
+  weatherWniWindUv: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.WIND_UV, 1),
+  weatherWniWindHeatmap: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.WIND_HEATMAP, 1),
+  weatherWniSst: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.SST, 1),
+  weatherWniOceanCurrentUv: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.OCEAN_CURRENT_UV, 1),
+  weatherWniOceanCurrentHeatmap: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.OCEAN_CURRENT_HEATMAP, 1),
+  pswhHeatmap: createTimelineLayerFileByGroup(PSWH_NAME, WEATHER_WNI_FILES.HEATMAP),
+  pswhUv: createTimelineLayerFileByGroup(PSWH_NAME, WEATHER_WNI_FILES.PSWH_UV),
+  datetime: createTimelineDatetimes(1)
 }
 
 const weatherWniCache = new Map<number, LayersState>()
