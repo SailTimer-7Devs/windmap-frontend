@@ -13,18 +13,25 @@ function LoginPage(): ReactElement {
       title='Welcome'
       description='In case you decide to use crowdsourced weather maps, please log in. You only need to log in once.'
     >
-      <Link
-        to={routes.SAILTIMER_APP_ROUTE}
-        className='text-sm text-[var(--text-secondary)]'
-      >
-        You can use your subscription from the
+      <p className='text-sm text-[var(--text-secondary)]'>
+        You can use your subscription from the SailTimer app. The app is available for
 
-        <span className='hover:text-blue-300 text-[var(--primary-dark)] text-sm ml-1'>
-          SailTimer app
-        </span>
+        <Link
+          to={routes.SAILTIMER_IOS_ROUTE}
+          className='ml-1 text-sm text-[var(--primary-dark)] hover:text-blue-300'
+        >
+          iPhone
+        </Link>
 
-        <span className='ml-1'>in this app.</span>
-      </Link>
+        <span className='ml-1'>and</span>
+
+        <Link
+          to={routes.SAILTIMER_ANDROID_ROUTE}
+          className='ml-1 text-sm text-[var(--primary-dark)] hover:text-blue-300'
+        >
+          Android.
+        </Link>
+      </p>
 
       {/* <span className='text-sm text-[var(--text-secondary)] flex gap-2'>
         Don’t have an account?
