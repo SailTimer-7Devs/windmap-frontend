@@ -20,7 +20,7 @@ function LoginPage(): ReactElement {
           to={routes.SAILTIMER_IOS_ROUTE}
           className='ml-1 text-sm text-[var(--primary-dark)] hover:text-blue-300'
         >
-          iPhone
+          IOS
         </Link>
 
         <span className='ml-1'>and</span>
