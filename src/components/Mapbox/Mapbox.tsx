@@ -27,7 +27,7 @@ import * as WeatherLayers from 'weatherlayers-gl'
 import * as BASE from 'constants/basemap'
 import { STORAGE_LAYER_KEY } from 'constants/localStorage'
 import { WIND_LAYER_KEYS } from 'constants/layer/wind'
-import { WEATHER_WNI_LAYER_KEYS } from 'constants/layer/weather_wni'
+import { WEATHER_WNI_LAYER_KEYS, HIDE_TIMELINE_CONTROL_FOR_LAYERS } from 'constants/layer/weather_wni'
 import { UNIT_FORMAT } from 'constants/layer/units'
 
 import useLayerData from 'hooks/useLayerData'
@@ -209,6 +209,10 @@ function Mapbox(): ReactElement {
     return storageLayer.list.includes(WIND_LAYER_KEYS.WIND_HEATMAP)
   }, [storageLayer.list])
 
+  const visibilityTimelineControl = React.useMemo(() => {
+    return HIDE_TIMELINE_CONTROL_FOR_LAYERS.every(layer => !storageLayer.list.includes(layer))
+  }, [storageLayer.list])
+
   React.useEffect(() => {
     setMetaData({ isWindLayer })
   }, [isWindLayer])
@@ -253,13 +257,15 @@ function Mapbox(): ReactElement {
           position='bottom-right'
         />
 
-        <TimelineControl
-          datetimes={datetimes}
-          datetime={timeline.datetime}
-          onUpdate={handleTimelineUpdate}
-          onPreload={getTimelinePreload}
-          fps={2}
-        />
+        {visibilityTimelineControl &&
+          <TimelineControl
+            datetimes={datetimes}
+            datetime={timeline.datetime}
+            onUpdate={handleTimelineUpdate}
+            onPreload={getTimelinePreload}
+            fps={2}
+          />
+        }
 
         {hasTooltip && (
           isMobile && popoverInfo
