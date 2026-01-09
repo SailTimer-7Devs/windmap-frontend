@@ -59,7 +59,7 @@ export const getWshLayers = (layersState: LayersState): Layer[] => [
     image: layersState[WSH_LAYER_KEYS.WSH_HEATMAP as LayerKey],
     imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.WAVE_HEIGHT_PALETTE_0_50 as Palette,
+    palette: BASE.WAVE_HEIGHT_PALETTE_0_20 as Palette,
     opacity: 0.5,
     pickable: true,
     imageUnscale: [0, 255],
