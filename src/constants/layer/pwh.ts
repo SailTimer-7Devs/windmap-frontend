@@ -12,7 +12,7 @@ import * as BASE from 'constants/basemap'
 import WaveIcon from 'icons/Wave'
 
 import { handleImageDataLoad } from 'lib/image'
-
+import { setParticlesNumbersByDeviceType } from 'lib/layer'
 import {
   createTimelineLayerFileByGroup,
   createTimelineDatetimes
@@ -58,10 +58,10 @@ export const getPwhLayers = (layersState: LayersState): Layer[] => [
     image: layersState[PWH_LAYER_KEYS.PWH_HEATMAP as LayerKey],
     imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.WAVE_HEIGHT_PALETTE_0_50 as Palette,
+    palette: BASE.WAVE_HEIGHT_PALETTE_0_20 as Palette,
     opacity: 0.5,
     pickable: true,
-    imageUnscale: [0, 19.6],
+    imageUnscale: [0, 20],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
@@ -73,7 +73,7 @@ export const getPwhLayers = (layersState: LayersState): Layer[] => [
     imageType: 'VECTOR',
     imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
-    numParticles: 5000,
+    numParticles: setParticlesNumbersByDeviceType(),
     maxAge: 30,
     speedFactor: 4,
     width: 15,

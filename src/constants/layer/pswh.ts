@@ -60,10 +60,10 @@ export const getPswhLayers = (layersState: LayersState): Layer[] => [
     image: layersState[PSWH_LAYER_KEYS.PSWH_HEATMAP as LayerKey],
     imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.WAVE_HEIGHT_PALETTE_0_50 as Palette,
+    palette: BASE.SWELL_HEIGHT_PALETTE_0_25 as Palette,
     opacity: 0.5,
     pickable: true,
-    imageUnscale: [0, 19.6],
+    imageUnscale: [0, 25],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
