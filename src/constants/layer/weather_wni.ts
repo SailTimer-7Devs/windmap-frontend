@@ -338,10 +338,10 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_HEATMAP as LayerKey],
     imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.SWELL_HEIGHT_PALETTE_0_25 as Palette,
+    palette: BASE.SWELL_HEIGHT_PALETTE_0_82_FT as Palette,
     opacity: 0.5,
     pickable: true,
-    imageUnscale: [0, 25],
+    imageUnscale: [0, 82], // feet
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
@@ -373,7 +373,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     imageType: 'VECTOR',
     imageUnscale: [-128, 127],
     bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.SWELL_HEIGHT_PALETTE_0_25 as Palette,
+    palette: BASE.SWELL_HEIGHT_PALETTE_0_82_FT as Palette,
     imageInterpolation: 'CUBIC',
     opacity: 0,
     pickable: true,
@@ -388,10 +388,10 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_HEATMAP as LayerKey],
     imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.WAVE_HEIGHT_PALETTE_0_20 as Palette,
+    palette: BASE.WAVE_HEIGHT_PALETTE_0_64_FT as Palette,
     opacity: 0.5,
     pickable: true,
-    imageUnscale: [0, 20],
+    imageUnscale: [0, 64], // feet
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
@@ -423,7 +423,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     imageType: 'VECTOR',
     imageUnscale: [-128, 127],
     bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.WAVE_HEIGHT_PALETTE_0_20 as Palette,
+    palette: BASE.WAVE_HEIGHT_PALETTE_0_64_FT as Palette,
     imageInterpolation: 'CUBIC',
     opacity: 0,
     pickable: true,
