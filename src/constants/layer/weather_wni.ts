@@ -245,7 +245,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
     palette: BASE.WNI_WIND_SPEED_PALETTE_1_40 as Palette,
-    opacity: 0.2,
+    opacity: 0.3,
     pickable: true,
     imageUnscale: [0, 40],
     extensions: [new ClipExtension()],
