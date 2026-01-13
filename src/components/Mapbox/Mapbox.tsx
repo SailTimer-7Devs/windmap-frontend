@@ -328,7 +328,7 @@ function Mapbox(): ReactElement {
           <LegendControl
             title='Wind speed'
             unitFormat={{ unit: 'knots' }}
-            palette={BASE.WIND_SPEED_PALETTE as Palette}
+            palette={BASE.WIND_SPEED_PALETTE_1_40 as Palette}
           />
         )}
 
