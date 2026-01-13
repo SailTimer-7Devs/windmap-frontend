@@ -117,7 +117,7 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
     imageType: 'VECTOR',
     imageUnscale: [-128, 127],
     bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.EXPERIMENTAL_WIND_PALETTE_0_16 as Palette,
+    palette: BASE.WIND_SPEED_PALETTE_1_40 as Palette,
     imageInterpolation: 'CUBIC',
     opacity: 0,
     pickable: true,
