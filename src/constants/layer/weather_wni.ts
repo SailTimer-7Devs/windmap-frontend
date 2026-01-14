@@ -15,11 +15,9 @@ import IntegratedPrecipitationIcon from 'icons/IntegratedPrecipitation'
 import OceanIcon from 'icons/Ocean'
 import SeaTemperatureIcon from 'icons/SeaTemperature'
 import SnowIcon from 'icons/Snow'
-// import TemperatureIcon from 'icons/Temperature'
 import TemperatureHighIcon from 'icons/TemperatureHigh'
 import WindAnimationIcon from 'icons/WindAnimation'
 import WaveIcon from 'icons/Wave'
-import SwellHeightIcon from 'icons/SwellHeight'
 
 import { handleImageDataLoad } from 'lib/image'
 import {
@@ -32,7 +30,6 @@ import {
   createTimelineDatetimes
 } from 'lib/timeline'
 
-import { PSWH as PSWH_NAME } from './names'
 import { WEATHER_WNI as WEATHER_WNI_NAME } from './names'
 import { WEATHER_WNI_FILES } from './files'
 
@@ -42,19 +39,13 @@ export const WEATHER_WNI_INTPCP = 'weather_wni_intpcp'
 export const WEATHER_WNI_TMP850HPA = 'weather_wni_tmp850hpa'
 export const WEATHER_WNI_AIR_TEMPERATURE = 'weather_wni_tmp1000hpa'
 export const WEATHER_WNI_VISIBILITY = 'weather_wni_visibility'
-export const WEATHER_WNI_WAVE_UV = 'weather_wni_wave_uv'
-export const WEATHER_WNI_WAVE_HEATMAP = 'weather_wni_wave_heatmap'
 export const WEATHER_WNI_WIND_UV = 'weather_wni_wind_uv'
 export const WEATHER_WNI_WIND_HEATMAP = 'weather_wni_wind_heatmap'
 export const WEATHER_WNI_SST = 'weather_wni_sst'
 export const WEATHER_WNI_OCEAN_CURRENT_UV = 'weather_wni_ocean_current_uv'
 export const WEATHER_WNI_OCEAN_CURRENT_HEATMAP = 'weather_wni_ocean_current_heatmap'
-export const WEATHER_WNI_PSWH_HEATMAP = 'weather_wni_pswh_heatmap'
-export const WEATHER_WNI_PSWH_UV = 'weather_wni_pswh-uv'
 export const WEATHER_WNI_WIND_TOOLTIP = 'weather_wni_wind_uv-tooltip'
-export const WEATHER_WNI_WAVE_TOOLTIP = 'weather_wni_wave_uv-tooltip'
 export const WEATHER_WNI_OCEAN_CURRENT_TOOLTIP = 'weather_wni_ocean_current_uv-tooltip'
-export const WEATHER_WNI_PSWH_UV_TOOLTIP = 'weather_wni_pswh-uv-tooltip'
 export const WEATHER_WNI_SIGWH_HEATMAP = 'weather_wni_sigwh_heatmap'
 export const WEATHER_WNI_SIGWH_UV = 'weather_wni_sigwh_uv'
 export const WEATHER_WNI_SIGWH_UV_TOOLTIP = 'weather_wni_sigwh_uv-tooltip'
@@ -65,21 +56,15 @@ export const WEATHER_WNI_LAYER_KEYS = {
   WEATHER_WNI_TMP850HPA,
   WEATHER_WNI_AIR_TEMPERATURE,
   WEATHER_WNI_VISIBILITY,
-  WEATHER_WNI_WAVE_UV,
-  WEATHER_WNI_WAVE_HEATMAP,
   WEATHER_WNI_WIND_UV,
   WEATHER_WNI_WIND_HEATMAP,
   WEATHER_WNI_SST,
   WEATHER_WNI_OCEAN_CURRENT_UV,
   WEATHER_WNI_OCEAN_CURRENT_HEATMAP,
-  WEATHER_WNI_PSWH_HEATMAP,
-  WEATHER_WNI_PSWH_UV,
   WEATHER_WNI_SIGWH_HEATMAP,
   WEATHER_WNI_SIGWH_UV,
-  WEATHER_WNI_WAVE_TOOLTIP,
   WEATHER_WNI_WIND_TOOLTIP,
   WEATHER_WNI_OCEAN_CURRENT_TOOLTIP,
-  WEATHER_WNI_PSWH_UV_TOOLTIP,
   WEATHER_WNI_SIGWH_UV_TOOLTIP
 }
 
@@ -91,15 +76,10 @@ export const WEATHER_WNI_INITIAL_LAYERS_STATE: LayersState = {
   [WEATHER_WNI_ICE_PACK]: undefined,
   [WEATHER_WNI_INTPCP]: undefined,
   [WEATHER_WNI_AIR_TEMPERATURE]: undefined,
-  // [WEATHER_WNI_TMP850HPA]: undefined,
   [WEATHER_WNI_VISIBILITY]: undefined,
-  [WEATHER_WNI_WAVE_UV]: undefined,
-  [WEATHER_WNI_WAVE_HEATMAP]: undefined,
   [WEATHER_WNI_WIND_UV]: undefined,
   [WEATHER_WNI_SST]: undefined,
   [WEATHER_WNI_OCEAN_CURRENT_UV]: undefined,
-  [WEATHER_WNI_PSWH_HEATMAP]: undefined,
-  [WEATHER_WNI_PSWH_UV]: undefined,
   [WEATHER_WNI_SIGWH_HEATMAP]: undefined,
   [WEATHER_WNI_SIGWH_UV]: undefined
 }
@@ -130,25 +110,10 @@ export const LAYERS_MENU_LIST = [
     name: 'Ocean Currents',
     icon: OceanIcon
   },
-  // {
-  //   id: WEATHER_WNI_TMP850HPA,
-  //   name: 'Temperature 850 hPa',
-  //   icon: TemperatureIcon
-  // },
   {
     id: WEATHER_WNI_WIND_UV,
     name: 'Offshore Wind',
     icon: WindAnimationIcon
-  },
-  {
-    id: WEATHER_WNI_WAVE_UV,
-    name: 'Waves offshore',
-    icon: WaveIcon
-  },
-  {
-    id: WEATHER_WNI_PSWH_UV,
-    name: 'Swell offshore',
-    icon: SwellHeightIcon
   },
   {
     id: WEATHER_WNI_SIGWH_UV,
@@ -345,106 +310,6 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   }),
 
-  //pswh Swell Height
-  new WeatherLayers.RasterLayer({
-    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_HEATMAP,
-    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_HEATMAP as LayerKey],
-    imageType: 'SCALAR',
-    bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.SWELL_HEIGHT_PALETTE_0_82_FT as Palette,
-    opacity: 0.5,
-    pickable: true,
-    imageUnscale: [0, 82], // feet
-    extensions: [new ClipExtension()],
-    clipBounds: BASE.CLIP_BOUNDS,
-    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
-  }),
-
-  //pswh Swell Animation
-  new WeatherLayers.ParticleLayer({
-    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_UV,
-    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_UV as LayerKey],
-    imageType: 'VECTOR',
-    imageUnscale: BASE.IMAGE_UNSCALE,
-    bounds: BASE.WIND_MAP_BOUNDS,
-    numParticles: setParticlesNumbersByDeviceType(),
-    maxAge: 30,
-    speedFactor: 4,
-    width: 15,
-    opacity: 0.15,
-    animate: true,
-    extensions: [new ClipExtension()],
-    clipBounds: BASE.CLIP_BOUNDS,
-    getPolygonOffset: () => [0, -1000],
-    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
-  }),
-
-  //pswh Swell Animation tooltip
-  new WeatherLayers.RasterLayer({
-    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_UV_TOOLTIP,
-    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_UV as LayerKey],
-    imageType: 'VECTOR',
-    imageUnscale: [-128, 127],
-    bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.SWELL_HEIGHT_PALETTE_0_82_FT as Palette,
-    imageInterpolation: 'CUBIC',
-    opacity: 0,
-    pickable: true,
-    extensions: [new ClipExtension()],
-    clipBounds: BASE.CLIP_BOUNDS,
-    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
-  }),
-
-  // pwh wave height
-  new WeatherLayers.RasterLayer({
-    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_HEATMAP,
-    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_HEATMAP as LayerKey],
-    imageType: 'SCALAR',
-    bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.WAVE_HEIGHT_PALETTE_0_64_FT as Palette,
-    opacity: 0.5,
-    pickable: true,
-    imageUnscale: [0, 64], // feet
-    extensions: [new ClipExtension()],
-    clipBounds: BASE.CLIP_BOUNDS,
-    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
-  }),
-
-  // pwh wave animation
-  new WeatherLayers.ParticleLayer({
-    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_UV,
-    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_UV as LayerKey],
-    imageType: 'VECTOR',
-    imageUnscale: BASE.IMAGE_UNSCALE,
-    bounds: BASE.WIND_MAP_BOUNDS,
-    numParticles: setParticlesNumbersByDeviceType(),
-    maxAge: 30,
-    speedFactor: 4,
-    width: 15,
-    opacity: 0.15,
-    animate: true,
-    extensions: [new ClipExtension()],
-    clipBounds: BASE.CLIP_BOUNDS,
-    getPolygonOffset: () => [0, -1000],
-    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
-  }),
-
-  // pwh wave animation tooltip
-  new WeatherLayers.RasterLayer({
-    id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_TOOLTIP,
-    image: layersState[WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_UV as LayerKey],
-    imageType: 'VECTOR',
-    imageUnscale: [-128, 127],
-    bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.WAVE_HEIGHT_PALETTE_0_64_FT as Palette,
-    imageInterpolation: 'CUBIC',
-    opacity: 0,
-    pickable: true,
-    extensions: [new ClipExtension()],
-    clipBounds: BASE.CLIP_BOUNDS,
-    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
-  }),
-
   // Swell/Wave Height
   new WeatherLayers.RasterLayer({
     id: WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SIGWH_HEATMAP,
@@ -502,15 +367,11 @@ export const weatherWniTimelineFiles = {
   weatherWniTmp850Hpa: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.TMP850HPA),
   weatherWniAirTemperature: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.AIR_TEMPERATURE),
   weatherWniVisibility: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.VISIBILITY),
-  weatherWniWaveUv: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.WAVE_UV),
-  weatherWniWaveHeatmap: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.WAVE_HEATMAP),
   weatherWniWindUv: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.WIND_UV),
   weatherWniWindHeatmap: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.WIND_HEATMAP),
   weatherWniSst: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.SST),
   weatherWniOceanCurrentUv: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.OCEAN_CURRENT_UV),
   weatherWniOceanCurrentHeatmap: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.OCEAN_CURRENT_HEATMAP),
-  pswhHeatmap: createTimelineLayerFileByGroup(PSWH_NAME, WEATHER_WNI_FILES.HEATMAP),
-  pswhUv: createTimelineLayerFileByGroup(PSWH_NAME, WEATHER_WNI_FILES.PSWH_UV),
   weatherWniSigwhHeatmap: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.SIGWH_HEATMAP),
   weatherWniSigwhUv: createTimelineLayerFileByGroup(WEATHER_WNI_NAME, WEATHER_WNI_FILES.SIGWH_UV),
   datetime: createTimelineDatetimes()
@@ -547,15 +408,11 @@ export async function getWeatherWniLayersData(timelineIndex: number = 0): Promis
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniIntpcp[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniAirTemperature[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniVisibility[timelineIndex]),
-      handleImageDataLoad(weatherWniTimelineFiles.weatherWniWaveUv[timelineIndex]),
-      handleImageDataLoad(weatherWniTimelineFiles.weatherWniWaveHeatmap[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniWindUv[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniWindHeatmap[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniSst[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniOceanCurrentUv[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniOceanCurrentHeatmap[timelineIndex]),
-      handleImageDataLoad(weatherWniTimelineFiles.pswhHeatmap[timelineIndex]),
-      handleImageDataLoad(weatherWniTimelineFiles.pswhUv[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniSigwhUv[timelineIndex]),
       handleImageDataLoad(weatherWniTimelineFiles.weatherWniSigwhHeatmap[timelineIndex])
     ])
@@ -565,15 +422,11 @@ export async function getWeatherWniLayersData(timelineIndex: number = 0): Promis
       weatherWniIntpcpData,
       weatherWniAirTemperatureData,
       weatherWniVisibilityData,
-      weatherWniWaveUvData,
-      weatherWniWaveHeatmapData,
       weatherWniWindUvData,
       weatherWniWindHeatmapData,
       weatherWniSstData,
       weatherWniOceanCurrentUvData,
       weatherWniOceanCurrentHeatmapData,
-      pswhHeatmapData,
-      pswhUvData,
       weatherWniSigwhUvData,
       weatherWniSigwhHeatmapData
     ] = results.map(r => (r.status === 'fulfilled' ? r.value : undefined))
@@ -583,15 +436,11 @@ export async function getWeatherWniLayersData(timelineIndex: number = 0): Promis
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_INTPCP]: weatherWniIntpcpData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_AIR_TEMPERATURE]: weatherWniAirTemperatureData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_VISIBILITY]: weatherWniVisibilityData,
-      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_UV]: weatherWniWaveUvData,
-      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WAVE_HEATMAP]: weatherWniWaveHeatmapData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV]: weatherWniWindUvData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_HEATMAP]: weatherWniWindHeatmapData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SST]: weatherWniSstData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_OCEAN_CURRENT_UV]: weatherWniOceanCurrentUvData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_OCEAN_CURRENT_HEATMAP]: weatherWniOceanCurrentHeatmapData,
-      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_HEATMAP]: pswhHeatmapData,
-      [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_PSWH_UV]: pswhUvData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SIGWH_HEATMAP]: weatherWniSigwhHeatmapData,
       [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SIGWH_UV]: weatherWniSigwhUvData
     }
