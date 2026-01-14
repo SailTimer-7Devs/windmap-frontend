@@ -117,7 +117,7 @@ export const LAYERS_MENU_LIST = [
   },
   {
     id: WEATHER_WNI_SIGWH_UV,
-    name: 'Wave / Swell Height',
+    name: 'Waves/Swell Combined',
     icon: WaveIcon
   },
   {
