@@ -30,6 +30,6 @@ export const WEATHER_WNI_FILES = {
   SST: 'wni_sst_heatmap.png',
   OCEAN_CURRENT_UV: 'wni_current_uv_mps.png',
   OCEAN_CURRENT_HEATMAP: 'wni_current_heatmap_mps.png',
-  ...WNI_PWH_FILES,
-  ...WNI_PSWH_FILES
+  SIGWH_HEATMAP: 'wni_sigwh_heatmap_feet.png',
+  SIGWH_UV: 'wni_sigwh_uv_feet.png'
 }
