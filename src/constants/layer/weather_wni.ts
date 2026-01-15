@@ -256,6 +256,7 @@ export const getWeatherWniLayers = (layersState: LayersState): Layer[] => [
     opacity: 0.2,
     pickable: true,
     imageUnscale: [-50, 50],
+    imageInterpolation: 'NEAREST',
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
