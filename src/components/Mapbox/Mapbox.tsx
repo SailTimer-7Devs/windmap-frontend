@@ -47,6 +47,7 @@ import { convertMetersPerSecondsToKnots } from 'lib/units'
 import { getDateTimeByLayerName } from 'lib/timeline'
 import { setMetaData } from 'lib/meta'
 import { isMobile } from 'lib/device'
+import { clampLat, clampLng } from 'lib/bounds'
 
 import BrandMenu from 'components/Mapbox/BrandMenu'
 import DeckGLOverlay from './DeckGLOverlay'
@@ -55,6 +56,7 @@ import LegendControl from './LegendControl'
 import TimelineControl from './TimelineControl'
 import TooltipControl from './TooltipControl'
 import WniLogo from './WniLogo'
+import PointsBadge from './PointsBadge'
 
 interface DeckGLOverlayHoverEventProps extends PickingInfo {
   raster?: RasterPointProperties
@@ -74,8 +76,6 @@ function Mapbox(): ReactElement {
     datetime: datetimes[0]
   })
   const [unit, setUnit] = React.useState<string>('')
-  const storageLayerValue = { name: layerName, list: visibleList }
-
   const [popoverInfo, setPopoverInfo] = React.useState<{
     x: number
     y: number
@@ -84,6 +84,9 @@ function Mapbox(): ReactElement {
     direction?: number
     directionLabel?: number | string
   } | null>(null)
+  const [pointsCount, setPointsCount] = React.useState(0)
+  
+  const storageLayerValue = { name: layerName, list: visibleList }
 
   const {
     value: storageLayer,
@@ -217,6 +220,37 @@ function Mapbox(): ReactElement {
     setMetaData({ isWindLayer })
   }, [isWindLayer])
 
+  const sendBounds = React.useCallback(async (map: MapRef) => {
+    const bounds = map.getBounds()
+    if (!bounds) return
+    const north = clampLat(bounds.getNorth())
+    const south = clampLat(bounds.getSouth())
+    const east = clampLng(bounds.getEast())
+    const west = clampLng(bounds.getWest())
+
+    const url =
+      'https://dev-api.sailtimer.info/crowdsourced/count' +
+      `?north=${north}` +
+      `&south=${south}` +
+      `&east=${east}` +
+      `&west=${west}`
+
+    const response = await fetch(url)
+    const data = await response.json()
+
+    setPointsCount(data.count)
+  }, [])
+
+  const handleMoveEnd: MapCallbacks['onMoveEnd'] = () => {
+    if (!mapRef.current) return
+    sendBounds(mapRef.current)
+  }
+
+  React.useEffect(() => {
+    if (!isMapReady || !mapRef.current) return
+    sendBounds(mapRef.current)
+  }, [isMapReady, sendBounds])
+
   return (
     <>
       <div className='absolute top-[10px] right-[10px] z-10 flex gap-2'>
@@ -242,6 +276,8 @@ function Mapbox(): ReactElement {
         mapboxAccessToken={BASE.MAPBOX_ACCESS_TOKEN}
         mapStyle={BASE.BASEMAP_VECTOR_STYLE_URL}
         initialViewState={BASE.INITIAL_VIEW_STATE}
+        onMoveEnd={handleMoveEnd}
+        renderWorldCopies={false}
       >
         <GeolocateControl
           {...BASE.MAP_VIEW_CONTROLS_PROPS}
@@ -257,7 +293,11 @@ function Mapbox(): ReactElement {
           position='bottom-right'
         />
 
-        {visibilityTimelineControl &&
+        <div className='absolute bottom-48 left-2 flex flex-col items-center gap-2 z-20'>
+          {isWindLayer && <PointsBadge count={pointsCount} />}
+        </div>
+
+        {visibilityTimelineControl && (
           <TimelineControl
             datetimes={datetimes}
             datetime={timeline.datetime}
@@ -265,7 +305,7 @@ function Mapbox(): ReactElement {
             onPreload={getTimelinePreload}
             fps={2}
           />
-        }
+        )}
 
         {hasTooltip && (
           isMobile && popoverInfo
