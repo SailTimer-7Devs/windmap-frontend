@@ -21,7 +21,7 @@ import {
 import { PWH as PWH_NAME } from './names'
 import { WNI_PWH_FILES } from './files'
 
-export const PWH_HEATMAP = PWH_NAME
+export const PWH_HEATMAP = 'pwh-heatmap'
 export const PWH_UV = 'pwh-uv'
 
 export const PWH_LAYER_KEYS = {

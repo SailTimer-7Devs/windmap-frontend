@@ -23,7 +23,7 @@ import {
 import { PSWH as PSWH_NAME } from './names'
 import { WNI_PSWH_FILES } from './files'
 
-export const PSWH_HEATMAP = PSWH_NAME
+export const PSWH_HEATMAP = 'pswh-heatmap'
 export const PSWH_UV = 'pswh-uv'
 
 export const PSWH_LAYER_KEYS = {

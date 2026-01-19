@@ -33,7 +33,6 @@ import {
 import { WEATHER_WNI as WEATHER_WNI_NAME } from './names'
 import { WEATHER_WNI_FILES } from './files'
 
-export const WEATHER_WNI = WEATHER_WNI_NAME
 export const WEATHER_WNI_ICE_PACK = 'weather_wni_ice_pack'
 export const WEATHER_WNI_INTPCP = 'weather_wni_intpcp'
 export const WEATHER_WNI_TMP850HPA = 'weather_wni_tmp850hpa'

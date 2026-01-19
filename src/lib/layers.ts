@@ -1,6 +1,8 @@
 import type { Layer } from 'deck.gl'
 import type { LayerMenuProps, LayersState } from 'types'
 
+import { WEATHER_WNI, PSWH, PWH, WSH, WIND } from 'constants/layer/names'
+
 import * as pswhLayer from 'constants/layer/pswh'
 import * as pwhLayer from 'constants/layer/pwh'
 import * as windLayer from 'constants/layer/wind'
@@ -19,36 +21,36 @@ interface LayersConfig {
 }
 
 const LAYERS_CONFIG: Record<string, LayersConfig> = {
-  [windLayer.WIND]: {
-    name: windLayer.WIND,
+  [WIND]: {
+    name: WIND,
     module: windLayer as LayerModule,
     getDataFn: windLayer.getWindLayersData,
     getLayersFn: windLayer.getWindLayers
   },
 
-  [pswhLayer.PSWH_HEATMAP]: {
-    name: pswhLayer.PSWH_HEATMAP,
+  [PSWH]: {
+    name: PSWH,
     module: pswhLayer as LayerModule,
     getDataFn: pswhLayer.getPswhLayersData,
     getLayersFn: pswhLayer.getPswhLayers
   },
 
-  [pwhLayer.PWH_HEATMAP]: {
-    name: pwhLayer.PWH_HEATMAP,
+  [PWH]: {
+    name: PWH,
     module: pwhLayer as LayerModule,
     getDataFn: pwhLayer.getPwhLayersData,
     getLayersFn: pwhLayer.getPwhLayers
   },
 
-  [wshLayer.WSH_HEATMAP]: {
-    name: wshLayer.WSH_HEATMAP,
+  [WSH]: {
+    name: WSH,
     module: wshLayer as LayerModule,
     getDataFn: wshLayer.getWshLayersData,
     getLayersFn: wshLayer.getWshLayers
   },
 
-  [weatherWniLayer.WEATHER_WNI]: {
-    name: weatherWniLayer.WEATHER_WNI,
+  [WEATHER_WNI]: {
+    name: WEATHER_WNI,
     module: weatherWniLayer as LayerModule,
     getDataFn: weatherWniLayer.getWeatherWniLayersData,
     getLayersFn: weatherWniLayer.getWeatherWniLayers

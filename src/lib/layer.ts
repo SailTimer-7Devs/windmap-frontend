@@ -1,18 +1,18 @@
 import { WIND_VISIBLE_LAYERS } from 'constants/layer/wind'
-import { WIND } from 'constants/layer/names'
-import { PSWH_HEATMAP, PSWH_VISIBLE_LAYERS } from 'constants/layer/pswh'
-import { PWH_HEATMAP, PWH_VISIBLE_LAYERS } from 'constants/layer/pwh'
-import { WSH_HEATMAP, WSH_VISIBLE_LAYERS } from 'constants/layer/wsh'
-import { WEATHER_WNI, WEATHER_WNI_VISIBLE_LAYERS } from 'constants/layer/weather_wni'
+import { WIND, PSWH, PWH, WSH, WEATHER_WNI } from 'constants/layer/names'
+import { PSWH_VISIBLE_LAYERS } from 'constants/layer/pswh'
+import { PWH_VISIBLE_LAYERS } from 'constants/layer/pwh'
+import { WSH_VISIBLE_LAYERS } from 'constants/layer/wsh'
+import { WEATHER_WNI_VISIBLE_LAYERS } from 'constants/layer/weather_wni'
 
 import { deviceType } from 'lib/device'
 
 export function getVisibleLayerList(name: string): string[] {
   switch (name) {
     case WIND: return WIND_VISIBLE_LAYERS as string[]
-    case PSWH_HEATMAP: return PSWH_VISIBLE_LAYERS as string[]
-    case PWH_HEATMAP: return PWH_VISIBLE_LAYERS as string[]
-    case WSH_HEATMAP: return WSH_VISIBLE_LAYERS as string[]
+    case PSWH: return PSWH_VISIBLE_LAYERS as string[]
+    case PWH: return PWH_VISIBLE_LAYERS as string[]
+    case WSH: return WSH_VISIBLE_LAYERS as string[]
     case WEATHER_WNI: return WEATHER_WNI_VISIBLE_LAYERS as string[]
 
     default: return WIND_VISIBLE_LAYERS as string[]
