@@ -33,17 +33,20 @@ export const WIND_BARBS = 'wind-barbs'
 export const WIND_DIRECTION_HEATMAP = 'wind-direction-heatmap'
 export const WIND_HEATMAP = 'wind-heatmap'
 export const WIND_TOOLTIP = 'wind-tooltip'
+export const WIND_CROWDSOURCED_UV = 'wind_crowdsourced_uv'
 
 export const WIND_LAYER_KEYS = {
   WIND,
   WIND_BARBS,
   WIND_DIRECTION_HEATMAP,
   WIND_HEATMAP,
-  WIND_TOOLTIP
+  WIND_TOOLTIP,
+  WIND_CROWDSOURCED_UV
 }
 
 export const WIND_VISIBLE_LAYERS = [
   WIND,
+  WIND_CROWDSOURCED_UV,
   WIND_BARBS,
   WIND_HEATMAP,
   WIND_TOOLTIP
@@ -53,7 +56,8 @@ export const WIND_INITIAL_LAYERS_STATE: LayersState = {
   [WIND]: undefined,
   [WIND_BARBS]: undefined,
   [WIND_DIRECTION_HEATMAP]: undefined,
-  [WIND_HEATMAP]: undefined
+  [WIND_HEATMAP]: undefined,
+  [WIND_CROWDSOURCED_UV]: undefined
 }
 
 export const LAYERS_MENU_LIST = [
@@ -156,6 +160,25 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
     clipBounds: BASE.CLIP_BOUNDS,
     getPolygonOffset: () => [0, -1000],
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
+  }),
+
+  new WeatherLayers.ParticleLayer({
+    id: WIND_LAYER_KEYS.WIND_CROWDSOURCED_UV,
+    image: layersState[WIND_LAYER_KEYS.WIND_CROWDSOURCED_UV as LayerKey],
+    imageType: 'VECTOR',
+    imageUnscale: BASE.IMAGE_UNSCALE,
+    bounds: BASE.WIND_MAP_BOUNDS,
+    numParticles: setParticlesNumbersByDeviceType(),
+    color: [255, 40, 40],
+    maxAge: 70,
+    speedFactor: 20,
+    width: setParticleWidthByDevice(),
+    opacity: 0.4,
+    animate: true,
+    extensions: [new ClipExtension()],
+    clipBounds: BASE.CLIP_BOUNDS,
+    getPolygonOffset: () => [0, -900],
+    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   })
 ]
 
@@ -163,6 +186,7 @@ export const windTimelineFiles = {
   windMap: createTimelineLayerFileByGroup(WIND_NAME, WIND_FILES.WINDMAP),
   windDirectionHeatmap: createTimelineLayerFileByGroup(WIND_NAME, WIND_FILES.DIRECTION_HEATMAP),
   windHeatmap: createTimelineLayerFileByGroup(WIND_NAME, WIND_FILES.HEATMAP),
+  windCrowdsourcedUv: createTimelineLayerFileByGroup(WIND_NAME, WIND_FILES.CROWDSOURCED_UV),
   datetime: createTimelineDatetimes()
 }
 
@@ -189,22 +213,24 @@ export async function getWindLayersData(timelineIndex: number = 0): Promise<Laye
     const [
       windData,
       windDirectionHeatmapData,
-      windHeatmapData
+      windHeatmapData,
+      crowdsourcedWindUvData
     ] = await Promise.all([
       handleImageDataLoad(windTimelineFiles.windMap[timelineIndex]),
       handleImageDataLoad(windTimelineFiles.windDirectionHeatmap[timelineIndex]),
-      handleImageDataLoad(windTimelineFiles.windHeatmap[timelineIndex])
+      handleImageDataLoad(windTimelineFiles.windHeatmap[timelineIndex]),
+      handleImageDataLoad(windTimelineFiles.windCrowdsourcedUv[timelineIndex])
     ])
 
     const result = {
       [WIND_LAYER_KEYS.WIND]: windData,
       [WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP]: windDirectionHeatmapData,
       [WIND_LAYER_KEYS.WIND_HEATMAP]: windHeatmapData,
-      [WIND_LAYER_KEYS.WIND_BARBS]: windData
+      [WIND_LAYER_KEYS.WIND_BARBS]: windData,
+      [WIND_LAYER_KEYS.WIND_CROWDSOURCED_UV]: crowdsourcedWindUvData
     }
 
     windCache.set(timelineIndex, result)
-
     return result
 
   } catch (e) {

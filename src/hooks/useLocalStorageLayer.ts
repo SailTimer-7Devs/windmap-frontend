@@ -4,7 +4,10 @@ import React from 'react'
 
 import {
   WIND_HEATMAP,
-  WIND_DIRECTION_HEATMAP
+  WIND_DIRECTION_HEATMAP,
+  WIND_CROWDSOURCED_UV,
+  WIND,
+  WIND_TOOLTIP
 } from 'constants/layer/wind'
 import {
   WEATHER_WNI_SIGWH_HEATMAP,
@@ -33,34 +36,21 @@ const EXCLUSIVE_GROUPS = [
   WEATHER_WNI_LAYER_LIST
 ]
 
+const WIND_LAYER_GROUP = [WIND, WIND_CROWDSOURCED_UV]
+
 const MULTIPLE_GROUPS = [
   WEATHER_WNI_SIGWH_GROUP,
   WEATHER_WNI_OCEAN_GROUP,
-  WEATHER_WNI_WIND_GROUP
+  WEATHER_WNI_WIND_GROUP,
+  WIND_LAYER_GROUP
 ]
 
-// const WEATHER_WNI_TOGGLE_GROUPS = [WEATHER_WNI_PSWH_GROUP, WEATHER_WNI_PWH_GROUP]
-
-// const toggleGroup = (list: string[], item: string, group: string[]) => {
-//   const hasCommon = list.some(i => group.includes(i))
-
-//   return list.includes(item)
-//     ? list.filter(i => i !== item)
-//     : hasCommon
-//       ? [...list, item]
-//       : [item]
-// }
-
 const applyExclusiveLayers = (list: string[], item: string): string[] => {
-  // for (const group of WEATHER_WNI_TOGGLE_GROUPS) {
-  //   if (group.includes(item)) {
-  //     return toggleGroup(list, item, group)
-  //   }
-  // }
-
   for (const group of MULTIPLE_GROUPS) {
     if (group.includes(item)) {
-      return group
+      return WIND_LAYER_GROUP.includes(item)
+        ? [...new Set([...list, ...group, WIND_TOOLTIP])]
+        : group
     }
   }
 
@@ -145,11 +135,16 @@ function useLocalStorageLayer<T extends { name: string, list: string[] }>(
     setValue(prev => {
       const isActive = prev.list.includes(item)
       if (isActive) {
-        /* Standard toggle behavior for items */
-        return {
-          ...prev,
-          list: prev.list.filter(i => i !== item)
-        }
+        return WIND_LAYER_GROUP.includes(item)
+          ? {
+            ...prev,
+            list: prev.list.filter(x => !WIND_LAYER_GROUP.includes(x))
+          }
+          : {
+            ...prev,
+            list: prev.list.filter(i => i !== item)
+            /* Standard toggle behavior for items */
+          }
       } else {
         /* Logic for mutually exclusion layers */
         const newList = applyExclusiveLayers(prev.list, item)
