@@ -62,6 +62,8 @@ interface DeckGLOverlayHoverEventProps extends PickingInfo {
   raster?: RasterPointProperties
 }
 
+const API_URL = import.meta.env.VITE_API_URL
+
 function Mapbox(): ReactElement {
   const layerName = getUrlParams()
   const visibleList = getVisibleLayerList(layerName)
@@ -85,7 +87,7 @@ function Mapbox(): ReactElement {
     directionLabel?: number | string
   } | null>(null)
   const [pointsCount, setPointsCount] = React.useState(0)
-  
+
   const storageLayerValue = { name: layerName, list: visibleList }
 
   const {
@@ -221,19 +223,24 @@ function Mapbox(): ReactElement {
   }, [isWindLayer])
 
   const sendBounds = React.useCallback(async (map: MapRef) => {
+    if (!API_URL) throw new Error('Missing env variables: API_URL')
+
     const bounds = map.getBounds()
     if (!bounds) return
-    const north = clampLat(bounds.getNorth())
-    const south = clampLat(bounds.getSouth())
-    const east = clampLng(bounds.getEast())
-    const west = clampLng(bounds.getWest())
 
-    const url =
-      'https://dev-api.sailtimer.info/crowdsourced/count' +
-      `?north=${north}` +
-      `&south=${south}` +
-      `&east=${east}` +
-      `&west=${west}`
+    const north = clampLat(bounds.getNorth()).toString()
+    const south = clampLat(bounds.getSouth()).toString()
+    const east = clampLng(bounds.getEast()).toString()
+    const west = clampLng(bounds.getWest()).toString()
+
+    const params = new URLSearchParams({
+      north,
+      south,
+      east,
+      west
+    })
+
+    const url = `${API_URL}/crowdsourced/count?${params}`
 
     const response = await fetch(url)
     const data = await response.json()
@@ -243,6 +250,7 @@ function Mapbox(): ReactElement {
 
   const handleMoveEnd: MapCallbacks['onMoveEnd'] = () => {
     if (!mapRef.current) return
+
     sendBounds(mapRef.current)
   }
 
