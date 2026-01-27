@@ -39,7 +39,7 @@ const DropdownMenu = ({ caption, options, isSubmenuOpen, submenuAnchor }: Dropdo
             </p>
 
             {hint && (
-              <span className='text-xs text-white/60'>
+              <span className='text-xs text-white/60 text-start'>
                 {hint}
               </span>
             )}
