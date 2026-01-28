@@ -10,7 +10,8 @@ const BrandMenu = (): ReactElement => {
   const { signOut } = useAuthStore()
   const logoutItem = {
     label: 'Log out',
-    onClick: signOut
+    onClick: signOut,
+    isLogout: true
   }
 
   return (

@@ -11,13 +11,13 @@ export default [
     hint: '(tap & hold)'
   },
   {
-    label: 'Red particles',
+    label: '',
     href: '',
-    hint: 'Actual crowdsourced wind measurements from users, given the satellite forecast in that location.'
+    hint: 'Red particles: Actual crowdsourced wind measurements from users, given the satellite forecast in that location.'
   },
   {
-    label: 'White particles',
+    label: '',
     href: '',
-    hint: 'Low-resolution worldwide GRIB satellite forecast'
+    hint: 'White particles: Low-resolution worldwide GRIB satellite forecast.'
   }
 ]

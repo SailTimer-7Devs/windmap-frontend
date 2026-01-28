@@ -28,12 +28,12 @@ const DropdownMenu = ({ caption, options, isSubmenuOpen, submenuAnchor }: Dropdo
   }
 
   const ItemContent = (props: ItemComponentProps) => {
-    const { icon, label, checked, items, hint } = props
+    const { icon, label, checked, items, hint, isLogout } = props
     return (
       <>
         <div className='flex items-center justify-between w-full'>
           <div className='flex flex-col'>
-            <p className='flex gap-3'>
+            <p className={`flex gap-3 ${isLogout && 'text-red-400 text-[12px]'}`}>
               {icon}
               {label}
             </p>
@@ -53,7 +53,7 @@ const DropdownMenu = ({ caption, options, isSubmenuOpen, submenuAnchor }: Dropdo
     )
   }
 
-  const ItemComponent = ({ close, href, icon, label, checked, onClick, items, hint }: ItemComponentProps) => {
+  const ItemComponent = ({ close, href, icon, label, checked, onClick, items, hint, isLogout }: ItemComponentProps) => {
     if (href) {
       return (
         <a
@@ -85,6 +85,7 @@ const DropdownMenu = ({ caption, options, isSubmenuOpen, submenuAnchor }: Dropdo
             checked={checked}
             items={items}
             hint={hint}
+            isLogout={isLogout}
           />
         </button>
       )
@@ -104,7 +105,7 @@ const DropdownMenu = ({ caption, options, isSubmenuOpen, submenuAnchor }: Dropdo
         anchor='bottom end'
         className='w-66 mt-1 origin-top-right !overflow-visible rounded-xl border border-white/5 bg-gray-800 p-1 text-sm/6 text-white transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0'
       >
-        {options.map(({ label, icon, onClick, href, checked, items, hint }) => {
+        {options.map(({ label, icon, onClick, href, checked, items, hint, isLogout }) => {
           return (
             <MenuItem key={label}>
               {({ close }) => (
@@ -118,6 +119,7 @@ const DropdownMenu = ({ caption, options, isSubmenuOpen, submenuAnchor }: Dropdo
                     onClick={onClick}
                     href={href}
                     hint={hint}
+                    isLogout={isLogout}
                   />
 
                   {isSubmenuOpen && submenuAnchor === label && items && (
@@ -160,6 +162,7 @@ type ItemComponentProps = {
   href?: string
   close?: () => void | ((e: React.MouseEvent<HTMLElement>) => void)
   hint?: string
+  isLogout?: boolean
 }
 
 export default DropdownMenu
