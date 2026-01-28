@@ -33,7 +33,7 @@ const DropdownMenu = ({ caption, options, isSubmenuOpen, submenuAnchor }: Dropdo
       <>
         <div className='flex items-center justify-between w-full'>
           <div className='flex flex-col'>
-            <p className={`flex gap-3 ${isLogout && 'text-red-400 text-[12px]'}`}>
+            <p className={`flex gap-3 ${isLogout && 'text-[12px]'}`}>
               {icon}
               {label}
             </p>
