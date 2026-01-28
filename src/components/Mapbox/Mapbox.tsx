@@ -220,7 +220,7 @@ function Mapbox(): ReactElement {
   return (
     <>
       <div className='absolute top-[10px] right-[10px] z-10 flex gap-2'>
-        <BrandMenu />
+        <BrandMenu isWindLayer={isWindLayer}/>
 
         <LayerListMenu
           menuList={layerMenu}
