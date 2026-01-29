@@ -74,8 +74,6 @@ function Mapbox(): ReactElement {
     datetime: datetimes[0]
   })
   const [unit, setUnit] = React.useState<string>('')
-  const storageLayerValue = { name: layerName, list: visibleList }
-
   const [popoverInfo, setPopoverInfo] = React.useState<{
     x: number
     y: number
@@ -84,6 +82,8 @@ function Mapbox(): ReactElement {
     direction?: number
     directionLabel?: number | string
   } | null>(null)
+
+  const storageLayerValue = { name: layerName, list: visibleList }
 
   const {
     value: storageLayer,
@@ -220,7 +220,7 @@ function Mapbox(): ReactElement {
   return (
     <>
       <div className='absolute top-[10px] right-[10px] z-10 flex gap-2'>
-        <BrandMenu />
+        <BrandMenu isWindLayer={isWindLayer}/>
 
         <LayerListMenu
           menuList={layerMenu}
@@ -242,6 +242,7 @@ function Mapbox(): ReactElement {
         mapboxAccessToken={BASE.MAPBOX_ACCESS_TOKEN}
         mapStyle={BASE.BASEMAP_VECTOR_STYLE_URL}
         initialViewState={BASE.INITIAL_VIEW_STATE}
+        renderWorldCopies={false}
       >
         <GeolocateControl
           {...BASE.MAP_VIEW_CONTROLS_PROPS}
@@ -257,7 +258,7 @@ function Mapbox(): ReactElement {
           position='bottom-right'
         />
 
-        {visibilityTimelineControl &&
+        {visibilityTimelineControl && (
           <TimelineControl
             datetimes={datetimes}
             datetime={timeline.datetime}
@@ -265,7 +266,7 @@ function Mapbox(): ReactElement {
             onPreload={getTimelinePreload}
             fps={2}
           />
-        }
+        )}
 
         {hasTooltip && (
           isMobile && popoverInfo

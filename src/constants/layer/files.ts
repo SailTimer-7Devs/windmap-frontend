@@ -1,7 +1,8 @@
 export const WIND_FILES = {
   WINDMAP: 'wind_data.png',
   HEATMAP: 'wind_data_heatmap.png',
-  DIRECTION_HEATMAP: 'wind_data_direction_heatmap.png'
+  DIRECTION_HEATMAP: 'wind_data_direction_heatmap.png',
+  CROWDSOURCED_UV: 'wind_data_crowdsourced.png'
 }
 
 export const WNI_PSWH_FILES = {

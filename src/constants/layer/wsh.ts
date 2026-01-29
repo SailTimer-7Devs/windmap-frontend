@@ -22,7 +22,7 @@ import {
 import { WSH as WSH_NAME } from './names'
 import { WNI_WSH_FILES } from './files'
 
-export const WSH_HEATMAP = WSH_NAME
+export const WSH_HEATMAP = 'wsh-heatmap'
 export const WSH_UV = 'wsh-uv'
 
 export const WSH_LAYER_KEYS = {
