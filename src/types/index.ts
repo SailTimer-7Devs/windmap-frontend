@@ -76,13 +76,12 @@ export type DropdownMenuProps = {
   isSubmenuOpen?: boolean
   submenuAnchor?: string | null
   options: {
-    label: string
+    label?: string
     hint?: string
     icon?: ReactElement
     onClick?: () => void
     href?: string
     checked?: boolean,
-    isLogout?: boolean
     items?: {
       label: string
       icon?: ReactElement

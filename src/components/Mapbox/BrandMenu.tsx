@@ -10,9 +10,8 @@ import { useAuthStore } from 'store/auth'
 const BrandMenu = ({ isWindLayer }: { isWindLayer: boolean }): ReactElement => {
   const { signOut } = useAuthStore()
   const logoutItem = {
-    label: 'Log out',
-    onClick: signOut,
-    isLogout: true
+    hint: 'Log out',
+    onClick: signOut
   }
 
   const brandMenuOptions = [
