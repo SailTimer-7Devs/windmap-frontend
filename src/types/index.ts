@@ -17,7 +17,7 @@ export type MapViewState = {
 
 export type LayerKey =
   /* WIND */
-  | typeof WIND_LAYER_KEYS.WIND
+  | typeof WIND_LAYER_KEYS.WIND_ANIMATION
   | typeof WIND_LAYER_KEYS.WIND_HEATMAP
   | typeof WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP
   | typeof WIND_LAYER_KEYS.WIND_BARBS

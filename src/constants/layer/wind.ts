@@ -28,24 +28,26 @@ import {
 import { WIND as WIND_NAME } from './names'
 import { WIND_FILES } from './files'
 
-export const WIND = 'wind-animation'
+export const WIND_ANIMATION = 'wind-animation'
 export const WIND_BARBS = 'wind-barbs'
 export const WIND_DIRECTION_HEATMAP = 'wind-direction-heatmap'
 export const WIND_HEATMAP = 'wind-heatmap'
 export const WIND_TOOLTIP = 'wind-tooltip'
 export const WIND_CROWDSOURCED_UV = 'wind_crowdsourced_uv'
+export const WIND_CROWDSOURCED_BARBS = 'wind_crowdsourced_barbs'
 
 export const WIND_LAYER_KEYS = {
-  WIND,
+  WIND_ANIMATION,
   WIND_BARBS,
   WIND_DIRECTION_HEATMAP,
   WIND_HEATMAP,
   WIND_TOOLTIP,
-  WIND_CROWDSOURCED_UV
+  WIND_CROWDSOURCED_UV,
+  WIND_CROWDSOURCED_BARBS
 }
 
 export const WIND_VISIBLE_LAYERS = [
-  WIND,
+  WIND_ANIMATION,
   WIND_CROWDSOURCED_UV,
   WIND_BARBS,
   WIND_HEATMAP,
@@ -53,7 +55,7 @@ export const WIND_VISIBLE_LAYERS = [
 ]
 
 export const WIND_INITIAL_LAYERS_STATE: LayersState = {
-  [WIND]: undefined,
+  [WIND_ANIMATION]: undefined,
   [WIND_BARBS]: undefined,
   [WIND_DIRECTION_HEATMAP]: undefined,
   [WIND_HEATMAP]: undefined,
@@ -68,7 +70,7 @@ export const LAYERS_MENU_LIST = [
   },
 
   {
-    id: WIND,
+    id: WIND_ANIMATION,
     name: 'Wind Animation',
     icon: WindAnimationIcon
   },
@@ -117,7 +119,7 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
   //for tooltip
   new WeatherLayers.RasterLayer({
     id: WIND_LAYER_KEYS.WIND_TOOLTIP,
-    image: layersState[WIND_LAYER_KEYS.WIND as LayerKey],
+    image: layersState[WIND_LAYER_KEYS.WIND_ANIMATION as LayerKey],
     imageType: 'VECTOR',
     imageUnscale: [-128, 127],
     bounds: BASE.WIND_MAP_BOUNDS,
@@ -144,9 +146,23 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
     clipBounds: BASE.CLIP_BOUNDS
   }),
 
+  new WeatherLayers.GridLayer({
+    id: WIND_LAYER_KEYS.WIND_CROWDSOURCED_BARBS,
+    image: layersState[WIND_LAYER_KEYS.WIND_CROWDSOURCED_BARBS as LayerKey],
+    bounds: BASE.WIND_MAP_BOUNDS,
+    imageUnscale: BASE.IMAGE_UNSCALE,
+    density: -0.5,
+    iconSize: 50,
+    imageType: 'VECTOR',
+    color: [255, 255, 255, 200],
+    extensions: [new ClipExtension()],
+    style: WeatherLayers.GridStyle.WIND_BARB,
+    clipBounds: BASE.CLIP_BOUNDS
+  }),
+
   new WeatherLayers.ParticleLayer({
-    id: WIND_LAYER_KEYS.WIND,
-    image: layersState[WIND_LAYER_KEYS.WIND as LayerKey],
+    id: WIND_LAYER_KEYS.WIND_ANIMATION,
+    image: layersState[WIND_LAYER_KEYS.WIND_ANIMATION as LayerKey],
     imageType: 'VECTOR',
     imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
@@ -223,7 +239,7 @@ export async function getWindLayersData(timelineIndex: number = 0): Promise<Laye
     ])
 
     const result = {
-      [WIND_LAYER_KEYS.WIND]: windData,
+      [WIND_LAYER_KEYS.WIND_ANIMATION]: windData,
       [WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP]: windDirectionHeatmapData,
       [WIND_LAYER_KEYS.WIND_HEATMAP]: windHeatmapData,
       [WIND_LAYER_KEYS.WIND_BARBS]: windData,

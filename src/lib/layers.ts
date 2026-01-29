@@ -58,7 +58,7 @@ const LAYERS_CONFIG: Record<string, LayersConfig> = {
 }
 
 export function getLayersConfig(layerName: string): LayersConfig {
-  return LAYERS_CONFIG[layerName] || LAYERS_CONFIG[windLayer.WIND]
+  return LAYERS_CONFIG[layerName] || LAYERS_CONFIG[windLayer.WIND_ANIMATION]
 }
 
 export async function preloadLayersData(
