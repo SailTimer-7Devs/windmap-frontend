@@ -49,6 +49,7 @@ export const WIND_LAYER_KEYS = {
 export const WIND_VISIBLE_LAYERS = [
   WIND_ANIMATION,
   WIND_CROWDSOURCED_UV,
+  WIND_CROWDSOURCED_BARBS,
   WIND_BARBS,
   WIND_HEATMAP,
   WIND_TOOLTIP
@@ -59,7 +60,8 @@ export const WIND_INITIAL_LAYERS_STATE: LayersState = {
   [WIND_BARBS]: undefined,
   [WIND_DIRECTION_HEATMAP]: undefined,
   [WIND_HEATMAP]: undefined,
-  [WIND_CROWDSOURCED_UV]: undefined
+  [WIND_CROWDSOURCED_UV]: undefined,
+  [WIND_CROWDSOURCED_BARBS]: undefined
 }
 
 export const LAYERS_MENU_LIST = [
@@ -140,7 +142,6 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
     density: -0.5,
     iconSize: 50,
     imageType: 'VECTOR',
-    color: [255, 255, 255, 200],
     extensions: [new ClipExtension()],
     style: WeatherLayers.GridStyle.WIND_BARB,
     clipBounds: BASE.CLIP_BOUNDS
@@ -151,12 +152,13 @@ export const getWindLayers = (layersState: LayersState): Layer[] => [
     image: layersState[WIND_LAYER_KEYS.WIND_CROWDSOURCED_BARBS as LayerKey],
     bounds: BASE.WIND_MAP_BOUNDS,
     imageUnscale: BASE.IMAGE_UNSCALE,
-    density: -0.5,
-    iconSize: 50,
+    density: -1,
+    iconSize: 36,
     imageType: 'VECTOR',
-    color: [255, 255, 255, 200],
+    iconColor: [255, 40, 40, 255],
     extensions: [new ClipExtension()],
     style: WeatherLayers.GridStyle.WIND_BARB,
+    getPolygonOffset: () => [0, -1000],
     clipBounds: BASE.CLIP_BOUNDS
   }),
 
@@ -243,7 +245,8 @@ export async function getWindLayersData(timelineIndex: number = 0): Promise<Laye
       [WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP]: windDirectionHeatmapData,
       [WIND_LAYER_KEYS.WIND_HEATMAP]: windHeatmapData,
       [WIND_LAYER_KEYS.WIND_BARBS]: windData,
-      [WIND_LAYER_KEYS.WIND_CROWDSOURCED_UV]: crowdsourcedWindUvData
+      [WIND_LAYER_KEYS.WIND_CROWDSOURCED_UV]: crowdsourcedWindUvData,
+      [WIND_LAYER_KEYS.WIND_CROWDSOURCED_BARBS]: crowdsourcedWindUvData
     }
 
     windCache.set(timelineIndex, result)
