@@ -13,13 +13,9 @@ export default [
 
 export const particlesExplanations = [
   {
-    label: '',
-    href: '',
-    hint: 'Red particles: Actual crowdsourced wind measurements from users, given the satellite forecast in that location.'
+    hint: 'Pink particles: Actual crowdsourced wind measurements from users, given the satellite forecast in that location.'
   },
   {
-    label: '',
-    href: '',
     hint: 'White particles: Low-resolution worldwide GRIB satellite forecast.'
   }
 ]
