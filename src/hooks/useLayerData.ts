@@ -12,7 +12,8 @@ interface LayerState {
 
 export default function useLayerData(
   name: string,
-  timelineIndex: number = 0
+  timelineIndex: number = 0,
+  zoom?: number
 ): LayerState {
   const [layerState, setLayerState] = React.useState<LayerState>({
     layerList: [],
@@ -32,7 +33,7 @@ export default function useLayerData(
 
         if (!isCancelled) {
           setLayerState({
-            layerList: config.getLayersFn(layersState),
+            layerList: config.getLayersFn(layersState, zoom),
             layerMenu: config.module.LAYERS_MENU_LIST
           })
         }
@@ -47,7 +48,7 @@ export default function useLayerData(
       isCancelled = true
     }
 
-  }, [name, timelineIndex])
+  }, [name, timelineIndex, zoom])
 
   return {
     layerList: layerState.layerList,

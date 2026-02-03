@@ -17,7 +17,7 @@ interface LayersConfig {
   name: string
   module: LayerModule
   getDataFn: (timelineIndex: number) => Promise<LayersState>
-  getLayersFn: (state: LayersState) => Layer[]
+  getLayersFn: (state: LayersState, zoom?: number) => Layer[]
 }
 
 const LAYERS_CONFIG: Record<string, LayersConfig> = {

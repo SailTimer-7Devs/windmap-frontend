@@ -24,6 +24,7 @@ import {
   createTimelineLayerFileByGroup,
   createTimelineDatetimes
 } from 'lib/timeline'
+import { getDensity, getNumParticles } from 'lib/wind'
 
 import { WIND as WIND_NAME } from './names'
 import { WIND_FILES } from './files'
@@ -90,115 +91,119 @@ export const LAYERS_MENU_LIST = [
   }
 ]
 
-export const getWindLayers = (layersState: LayersState): Layer[] => [
-  new WeatherLayers.RasterLayer({
-    id: WIND_LAYER_KEYS.WIND_HEATMAP,
-    image: layersState[WIND_LAYER_KEYS.WIND_HEATMAP as LayerKey],
-    imageType: 'SCALAR',
-    bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.WIND_SPEED_PALETTE_1_40 as Palette,
-    opacity: 0.2,
-    imageUnscale: [0, 255],
-    extensions: [new ClipExtension()],
-    clipBounds: BASE.CLIP_BOUNDS,
-    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
-  }),
+export const getWindLayers = (layersState: LayersState, zoom: number = 0): Layer[] => {
+  console.log({ zoom, particles: getNumParticles(zoom), density: getDensity(zoom) })
+  return [
+    new WeatherLayers.RasterLayer({
+      id: WIND_LAYER_KEYS.WIND_HEATMAP,
+      image: layersState[WIND_LAYER_KEYS.WIND_HEATMAP as LayerKey],
+      imageType: 'SCALAR',
+      bounds: BASE.WIND_MAP_BOUNDS,
+      palette: BASE.WIND_SPEED_PALETTE_1_40 as Palette,
+      opacity: 0.2,
+      imageUnscale: [0, 255],
+      extensions: [new ClipExtension()],
+      clipBounds: BASE.CLIP_BOUNDS,
+      beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
+    }),
 
-  new WeatherLayers.RasterLayer({
-    id: WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP,
-    image: layersState[WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP as LayerKey],
-    imageType: 'SCALAR',
-    bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.EXPERIMENTAL_WIND_PALETTE_0_16 as Palette,
-    imageInterpolation: 'NEAREST',
-    opacity: 0.2,
-    imageUnscale: [0, 16],
-    extensions: [new ClipExtension()],
-    clipBounds: BASE.CLIP_BOUNDS,
-    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
-  }),
+    new WeatherLayers.RasterLayer({
+      id: WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP,
+      image: layersState[WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP as LayerKey],
+      imageType: 'SCALAR',
+      bounds: BASE.WIND_MAP_BOUNDS,
+      palette: BASE.EXPERIMENTAL_WIND_PALETTE_0_16 as Palette,
+      imageInterpolation: 'NEAREST',
+      opacity: 0.2,
+      imageUnscale: [0, 16],
+      extensions: [new ClipExtension()],
+      clipBounds: BASE.CLIP_BOUNDS,
+      beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
+    }),
 
-  //for tooltip
-  new WeatherLayers.RasterLayer({
-    id: WIND_LAYER_KEYS.WIND_TOOLTIP,
-    image: layersState[WIND_LAYER_KEYS.WIND_ANIMATION as LayerKey],
-    imageType: 'VECTOR',
-    imageUnscale: [-128, 127],
-    bounds: BASE.WIND_MAP_BOUNDS,
-    palette: BASE.WIND_SPEED_PALETTE_1_40 as Palette,
-    imageInterpolation: 'CUBIC',
-    opacity: 0,
-    pickable: true,
-    extensions: [new ClipExtension()],
-    clipBounds: BASE.CLIP_BOUNDS,
-    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
-  }),
+    //for tooltip
+    new WeatherLayers.RasterLayer({
+      id: WIND_LAYER_KEYS.WIND_TOOLTIP,
+      image: layersState[WIND_LAYER_KEYS.WIND_ANIMATION as LayerKey],
+      imageType: 'VECTOR',
+      imageUnscale: [-128, 127],
+      bounds: BASE.WIND_MAP_BOUNDS,
+      palette: BASE.WIND_SPEED_PALETTE_1_40 as Palette,
+      imageInterpolation: 'CUBIC',
+      opacity: 0,
+      pickable: true,
+      extensions: [new ClipExtension()],
+      clipBounds: BASE.CLIP_BOUNDS,
+      beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
+    }),
 
-  new WeatherLayers.GridLayer({
-    id: WIND_LAYER_KEYS.WIND_BARBS,
-    image: layersState[WIND_LAYER_KEYS.WIND_BARBS as LayerKey],
-    bounds: BASE.WIND_MAP_BOUNDS,
-    imageUnscale: BASE.IMAGE_UNSCALE,
-    density: -1.8,
-    iconSize: 50,
-    imageType: 'VECTOR',
-    extensions: [new ClipExtension()],
-    style: WeatherLayers.GridStyle.WIND_BARB,
-    clipBounds: BASE.CLIP_BOUNDS
-  }),
+    new WeatherLayers.GridLayer({
+      id: WIND_LAYER_KEYS.WIND_BARBS,
+      image: layersState[WIND_LAYER_KEYS.WIND_BARBS as LayerKey],
+      bounds: BASE.WIND_MAP_BOUNDS,
+      imageUnscale: BASE.IMAGE_UNSCALE,
+      density: getDensity(zoom),
+      iconSize: 50,
+      imageType: 'VECTOR',
+      extensions: [new ClipExtension()],
+      style: WeatherLayers.GridStyle.WIND_BARB,
+      clipBounds: BASE.CLIP_BOUNDS
+    }),
 
-  new WeatherLayers.GridLayer({
-    id: WIND_LAYER_KEYS.WIND_CROWDSOURCED_BARBS,
-    image: layersState[WIND_LAYER_KEYS.WIND_CROWDSOURCED_BARBS as LayerKey],
-    bounds: BASE.WIND_MAP_BOUNDS,
-    imageUnscale: BASE.IMAGE_UNSCALE,
-    density: -0.8,
-    iconSize: 36,
-    imageType: 'VECTOR',
-    iconColor: [255, 40, 40, 255],
-    extensions: [new ClipExtension()],
-    style: WeatherLayers.GridStyle.WIND_BARB,
-    getPolygonOffset: () => [0, -1000],
-    clipBounds: BASE.CLIP_BOUNDS
-  }),
+    new WeatherLayers.GridLayer({
+      id: WIND_LAYER_KEYS.WIND_CROWDSOURCED_BARBS,
+      image: layersState[WIND_LAYER_KEYS.WIND_CROWDSOURCED_BARBS as LayerKey],
+      bounds: BASE.WIND_MAP_BOUNDS,
+      imageUnscale: BASE.IMAGE_UNSCALE,
+      density: -0.8,
+      iconSize: 36,
+      imageType: 'VECTOR',
+      iconColor: [255, 40, 40, 255],
+      extensions: [new ClipExtension()],
+      style: WeatherLayers.GridStyle.WIND_BARB,
+      getPolygonOffset: () => [0, -1000],
+      clipBounds: BASE.CLIP_BOUNDS
+    }),
 
-  new WeatherLayers.ParticleLayer({
-    id: WIND_LAYER_KEYS.WIND_ANIMATION,
-    image: layersState[WIND_LAYER_KEYS.WIND_ANIMATION as LayerKey],
-    imageType: 'VECTOR',
-    imageUnscale: BASE.IMAGE_UNSCALE,
-    bounds: BASE.WIND_MAP_BOUNDS,
-    numParticles: Math.floor(setParticlesNumbersByDeviceType() * 0.25),
-    maxAge: 60,
-    speedFactor: 20,
-    width: setParticleWidthByDevice(),
-    opacity: 0.1,
-    animate: true,
-    extensions: [new ClipExtension()],
-    clipBounds: BASE.CLIP_BOUNDS,
-    getPolygonOffset: () => [0, -1000],
-    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
-  }),
+    new WeatherLayers.ParticleLayer({
+      id: WIND_LAYER_KEYS.WIND_ANIMATION,
+      image: layersState[WIND_LAYER_KEYS.WIND_ANIMATION as LayerKey],
+      imageType: 'VECTOR',
+      imageUnscale: BASE.IMAGE_UNSCALE,
+      bounds: BASE.WIND_MAP_BOUNDS,
+      // numParticles: Math.floor(setParticlesNumbersByDeviceType() * 0.25),
+      numParticles: getNumParticles(zoom),
+      maxAge: 60,
+      speedFactor: 20,
+      width: setParticleWidthByDevice(),
+      opacity: 0.1,
+      animate: true,
+      extensions: [new ClipExtension()],
+      clipBounds: BASE.CLIP_BOUNDS,
+      getPolygonOffset: () => [0, -1000],
+      beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
+    }),
 
-  new WeatherLayers.ParticleLayer({
-    id: WIND_LAYER_KEYS.WIND_CROWDSOURCED_UV,
-    image: layersState[WIND_LAYER_KEYS.WIND_CROWDSOURCED_UV as LayerKey],
-    imageType: 'VECTOR',
-    imageUnscale: BASE.IMAGE_UNSCALE,
-    bounds: BASE.WIND_MAP_BOUNDS,
-    numParticles: setParticlesNumbersByDeviceType(),
-    color: [255, 40, 40],
-    maxAge: 70,
-    speedFactor: 20,
-    width: setParticleWidthByDevice(),
-    opacity: 0.4,
-    animate: true,
-    extensions: [new ClipExtension()],
-    clipBounds: BASE.CLIP_BOUNDS,
-    getPolygonOffset: () => [0, -900],
-    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
-  })
-]
+    new WeatherLayers.ParticleLayer({
+      id: WIND_LAYER_KEYS.WIND_CROWDSOURCED_UV,
+      image: layersState[WIND_LAYER_KEYS.WIND_CROWDSOURCED_UV as LayerKey],
+      imageType: 'VECTOR',
+      imageUnscale: BASE.IMAGE_UNSCALE,
+      bounds: BASE.WIND_MAP_BOUNDS,
+      numParticles: setParticlesNumbersByDeviceType(),
+      color: [255, 40, 40],
+      maxAge: 70,
+      speedFactor: 20,
+      width: setParticleWidthByDevice(),
+      opacity: 0.4,
+      animate: true,
+      extensions: [new ClipExtension()],
+      clipBounds: BASE.CLIP_BOUNDS,
+      getPolygonOffset: () => [0, -900],
+      beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
+    })
+  ]
+}
 
 export const windTimelineFiles = {
   windMap: createTimelineLayerFileByGroup(WIND_NAME, WIND_FILES.WINDMAP),

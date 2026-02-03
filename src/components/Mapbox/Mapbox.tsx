@@ -82,6 +82,7 @@ function Mapbox(): ReactElement {
     direction?: number
     directionLabel?: number | string
   } | null>(null)
+  const [zoom, setZoom] = React.useState(BASE.INITIAL_VIEW_STATE.zoom)
 
   const storageLayerValue = { name: layerName, list: visibleList }
 
@@ -91,7 +92,7 @@ function Mapbox(): ReactElement {
     toggle
   } = useLocalStorageLayer(STORAGE_LAYER_KEY, storageLayerValue)
 
-  const { layerList, layerMenu } = useLayerData(storageLayer.name, timeline.index)
+  const { layerList, layerMenu } = useLayerData(storageLayer.name, timeline.index, zoom)
   const { getTimelinePreload } = useTimelinePreload(storageLayer.name, datetimes)
 
   const isWniWindLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV)
@@ -243,6 +244,7 @@ function Mapbox(): ReactElement {
         mapStyle={BASE.BASEMAP_VECTOR_STYLE_URL}
         initialViewState={BASE.INITIAL_VIEW_STATE}
         renderWorldCopies={false}
+        onMove={(evt) => setZoom(evt.viewState.zoom)}
       >
         <GeolocateControl
           {...BASE.MAP_VIEW_CONTROLS_PROPS}
