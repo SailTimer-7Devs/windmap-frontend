@@ -35,7 +35,6 @@ export const WIND_DIRECTION_HEATMAP = 'wind-direction-heatmap'
 export const WIND_HEATMAP = 'wind-heatmap'
 export const WIND_TOOLTIP = 'wind-tooltip'
 export const WIND_CROWDSOURCED_UV = 'wind_crowdsourced_uv'
-export const WIND_CROWDSOURCED_BARBS = 'wind_crowdsourced_barbs'
 
 export const WIND_LAYER_KEYS = {
   WIND_ANIMATION,
@@ -43,14 +42,12 @@ export const WIND_LAYER_KEYS = {
   WIND_DIRECTION_HEATMAP,
   WIND_HEATMAP,
   WIND_TOOLTIP,
-  WIND_CROWDSOURCED_UV,
-  WIND_CROWDSOURCED_BARBS
+  WIND_CROWDSOURCED_UV
 }
 
 export const WIND_VISIBLE_LAYERS = [
   WIND_ANIMATION,
   WIND_CROWDSOURCED_UV,
-  WIND_CROWDSOURCED_BARBS,
   WIND_BARBS,
   WIND_HEATMAP,
   WIND_TOOLTIP
@@ -61,8 +58,7 @@ export const WIND_INITIAL_LAYERS_STATE: LayersState = {
   [WIND_BARBS]: undefined,
   [WIND_DIRECTION_HEATMAP]: undefined,
   [WIND_HEATMAP]: undefined,
-  [WIND_CROWDSOURCED_UV]: undefined,
-  [WIND_CROWDSOURCED_BARBS]: undefined
+  [WIND_CROWDSOURCED_UV]: undefined
 }
 
 export const LAYERS_MENU_LIST = [
@@ -145,21 +141,6 @@ export const getWindLayers = (layersState: LayersState, zoom: number = 0): Layer
     imageType: 'VECTOR',
     extensions: [new ClipExtension()],
     style: WeatherLayers.GridStyle.WIND_BARB,
-    clipBounds: BASE.CLIP_BOUNDS
-  }),
-
-  new WeatherLayers.GridLayer({
-    id: WIND_LAYER_KEYS.WIND_CROWDSOURCED_BARBS,
-    image: layersState[WIND_LAYER_KEYS.WIND_CROWDSOURCED_BARBS as LayerKey],
-    bounds: BASE.WIND_MAP_BOUNDS,
-    imageUnscale: BASE.IMAGE_UNSCALE,
-    density: getDensity(zoom),
-    iconSize: 36,
-    imageType: 'VECTOR',
-    iconColor: [245, 1, 249],
-    extensions: [new ClipExtension()],
-    style: WeatherLayers.GridStyle.WIND_BARB,
-    getPolygonOffset: () => [0, -1000],
     clipBounds: BASE.CLIP_BOUNDS
   }),
 
@@ -246,8 +227,7 @@ export async function getWindLayersData(timelineIndex: number = 0): Promise<Laye
       [WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP]: windDirectionHeatmapData,
       [WIND_LAYER_KEYS.WIND_HEATMAP]: windHeatmapData,
       [WIND_LAYER_KEYS.WIND_BARBS]: windData,
-      [WIND_LAYER_KEYS.WIND_CROWDSOURCED_UV]: crowdsourcedWindUvData,
-      [WIND_LAYER_KEYS.WIND_CROWDSOURCED_BARBS]: crowdsourcedWindUvData
+      [WIND_LAYER_KEYS.WIND_CROWDSOURCED_UV]: crowdsourcedWindUvData
     }
 
     windCache.set(timelineIndex, result)
