@@ -106,7 +106,7 @@ const DropdownMenu = ({ caption, options, isSubmenuOpen, submenuAnchor }: Dropdo
       >
         {options.map(({ label, icon, onClick, href, checked, items, hint }) => {
           return (
-            <MenuItem key={label}>
+            <MenuItem key={label || hint}>
               {({ close }) => (
                 <div className='relative'>
                   <ItemComponent
