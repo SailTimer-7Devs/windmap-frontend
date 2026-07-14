@@ -35,6 +35,7 @@ export const WIND_DIRECTION_HEATMAP = 'wind-direction-heatmap'
 export const WIND_HEATMAP = 'wind-heatmap'
 export const WIND_TOOLTIP = 'wind-tooltip'
 export const WIND_CROWDSOURCED_UV = 'wind_crowdsourced_uv'
+export const WIND_CROWDSOURCED_TOOLTIP = 'wind-crowdsourced-tooltip'
 
 export const WIND_LAYER_KEYS = {
   WIND_ANIMATION,
@@ -42,7 +43,8 @@ export const WIND_LAYER_KEYS = {
   WIND_DIRECTION_HEATMAP,
   WIND_HEATMAP,
   WIND_TOOLTIP,
-  WIND_CROWDSOURCED_UV
+  WIND_CROWDSOURCED_UV,
+  WIND_CROWDSOURCED_TOOLTIP
 }
 
 export const WIND_VISIBLE_LAYERS = [
@@ -50,7 +52,8 @@ export const WIND_VISIBLE_LAYERS = [
   WIND_CROWDSOURCED_UV,
   WIND_BARBS,
   WIND_HEATMAP,
-  WIND_TOOLTIP
+  WIND_TOOLTIP,
+  WIND_CROWDSOURCED_TOOLTIP
 ]
 
 export const WIND_INITIAL_LAYERS_STATE: LayersState = {
@@ -124,6 +127,22 @@ export const getWindLayers = (layersState: LayersState, zoom: number = 0): Layer
     bounds: BASE.WIND_MAP_BOUNDS,
     palette: BASE.WIND_SPEED_PALETTE_1_40 as Palette,
     imageInterpolation: 'CUBIC',
+    opacity: 0,
+    pickable: true,
+    extensions: [new ClipExtension()],
+    clipBounds: BASE.CLIP_BOUNDS,
+    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
+  }),
+
+  //for crowdsourced tooltip, NEAREST to avoid smearing sparse samples into empty texels
+  new WeatherLayers.RasterLayer({
+    id: WIND_LAYER_KEYS.WIND_CROWDSOURCED_TOOLTIP,
+    image: layersState[WIND_LAYER_KEYS.WIND_CROWDSOURCED_UV as LayerKey],
+    imageType: 'VECTOR',
+    imageUnscale: BASE.IMAGE_UNSCALE,
+    bounds: BASE.WIND_MAP_BOUNDS,
+    palette: BASE.WIND_SPEED_PALETTE_1_40 as Palette,
+    imageInterpolation: 'NEAREST',
     opacity: 0,
     pickable: true,
     extensions: [new ClipExtension()],
