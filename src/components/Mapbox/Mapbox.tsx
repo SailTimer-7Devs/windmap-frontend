@@ -132,6 +132,7 @@ function Mapbox(): ReactElement {
   const tooltipControlRef = React.useRef<WeatherLayers.TooltipControl | null>(null)
   const overlayRef = React.useRef<MapboxOverlay | null>(null)
   const popoverRef = React.useRef<HTMLDivElement>(null)
+  const popoverInfoRef = React.useRef<PopoverInfo>(null)
   const [popoverPos, setPopoverPos] = React.useState<{ left: number, top: number } | null>(null)
 
   useUrlChange((url) => {
@@ -241,24 +242,55 @@ function Mapbox(): ReactElement {
     })
   }
 
-  const updateCenterPopover = React.useCallback(() => {
-    if (!isWindLayer || !isMobile || !mapRef.current) return
+  React.useEffect(() => {
+    popoverInfoRef.current = popoverInfo
+  }, [popoverInfo])
+
+  const updateCenterPopover = React.useCallback((): boolean => {
+    if (!isWindLayer || !isMobile || !mapRef.current) return false
+
+    /* A tap fixes the popover to that point ("works as it does now"), so
+       center-tracking must never override it. */
+    if (popoverInfoRef.current?.source === 'tap') return true
+
+    const container = mapRef.current.getContainer()
+    const x = container.clientWidth / 2
+    const y = container.clientHeight / 2
+    const reading = pickWindDataAt(x, y)
 
     setPopoverInfo(prev => {
       if (prev?.source === 'tap') return prev
-
-      const container = mapRef.current!.getContainer()
-      const x = container.clientWidth / 2
-      const y = container.clientHeight / 2
-      const reading = pickWindDataAt(x, y)
-
       return reading ? { kind: 'wind', source: 'center', x, y, ...reading } : null
     })
+
+    return Boolean(reading)
   }, [isWindLayer, pickWindDataAt])
 
+  /* Show the default centered popover as soon as the map is ready. The deck.gl
+     overlay and its raster image data may not be available the instant the map
+     fires `load`, so a single center pick can come back empty; retry briefly
+     until it succeeds (or a tap takes over) so the popover reliably appears on
+     first load without needing a pan. */
   React.useEffect(() => {
-    if (isMapReady) updateCenterPopover()
-  }, [isMapReady, updateCenterPopover])
+    if (!isMapReady || !isWindLayer || !isMobile) return
+
+    let timeoutId = 0
+    const startedAt = Date.now()
+    const RETRY_MS = 150
+    const TIMEOUT_MS = 4000
+
+    const attempt = () => {
+      if (updateCenterPopover()) return
+
+      if (Date.now() - startedAt < TIMEOUT_MS) {
+        timeoutId = window.setTimeout(attempt, RETRY_MS)
+      }
+    }
+
+    attempt()
+
+    return () => window.clearTimeout(timeoutId)
+  }, [isMapReady, isWindLayer, updateCenterPopover])
 
   /* Keep a tapped popover fully inside the map bounds so no line is clipped
      off an edge. Center-anchored popovers are already safely positioned. */
