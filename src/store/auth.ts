@@ -36,6 +36,14 @@ Amplify.configure({
   }
 })
 
+/* Cognito uses the email as a case-sensitive username. Normalize it so that
+   inputs capitalized or space-padded by the client (e.g. iOS Safari auto-
+   capitalizes the first letter of a text field) still match the stored user
+   and don't fail as "Invalid email or password". */
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase()
+}
+
 const messages = {
   signInSuccess: 'You have successfully signed in',
   signInNotConfirmed: 'Account is not confirmed',
@@ -106,7 +114,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   signIn: async (payload: SignInPayload) => {
     try {
       const { isSignedIn, nextStep } = await amplifySignIn({
-        username: payload.email,
+        username: normalizeEmail(payload.email),
         password: payload.password,
         options: {
           authFlowType: 'USER_PASSWORD_AUTH'
@@ -141,7 +149,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   resetPassword: async (payload: ResetPasswordPayload) => {
     try {
-      await resetPassword({ username: payload.email })
+      await resetPassword({ username: normalizeEmail(payload.email) })
     } catch (err) {
       notifyError(messages.resetPasswordError)
       console.error('resetPassword:', err)
@@ -151,10 +159,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
   signUp: async (payload: SignUpPayload) => {
     try {
       await amplifySignUp({
-        username: payload.email,
+        username: normalizeEmail(payload.email),
         options: {
           userAttributes: {
-            email: payload.email
+            email: normalizeEmail(payload.email)
           }
         }
       })
