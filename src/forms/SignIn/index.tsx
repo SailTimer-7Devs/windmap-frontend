@@ -34,6 +34,12 @@ function SignInForm({ children }: PropsWithChildren): ReactElement {
         component={TextField}
         label={fields.email.label}
         name='email'
+        type='email'
+        inputMode='email'
+        autoComplete='email'
+        autoCapitalize='none'
+        autoCorrect='off'
+        spellCheck={false}
         required
       />
 

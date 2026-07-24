@@ -6,6 +6,7 @@ import type {
   MapRef
 } from 'react-map-gl/mapbox'
 import type { DeckProps, PickingInfo } from 'deck.gl'
+import type { MapboxOverlay } from '@deck.gl/mapbox'
 import type { Palette } from 'cpt2js'
 
 import type { RasterPointProperties } from 'weatherlayers-gl'
@@ -44,6 +45,12 @@ import {
   isWeatherWni
 } from 'lib/layer'
 import { convertMetersPerSecondsToKnots } from 'lib/units'
+import {
+  formatRasterPoint,
+  getCircularDirectionDifference,
+  getSpeedDifference
+} from 'lib/wind'
+import type { WindPointReading } from 'lib/wind'
 import { getDateTimeByLayerName } from 'lib/timeline'
 import { setMetaData } from 'lib/meta'
 import { isMobile } from 'lib/device'
@@ -60,6 +67,25 @@ interface DeckGLOverlayHoverEventProps extends PickingInfo {
   raster?: RasterPointProperties
 }
 
+type WindPopoverInfo = {
+  kind: 'wind'
+  source: 'center' | 'tap'
+  x: number
+  y: number
+  grib: WindPointReading
+  crowdsourced?: WindPointReading
+}
+
+type SimplePopoverInfo = {
+  kind: 'simple'
+  source: 'tap'
+  x: number
+  y: number
+  reading: WindPointReading
+}
+
+type PopoverInfo = WindPopoverInfo | SimplePopoverInfo | null
+
 function Mapbox(): ReactElement {
   const layerName = getUrlParams()
   const visibleList = getVisibleLayerList(layerName)
@@ -74,14 +100,7 @@ function Mapbox(): ReactElement {
     datetime: datetimes[0]
   })
   const [unit, setUnit] = React.useState<string>('')
-  const [popoverInfo, setPopoverInfo] = React.useState<{
-    x: number
-    y: number
-    value: number
-    unit: string
-    direction?: number
-    directionLabel?: number | string
-  } | null>(null)
+  const [popoverInfo, setPopoverInfo] = React.useState<PopoverInfo>(null)
   const [zoom, setZoom] = React.useState(BASE.INITIAL_VIEW_STATE.zoom)
 
   const storageLayerValue = { name: layerName, list: visibleList }
@@ -111,6 +130,15 @@ function Mapbox(): ReactElement {
   const mapRef = React.useRef<MapRef>(null)
   const geolocateControlRef = React.useRef<GeolocateControlInstance>(null)
   const tooltipControlRef = React.useRef<WeatherLayers.TooltipControl | null>(null)
+  const overlayRef = React.useRef<MapboxOverlay | null>(null)
+  const popoverRef = React.useRef<HTMLDivElement>(null)
+  const popoverInfoRef = React.useRef<PopoverInfo>(null)
+
+  /* Anchor point (top-left corner of the fixed lower-right wind popover box,
+     relative to the map container) that the pointer line is drawn to. Recomputed
+     whenever the box's content/size changes since a 2-line vs 5-line popover
+     shifts where that corner sits. */
+  const [popoverAnchor, setPopoverAnchor] = React.useState<{ x: number, y: number } | null>(null)
 
   useUrlChange((url) => {
     const urlParams = new URL(url)
@@ -154,34 +182,150 @@ function Mapbox(): ReactElement {
     })
   }
 
+  const pickWindDataAt = React.useCallback((x: number, y: number): {
+    grib: WindPointReading
+    crowdsourced?: WindPointReading
+  } | null => {
+    if (!overlayRef.current) return null
+
+    const convertToKnots = isWindLayer || isWniWindLayer || isOceanCurrentLayer
+
+    const gribInfo = overlayRef.current.pickObject({
+      x,
+      y,
+      layerIds: [WIND_LAYER_KEYS.WIND_TOOLTIP]
+    }) as DeckGLOverlayHoverEventProps | null
+
+    if (!gribInfo?.raster) return null
+
+    const crowdInfo = overlayRef.current.pickObject({
+      x,
+      y,
+      layerIds: [WIND_LAYER_KEYS.WIND_CROWDSOURCED_TOOLTIP]
+    }) as DeckGLOverlayHoverEventProps | null
+
+    return {
+      grib: formatRasterPoint(
+        gribInfo.raster,
+        UNIT_FORMAT[WIND_LAYER_KEYS.WIND_TOOLTIP as LayerKey] || '',
+        convertToKnots
+      ),
+      crowdsourced: crowdInfo?.raster
+        ? formatRasterPoint(
+          crowdInfo.raster,
+          UNIT_FORMAT[WIND_LAYER_KEYS.WIND_CROWDSOURCED_TOOLTIP as LayerKey] || '',
+          convertToKnots
+        )
+        : undefined
+    }
+  }, [isWindLayer, isWniWindLayer, isOceanCurrentLayer])
+
   const handleMobileClick = (e: DeckGLOverlayHoverEventProps) => {
+    const x = e.x || 0
+    const y = e.y || 0
+
+    if (isWindLayer) {
+      const reading = pickWindDataAt(x, y)
+      if (!reading) return
+
+      setPopoverInfo({ kind: 'wind', source: 'tap', x, y, ...reading })
+      return
+    }
+
     if (!e.raster) return
 
-    let value = e.raster.value
-    const direction = e.raster.direction
-
-    if (isWindLayer || isWniWindLayer || isOceanCurrentLayer) {
-      value = convertMetersPerSecondsToKnots(e.raster.value)
-    }
-
-    let directionLabel: number | string | undefined = direction
-    if (typeof direction === 'number') {
-      directionLabel = WeatherLayers.formatDirection(
-        direction,
-        WeatherLayers.DirectionType.INWARD,
-        WeatherLayers.DirectionFormat.CARDINAL3
-      )
-    }
-
     setPopoverInfo({
-      x: e.x || 0,
-      y: e.y || 0,
-      value,
-      unit: UNIT_FORMAT[e.layer?.id as LayerKey] || '',
-      direction,
-      directionLabel
+      kind: 'simple',
+      source: 'tap',
+      x,
+      y,
+      reading: formatRasterPoint(
+        e.raster,
+        UNIT_FORMAT[e.layer?.id as LayerKey] || '',
+        isWindLayer || isWniWindLayer || isOceanCurrentLayer
+      )
     })
   }
+
+  React.useEffect(() => {
+    popoverInfoRef.current = popoverInfo
+  }, [popoverInfo])
+
+  const updateCenterPopover = React.useCallback((): boolean => {
+    if (!isWindLayer || !isMobile || !mapRef.current) return false
+
+    /* A tap fixes the popover to that point ("works as it does now"), so
+       center-tracking must never override it. */
+    if (popoverInfoRef.current?.source === 'tap') return true
+
+    const container = mapRef.current.getContainer()
+    const x = container.clientWidth / 2
+    const y = container.clientHeight / 2
+    const reading = pickWindDataAt(x, y)
+
+    setPopoverInfo(prev => {
+      if (prev?.source === 'tap') return prev
+      return reading ? { kind: 'wind', source: 'center', x, y, ...reading } : null
+    })
+
+    return Boolean(reading)
+  }, [isWindLayer, pickWindDataAt])
+
+  /* Show the default centered popover as soon as the map is ready. The deck.gl
+     overlay and its raster image data may not be available the instant the map
+     fires `load`, so a single center pick can come back empty; retry briefly
+     until it succeeds (or a tap takes over) so the popover reliably appears on
+     first load without needing a pan. */
+  React.useEffect(() => {
+    if (!isMapReady || !isWindLayer || !isMobile) return
+
+    let timeoutId = 0
+    const startedAt = Date.now()
+    const RETRY_MS = 150
+    const TIMEOUT_MS = 4000
+
+    const attempt = () => {
+      if (updateCenterPopover()) return
+
+      if (Date.now() - startedAt < TIMEOUT_MS) {
+        timeoutId = window.setTimeout(attempt, RETRY_MS)
+      }
+    }
+
+    attempt()
+
+    return () => window.clearTimeout(timeoutId)
+  }, [isMapReady, isWindLayer, updateCenterPopover])
+
+  /* The wind popover box sits fixed in the lower-right corner; track its
+     top-left corner (the point nearest the map) so the pointer line always
+     connects cleanly to it, including when its size changes. */
+  React.useLayoutEffect(() => {
+    const element = popoverRef.current
+    const container = mapRef.current?.getContainer()
+
+    if (!element || !container || !popoverInfo || popoverInfo.kind !== 'wind') {
+      setPopoverAnchor(null)
+      return
+    }
+
+    const updateAnchor = () => {
+      const containerRect = container.getBoundingClientRect()
+      const boxRect = element.getBoundingClientRect()
+
+      setPopoverAnchor({
+        x: boxRect.left - containerRect.left,
+        y: boxRect.top - containerRect.top
+      })
+    }
+
+    updateAnchor()
+
+    const resizeObserver = new ResizeObserver(updateAnchor)
+    resizeObserver.observe(element)
+
+    return () => resizeObserver.disconnect()
+  }, [popoverInfo])
 
   const handleGeolocate = (position: GeolocateResultEvent) => {
     if (mapRef.current && position?.coords) {
@@ -218,6 +362,32 @@ function Mapbox(): ReactElement {
     setMetaData({ isWindLayer })
   }, [isWindLayer])
 
+  const renderWindRow = (reading: WindPointReading, colorClassName: string): ReactElement => (
+    <div className={`flex items-center justify-center gap-1 whitespace-nowrap font-bold ${colorClassName}`}>
+      <span>{reading.directionLabel}</span>
+
+      {typeof reading.direction === 'number' && (
+        <svg
+          width='14'
+          height='14'
+          viewBox='0 0 24 24'
+          style={{
+            transform: `rotate(${(reading.direction + 180) % 360}deg)`
+          }} //OUTWARD
+        >
+          <path
+            d='M12 2 L12 22 M12 2 L8 6 M12 2 L16 6'
+            stroke='currentColor'
+            strokeWidth='2'
+            fill='none'
+          />
+        </svg>
+      )}
+
+      <span>{Math.round(reading.value)} {reading.unit}</span>
+    </div>
+  )
+
   return (
     <>
       <div className='absolute top-[10px] right-[10px] z-10 flex gap-2'>
@@ -245,6 +415,7 @@ function Mapbox(): ReactElement {
         initialViewState={BASE.INITIAL_VIEW_STATE}
         renderWorldCopies={false}
         onMove={(evt) => setZoom(evt.viewState.zoom)}
+        onMoveEnd={isMobile ? updateCenterPopover : undefined}
       >
         <GeolocateControl
           {...BASE.MAP_VIEW_CONTROLS_PROPS}
@@ -272,45 +443,109 @@ function Mapbox(): ReactElement {
 
         {hasTooltip && (
           isMobile && popoverInfo
-            ? (
-              <div
-                className='absolute z-50 bg-white shadow-lg p-1 rounded flex items-center gap-1'
-                style={{
-                  left: popoverInfo.x,
-                  top: popoverInfo.y,
-                  transform: 'translate(-50%, -100%)'
-                }}
-              >
-                <span>
-                  {isOceanCurrentLayer
-                    ? popoverInfo.value.toFixed(1)
-                    : Math.round(popoverInfo.value)
-                  } {popoverInfo.unit}
-                </span>
+            ? popoverInfo.kind === 'wind'
+              ? (
+                <>
+                  {popoverAnchor && (
+                    <svg className='absolute inset-0 z-40 w-full h-full pointer-events-none'>
+                      <line
+                        x1={popoverInfo.x}
+                        y1={popoverInfo.y}
+                        x2={popoverAnchor.x}
+                        y2={popoverAnchor.y}
+                        stroke='white'
+                        strokeWidth={2}
+                        strokeDasharray='4 4'
+                      />
+                    </svg>
+                  )}
 
-                {typeof popoverInfo.direction === 'number' && (
-                  <svg
-                    width='14'
-                    height='14'
-                    viewBox='0 0 24 24'
-                    style={{
-                      transform: `rotate(${(popoverInfo.direction + 180) % 360}deg)`
-                    }} //OUTWARD
+                  <div
+                    className='absolute z-40 pointer-events-none'
+                    style={{ left: popoverInfo.x, top: popoverInfo.y, transform: 'translate(-50%, -50%)' }}
                   >
-                    <path
-                      d='M12 2 L12 22 M12 2 L8 6 M12 2 L16 6'
-                      stroke='black'
-                      strokeWidth='2'
-                      fill='none'
+                    <span
+                      className='absolute -inset-3 rounded-full border-2 border-white opacity-70 animate-ping'
+                      style={{ animationDuration: '1.6s' }}
                     />
-                  </svg>
-                )}
+                    <span
+                      className='absolute -inset-1.5 rounded-full border-2 border-white opacity-80 animate-ping'
+                      style={{ animationDuration: '1.6s', animationDelay: '0.3s' }}
+                    />
+                    <span className='relative block w-3 h-3 rounded-full bg-white ring-2 ring-white' />
+                  </div>
 
-                <span>
-                  {popoverInfo.directionLabel}
-                </span>
-              </div>
-            )
+                  <div
+                    ref={popoverRef}
+                    className={`absolute z-50 bottom-12 right-4 w-80 max-w-[90vw] pointer-events-none select-none shadow-lg p-2 rounded flex flex-col gap-0.5 ${
+                      popoverInfo.crowdsourced ? 'bg-gray-800' : 'bg-gray-900'
+                    }`}
+                  >
+                    <span className='text-white text-balance'>
+                      GRIB Forecast - cell 15 x 15 = 225 square nautical miles
+                    </span>
+
+                    {renderWindRow(popoverInfo.grib, 'text-white')}
+
+                    {popoverInfo.crowdsourced && (
+                      <>
+                        <span className='text-[#f501f9] text-balance'>
+                          Crowdsourced Measurements - cell 20 x 20 meters = 400 square meters/440 square yards
+                        </span>
+
+                        {renderWindRow(popoverInfo.crowdsourced, 'text-[#f501f9]')}
+
+                        <span className='text-red-500 text-balance'>
+                          GRIB Forecast Error: Wind Direction{' '}
+                          {typeof popoverInfo.grib.direction === 'number' && typeof popoverInfo.crowdsourced.direction === 'number'
+                            ? Math.round(getCircularDirectionDifference(popoverInfo.grib.direction, popoverInfo.crowdsourced.direction))
+                            : '—'
+                          } degrees, Wind Speed {Math.round(getSpeedDifference(popoverInfo.grib.value, popoverInfo.crowdsourced.value))} knots.
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </>
+              )
+              : (
+                <div
+                  className='absolute z-50 bg-white shadow-lg p-1 rounded flex items-center gap-1'
+                  style={{
+                    left: popoverInfo.x,
+                    top: popoverInfo.y,
+                    transform: 'translate(-50%, -100%)'
+                  }}
+                >
+                  <span>
+                    {popoverInfo.reading.directionLabel}
+                  </span>
+
+                  {typeof popoverInfo.reading.direction === 'number' && (
+                    <svg
+                      width='14'
+                      height='14'
+                      viewBox='0 0 24 24'
+                      style={{
+                        transform: `rotate(${(popoverInfo.reading.direction + 180) % 360}deg)`
+                      }} //OUTWARD
+                    >
+                      <path
+                        d='M12 2 L12 22 M12 2 L8 6 M12 2 L16 6'
+                        stroke='black'
+                        strokeWidth='2'
+                        fill='none'
+                      />
+                    </svg>
+                  )}
+
+                  <span>
+                    {isOceanCurrentLayer
+                      ? popoverInfo.reading.value.toFixed(1)
+                      : Math.round(popoverInfo.reading.value)
+                    } {popoverInfo.reading.unit}
+                  </span>
+                </div>
+              )
             : (
               <TooltipControl
                 mapInstance={mapRef}
@@ -338,6 +573,7 @@ function Mapbox(): ReactElement {
         {!isWindLayer && <WniLogo />}
 
         <DeckGLOverlay
+          ref={overlayRef}
           interleaved
           views={BASE.MAP_VIEW}
           controller={true}
