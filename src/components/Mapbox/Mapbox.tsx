@@ -133,7 +133,12 @@ function Mapbox(): ReactElement {
   const overlayRef = React.useRef<MapboxOverlay | null>(null)
   const popoverRef = React.useRef<HTMLDivElement>(null)
   const popoverInfoRef = React.useRef<PopoverInfo>(null)
-  const [popoverPos, setPopoverPos] = React.useState<{ left: number, top: number } | null>(null)
+
+  /* Anchor point (top-left corner of the fixed lower-right wind popover box,
+     relative to the map container) that the pointer line is drawn to. Recomputed
+     whenever the box's content/size changes since a 2-line vs 5-line popover
+     shifts where that corner sits. */
+  const [popoverAnchor, setPopoverAnchor] = React.useState<{ x: number, y: number } | null>(null)
 
   useUrlChange((url) => {
     const urlParams = new URL(url)
@@ -292,30 +297,34 @@ function Mapbox(): ReactElement {
     return () => window.clearTimeout(timeoutId)
   }, [isMapReady, isWindLayer, updateCenterPopover])
 
-  /* Keep a tapped popover fully inside the map bounds so no line is clipped
-     off an edge. Center-anchored popovers are already safely positioned. */
+  /* The wind popover box sits fixed in the lower-right corner; track its
+     top-left corner (the point nearest the map) so the pointer line always
+     connects cleanly to it, including when its size changes. */
   React.useLayoutEffect(() => {
-    if (popoverInfo?.source !== 'tap') {
-      setPopoverPos(null)
+    const element = popoverRef.current
+    const container = mapRef.current?.getContainer()
+
+    if (!element || !container || !popoverInfo || popoverInfo.kind !== 'wind') {
+      setPopoverAnchor(null)
       return
     }
 
-    const element = popoverRef.current
-    const container = mapRef.current?.getContainer()
-    if (!element || !container) return
+    const updateAnchor = () => {
+      const containerRect = container.getBoundingClientRect()
+      const boxRect = element.getBoundingClientRect()
 
-    const margin = 8
-    const { width, height } = element.getBoundingClientRect()
-    const maxLeft = container.clientWidth - width - margin
-    const maxTop = container.clientHeight - height - margin
+      setPopoverAnchor({
+        x: boxRect.left - containerRect.left,
+        y: boxRect.top - containerRect.top
+      })
+    }
 
-    let top = popoverInfo.y - height - 12
-    if (top < margin) top = popoverInfo.y + 12
+    updateAnchor()
 
-    setPopoverPos({
-      left: Math.max(margin, Math.min(popoverInfo.x - width / 2, maxLeft)),
-      top: Math.max(margin, Math.min(top, maxTop))
-    })
+    const resizeObserver = new ResizeObserver(updateAnchor)
+    resizeObserver.observe(element)
+
+    return () => resizeObserver.disconnect()
   }, [popoverInfo])
 
   const handleGeolocate = (position: GeolocateResultEvent) => {
@@ -354,7 +363,7 @@ function Mapbox(): ReactElement {
   }, [isWindLayer])
 
   const renderWindRow = (reading: WindPointReading, colorClassName: string): ReactElement => (
-    <div className={`flex items-center gap-1 whitespace-nowrap ${colorClassName}`}>
+    <div className={`flex items-center justify-center gap-1 whitespace-nowrap font-bold ${colorClassName}`}>
       <span>{reading.directionLabel}</span>
 
       {typeof reading.direction === 'number' && (
@@ -436,49 +445,67 @@ function Mapbox(): ReactElement {
           isMobile && popoverInfo
             ? popoverInfo.kind === 'wind'
               ? (
-                <div
-                  ref={popoverRef}
-                  className='absolute z-50 max-w-[90vw] pointer-events-none select-none bg-gray-800 shadow-lg p-2 rounded flex flex-col gap-0.5'
-                  style={
-                    popoverInfo.source === 'tap'
-                      ? popoverPos
-                        ? { left: popoverPos.left, top: popoverPos.top }
-                        : {
-                          left: popoverInfo.x,
-                          top: popoverInfo.y,
-                          transform: 'translate(-50%, -100%)'
-                        }
-                      : {
-                        left: '50%',
-                        top: '50%',
-                        transform: 'translate(-50%, -50%)'
-                      }
-                  }
-                >
-                  <span className='text-white'>
-                    GRIB Forecast - cell 15 x 15 = 225 square nautical miles
-                  </span>
-
-                  {renderWindRow(popoverInfo.grib, 'text-white')}
-
-                  {popoverInfo.crowdsourced && (
-                    <>
-                      <span className='text-purple-400'>
-                        Crowdsourced Measurements - cell 20 x 20 meters = 400 square meters/440 square yards
-                      </span>
-
-                      {renderWindRow(popoverInfo.crowdsourced, 'text-purple-400')}
-
-                      <span className='text-red-500'>
-                        Forecast Error: Wind Direction{' '}
-                        {typeof popoverInfo.grib.direction === 'number' && typeof popoverInfo.crowdsourced.direction === 'number'
-                          ? Math.round(getCircularDirectionDifference(popoverInfo.grib.direction, popoverInfo.crowdsourced.direction))
-                          : '—'
-                        } degrees, Wind Speed {Math.round(getSpeedDifference(popoverInfo.grib.value, popoverInfo.crowdsourced.value))} knots.
-                      </span>
-                    </>
+                <>
+                  {popoverAnchor && (
+                    <svg className='absolute inset-0 z-40 w-full h-full pointer-events-none'>
+                      <line
+                        x1={popoverInfo.x}
+                        y1={popoverInfo.y}
+                        x2={popoverAnchor.x}
+                        y2={popoverAnchor.y}
+                        stroke='white'
+                        strokeWidth={2}
+                        strokeDasharray='4 4'
+                      />
+                    </svg>
                   )}
-                </div>
+
+                  <div
+                    className='absolute z-40 pointer-events-none'
+                    style={{ left: popoverInfo.x, top: popoverInfo.y, transform: 'translate(-50%, -50%)' }}
+                  >
+                    <span
+                      className='absolute -inset-3 rounded-full border-2 border-white opacity-70 animate-ping'
+                      style={{ animationDuration: '1.6s' }}
+                    />
+                    <span
+                      className='absolute -inset-1.5 rounded-full border-2 border-white opacity-80 animate-ping'
+                      style={{ animationDuration: '1.6s', animationDelay: '0.3s' }}
+                    />
+                    <span className='relative block w-3 h-3 rounded-full bg-white ring-2 ring-white' />
+                  </div>
+
+                  <div
+                    ref={popoverRef}
+                    className={`absolute z-50 bottom-12 right-4 w-80 max-w-[90vw] pointer-events-none select-none shadow-lg p-2 rounded flex flex-col gap-0.5 ${
+                      popoverInfo.crowdsourced ? 'bg-gray-800' : 'bg-gray-900'
+                    }`}
+                  >
+                    <span className='text-white text-balance'>
+                      GRIB Forecast - cell 15 x 15 = 225 square nautical miles
+                    </span>
+
+                    {renderWindRow(popoverInfo.grib, 'text-white')}
+
+                    {popoverInfo.crowdsourced && (
+                      <>
+                        <span className='text-[#f501f9] text-balance'>
+                          Crowdsourced Measurements - cell 20 x 20 meters = 400 square meters/440 square yards
+                        </span>
+
+                        {renderWindRow(popoverInfo.crowdsourced, 'text-[#f501f9]')}
+
+                        <span className='text-red-500 text-balance'>
+                          GRIB Forecast Error: Wind Direction{' '}
+                          {typeof popoverInfo.grib.direction === 'number' && typeof popoverInfo.crowdsourced.direction === 'number'
+                            ? Math.round(getCircularDirectionDifference(popoverInfo.grib.direction, popoverInfo.crowdsourced.direction))
+                            : '—'
+                          } degrees, Wind Speed {Math.round(getSpeedDifference(popoverInfo.grib.value, popoverInfo.crowdsourced.value))} knots.
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </>
               )
               : (
                 <div
