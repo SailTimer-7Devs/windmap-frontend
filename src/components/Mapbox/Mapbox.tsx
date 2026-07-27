@@ -140,6 +140,21 @@ function Mapbox(): ReactElement {
      shifts where that corner sits. */
   const [popoverAnchor, setPopoverAnchor] = React.useState<{ x: number, y: number } | null>(null)
 
+  /* Layout for the fixed wind popover box, computed against the lower-left
+     mapbox controls stack (timeline + legend) so the two never collide and
+     line up cleanly. On wide/landscape screens (iPad) there's room to sit
+     beside the controls, top edge aligned to theirs. On narrow phone screens
+     (iPhone), where the controls stack reflows taller and wider, there's no
+     horizontal room, so the box instead sits stacked directly above the
+     controls with its left edge aligned to theirs. */
+  const [popoverLayout, setPopoverLayout] = React.useState<{
+    mode: 'side' | 'stacked'
+    top?: number
+    left?: number
+    bottom?: number
+    width: number
+  } | null>(null)
+
   useUrlChange((url) => {
     const urlParams = new URL(url)
     const currentLayerName = urlParams.searchParams.get(STORAGE_LAYER_KEY) || layerName
@@ -327,6 +342,79 @@ function Mapbox(): ReactElement {
     return () => resizeObserver.disconnect()
   }, [popoverInfo])
 
+  React.useLayoutEffect(() => {
+    const container = mapRef.current?.getContainer()
+    const controls = document.getElementsByClassName('mapboxgl-ctrl-bottom-left')[0] as HTMLElement | undefined
+
+    if (!isMapReady || !container || !controls) {
+      setPopoverLayout(null)
+      return
+    }
+
+    const MARGIN = 16
+    const GAP = 16
+    const MAX_WIDTH = 320
+    const MIN_SIDE_BY_SIDE_WIDTH = 240
+
+    const updateLayout = () => {
+      const containerRect = container.getBoundingClientRect()
+
+      /* The container itself includes an empty helper element (mapbox-gl's
+         own `.mapboxgl-ctrl` placeholder) with its own margin, so its own
+         bounding box sits a few pixels off from where the visible
+         timeline/legend boxes actually start. Measure the union of the
+         visible children instead so the alignment matches what's on screen. */
+      const visibleRects = [...controls.children]
+        .map(el => el.getBoundingClientRect())
+        .filter(rect => rect.width > 0 && rect.height > 0)
+
+      if (!visibleRects.length) {
+        setPopoverLayout(null)
+        return
+      }
+
+      const controlsRect = {
+        top: Math.min(...visibleRects.map(r => r.top)),
+        left: Math.min(...visibleRects.map(r => r.left)),
+        right: Math.max(...visibleRects.map(r => r.right))
+      }
+
+      const controlsTop = controlsRect.top - containerRect.top
+      const controlsLeft = controlsRect.left - containerRect.left
+      const controlsRight = controlsRect.right - containerRect.left
+      const availableSideWidth = containerRect.width - MARGIN - controlsRight - GAP
+
+      if (availableSideWidth >= MIN_SIDE_BY_SIDE_WIDTH) {
+        // iPad/wide: sits beside the controls, top edge aligned to theirs.
+        setPopoverLayout({
+          mode: 'side',
+          top: controlsTop,
+          width: Math.min(MAX_WIDTH, availableSideWidth)
+        })
+      } else {
+        // iPhone/narrow: sits above the controls, left edge aligned to theirs.
+        setPopoverLayout({
+          mode: 'stacked',
+          left: controlsLeft,
+          bottom: containerRect.height - controlsTop + GAP,
+          width: Math.min(MAX_WIDTH, containerRect.width - controlsLeft - MARGIN)
+        })
+      }
+    }
+
+    updateLayout()
+
+    const resizeObserver = new ResizeObserver(updateLayout)
+    resizeObserver.observe(controls)
+    resizeObserver.observe(container)
+    window.addEventListener('resize', updateLayout)
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', updateLayout)
+    }
+  }, [isMapReady])
+
   const handleGeolocate = (position: GeolocateResultEvent) => {
     if (mapRef.current && position?.coords) {
       const { longitude, latitude } = position.coords
@@ -477,9 +565,14 @@ function Mapbox(): ReactElement {
 
                   <div
                     ref={popoverRef}
-                    className={`absolute z-50 bottom-12 right-4 w-80 max-w-[90vw] pointer-events-none select-none shadow-lg p-2 rounded flex flex-col gap-0.5 ${
-                      popoverInfo.crowdsourced ? 'bg-gray-800' : 'bg-gray-900'
-                    }`}
+                    className={`absolute z-50 pointer-events-none select-none shadow-lg p-2 rounded flex flex-col gap-0.5 ${
+                      popoverLayout === null ? 'bottom-12 right-4 w-80 max-w-[90vw]' : ''
+                    } ${popoverInfo.crowdsourced ? 'bg-gray-800' : 'bg-gray-900'}`}
+                    style={popoverLayout ? (
+                      popoverLayout.mode === 'side'
+                        ? { width: popoverLayout.width, top: popoverLayout.top, right: 16 }
+                        : { width: popoverLayout.width, left: popoverLayout.left, bottom: popoverLayout.bottom }
+                    ) : undefined}
                   >
                     {popoverInfo.crowdsourced && (
                       <>
@@ -498,12 +591,12 @@ function Mapbox(): ReactElement {
                     {renderWindRow(popoverInfo.grib, 'text-white')}
 
                     {popoverInfo.crowdsourced && (
-                      <span className='text-red-500 text-balance'>
+                      <span className='text-red-500 text-[10px] whitespace-nowrap'>
                         GRIB Forecast Error: Wind Direction{' '}
                         {typeof popoverInfo.grib.direction === 'number' && typeof popoverInfo.crowdsourced.direction === 'number'
                           ? Math.round(getCircularDirectionDifference(popoverInfo.grib.direction, popoverInfo.crowdsourced.direction))
                           : '—'
-                        } degrees, Wind Speed {Math.round(getSpeedDifference(popoverInfo.grib.value, popoverInfo.crowdsourced.value))} knots.
+                        } degrees, Speed {Math.round(getSpeedDifference(popoverInfo.grib.value, popoverInfo.crowdsourced.value))} knots.
                       </span>
                     )}
                   </div>
