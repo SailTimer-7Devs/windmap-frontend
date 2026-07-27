@@ -481,6 +481,16 @@ function Mapbox(): ReactElement {
                       popoverInfo.crowdsourced ? 'bg-gray-800' : 'bg-gray-900'
                     }`}
                   >
+                    {popoverInfo.crowdsourced && (
+                      <>
+                        <span className='text-[#f501f9] text-balance'>
+                          Crowdsourced Measurements - cell 20 x 20 meters
+                        </span>
+
+                        {renderWindRow(popoverInfo.crowdsourced, 'text-[#f501f9]')}
+                      </>
+                    )}
+
                     <span className='text-white text-balance'>
                       GRIB Forecast - cell 15 x 15 = 225 square nautical miles
                     </span>
@@ -488,21 +498,13 @@ function Mapbox(): ReactElement {
                     {renderWindRow(popoverInfo.grib, 'text-white')}
 
                     {popoverInfo.crowdsourced && (
-                      <>
-                        <span className='text-[#f501f9] text-balance'>
-                          Crowdsourced Measurements - cell 20 x 20 meters = 400 square meters/440 square yards
-                        </span>
-
-                        {renderWindRow(popoverInfo.crowdsourced, 'text-[#f501f9]')}
-
-                        <span className='text-red-500 text-balance'>
-                          GRIB Forecast Error: Wind Direction{' '}
-                          {typeof popoverInfo.grib.direction === 'number' && typeof popoverInfo.crowdsourced.direction === 'number'
-                            ? Math.round(getCircularDirectionDifference(popoverInfo.grib.direction, popoverInfo.crowdsourced.direction))
-                            : '—'
-                          } degrees, Wind Speed {Math.round(getSpeedDifference(popoverInfo.grib.value, popoverInfo.crowdsourced.value))} knots.
-                        </span>
-                      </>
+                      <span className='text-red-500 text-balance'>
+                        GRIB Forecast Error: Wind Direction{' '}
+                        {typeof popoverInfo.grib.direction === 'number' && typeof popoverInfo.crowdsourced.direction === 'number'
+                          ? Math.round(getCircularDirectionDifference(popoverInfo.grib.direction, popoverInfo.crowdsourced.direction))
+                          : '—'
+                        } degrees, Wind Speed {Math.round(getSpeedDifference(popoverInfo.grib.value, popoverInfo.crowdsourced.value))} knots.
+                      </span>
                     )}
                   </div>
                 </>
