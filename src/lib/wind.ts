@@ -49,3 +49,11 @@ export const getCircularDirectionDifference = (a: number, b: number): number => 
 }
 
 export const getSpeedDifference = (a: number, b: number): number => Math.abs(a - b)
+
+/**
+ * Empty cells in the current crowdsourced vector raster decode as the same
+ * low SW reading instead of NaN. Keep that data-source sentinel out of the UI
+ * so an absent measurement is not presented as real crowdsourced wind.
+ */
+export const isCrowdsourcedNoData = (reading: WindPointReading): boolean =>
+  reading.directionLabel === 'SW' && Math.round(reading.value) === 2

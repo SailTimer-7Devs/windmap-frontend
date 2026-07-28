@@ -48,7 +48,8 @@ import { convertMetersPerSecondsToKnots } from 'lib/units'
 import {
   formatRasterPoint,
   getCircularDirectionDifference,
-  getSpeedDifference
+  getSpeedDifference,
+  isCrowdsourcedNoData
 } from 'lib/wind'
 import type { WindPointReading } from 'lib/wind'
 import { getDateTimeByLayerName } from 'lib/timeline'
@@ -134,7 +135,7 @@ function Mapbox(): ReactElement {
   const popoverRef = React.useRef<HTMLDivElement>(null)
   const popoverInfoRef = React.useRef<PopoverInfo>(null)
 
-  /* Anchor point (top-left corner of the fixed lower-right wind popover box,
+  /* Anchor point (top-center of the fixed lower-right wind popover box,
      relative to the map container) that the pointer line is drawn to. Recomputed
      whenever the box's content/size changes since a 2-line vs 5-line popover
      shifts where that corner sits. */
@@ -219,18 +220,23 @@ function Mapbox(): ReactElement {
       layerIds: [WIND_LAYER_KEYS.WIND_CROWDSOURCED_TOOLTIP]
     }) as DeckGLOverlayHoverEventProps | null
 
-    return {
-      grib: formatRasterPoint(
-        gribInfo.raster,
-        UNIT_FORMAT[WIND_LAYER_KEYS.WIND_TOOLTIP as LayerKey] || '',
+    const grib = formatRasterPoint(
+      gribInfo.raster,
+      UNIT_FORMAT[WIND_LAYER_KEYS.WIND_TOOLTIP as LayerKey] || '',
+      convertToKnots
+    )
+    const crowdsourced = crowdInfo?.raster
+      ? formatRasterPoint(
+        crowdInfo.raster,
+        UNIT_FORMAT[WIND_LAYER_KEYS.WIND_CROWDSOURCED_TOOLTIP as LayerKey] || '',
         convertToKnots
-      ),
-      crowdsourced: crowdInfo?.raster
-        ? formatRasterPoint(
-          crowdInfo.raster,
-          UNIT_FORMAT[WIND_LAYER_KEYS.WIND_CROWDSOURCED_TOOLTIP as LayerKey] || '',
-          convertToKnots
-        )
+      )
+      : undefined
+
+    return {
+      grib,
+      crowdsourced: crowdsourced && !isCrowdsourcedNoData(crowdsourced)
+        ? crowdsourced
         : undefined
     }
   }, [isWindLayer, isWniWindLayer, isOceanCurrentLayer])
@@ -329,7 +335,7 @@ function Mapbox(): ReactElement {
       const boxRect = element.getBoundingClientRect()
 
       setPopoverAnchor({
-        x: boxRect.left - containerRect.left,
+        x: boxRect.left - containerRect.left + boxRect.width / 2,
         y: boxRect.top - containerRect.top
       })
     }
@@ -340,7 +346,7 @@ function Mapbox(): ReactElement {
     resizeObserver.observe(element)
 
     return () => resizeObserver.disconnect()
-  }, [popoverInfo])
+  }, [popoverInfo, popoverLayout])
 
   React.useLayoutEffect(() => {
     const container = mapRef.current?.getContainer()
@@ -353,7 +359,7 @@ function Mapbox(): ReactElement {
 
     const MARGIN = 16
     const GAP = 16
-    const MAX_WIDTH = 320
+    const MAX_WIDTH = 360
     const MIN_SIDE_BY_SIDE_WIDTH = 240
 
     const updateLayout = () => {
@@ -451,7 +457,7 @@ function Mapbox(): ReactElement {
   }, [isWindLayer])
 
   const renderWindRow = (reading: WindPointReading, colorClassName: string): ReactElement => (
-    <div className={`flex items-center justify-center gap-1 whitespace-nowrap font-bold ${colorClassName}`}>
+    <div className={`flex items-center justify-center gap-1 whitespace-nowrap text-xs font-bold ${colorClassName}`}>
       <span>{reading.directionLabel}</span>
 
       {typeof reading.direction === 'number' && (
@@ -535,32 +541,35 @@ function Mapbox(): ReactElement {
               ? (
                 <>
                   {popoverAnchor && (
-                    <svg className='absolute inset-0 z-40 w-full h-full pointer-events-none'>
+                    <svg
+                      className='absolute inset-0 z-40 w-full h-full pointer-events-none'
+                      style={{ filter: 'drop-shadow(0 1px 1px rgb(0 0 0 / 0.45))' }}
+                    >
                       <line
                         x1={popoverInfo.x}
                         y1={popoverInfo.y}
                         x2={popoverAnchor.x}
                         y2={popoverAnchor.y}
-                        stroke='white'
-                        strokeWidth={2}
+                        stroke='#6b7280'
+                        strokeWidth={2.5}
                         strokeDasharray='4 4'
                       />
                     </svg>
                   )}
 
                   <div
-                    className='absolute z-40 pointer-events-none'
+                    className='absolute z-40 pointer-events-none drop-shadow-[0_1px_1px_rgb(0_0_0/0.45)]'
                     style={{ left: popoverInfo.x, top: popoverInfo.y, transform: 'translate(-50%, -50%)' }}
                   >
                     <span
-                      className='absolute -inset-3 rounded-full border-2 border-white opacity-70 animate-ping'
+                      className='absolute -inset-3 rounded-full border-2 border-gray-500 opacity-70 animate-ping'
                       style={{ animationDuration: '1.6s' }}
                     />
                     <span
-                      className='absolute -inset-1.5 rounded-full border-2 border-white opacity-80 animate-ping'
+                      className='absolute -inset-1.5 rounded-full border-2 border-gray-500 opacity-80 animate-ping'
                       style={{ animationDuration: '1.6s', animationDelay: '0.3s' }}
                     />
-                    <span className='relative block w-3 h-3 rounded-full bg-white ring-2 ring-white' />
+                    <span className='relative block w-3 h-3 rounded-full bg-gray-500 ring-2 ring-gray-500' />
                   </div>
 
                   <div
@@ -576,7 +585,7 @@ function Mapbox(): ReactElement {
                   >
                     {popoverInfo.crowdsourced && (
                       <>
-                        <span className='text-[#f501f9] text-balance'>
+                        <span className='text-xs text-[#f501f9] text-balance'>
                           Crowdsourced Measurements - cell 20 x 20 meters
                         </span>
 
@@ -584,14 +593,14 @@ function Mapbox(): ReactElement {
                       </>
                     )}
 
-                    <span className='text-white text-balance'>
+                    <span className='text-xs text-white text-balance'>
                       GRIB Forecast - cell 15 x 15 = 225 square nautical miles
                     </span>
 
                     {renderWindRow(popoverInfo.grib, 'text-white')}
 
                     {popoverInfo.crowdsourced && (
-                      <span className='text-red-500 text-[10px] whitespace-nowrap'>
+                      <span className='text-xs text-red-500 text-balance'>
                         GRIB Forecast Error: Wind Direction{' '}
                         {typeof popoverInfo.grib.direction === 'number' && typeof popoverInfo.crowdsourced.direction === 'number'
                           ? Math.round(getCircularDirectionDifference(popoverInfo.grib.direction, popoverInfo.crowdsourced.direction))
