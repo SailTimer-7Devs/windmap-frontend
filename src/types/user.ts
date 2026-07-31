@@ -8,10 +8,14 @@ export type ResetPasswordPayload = {
 }
 
 export type SignUpPayload = {
-  email: string,
-  attributes: {
-    email: string
-  }
+  email: string
+  password: string
+  confirmPassword: string
+}
+
+export type ConfirmSignUpPayload = {
+  email: string
+  confirmationCode: string
 }
 
 export type CurrentUser = {

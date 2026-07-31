@@ -14,27 +14,43 @@ import { useAuthStore } from 'store/auth'
 const ID_TOKEN_PARAM = 'idToken'
 
 export default function App(): ReactElement {
-  const idToken = getUrlParams(ID_TOKEN_PARAM, '')
+  const idToken = React.useRef(getUrlParams(ID_TOKEN_PARAM, '')).current
 
   const { isLoading, authUser } = useAuthStore()
 
   React.useEffect(() => {
+    let handoffIdToken: string | undefined
+
     if (idToken) {
-      const decoded = jwtDecode<{ aud: string; email: string }>(idToken)
-      const localStorageKey = ['CognitoIdentityServiceProvider', decoded.aud, decoded.email].join('.')
-      const IdTokenKey = [localStorageKey, 'idToken'].join('.')
-      const lastAuthUserKey = [localStorageKey, 'LastAuthUser'].join('.')
+      try {
+        const decoded = jwtDecode<{ aud?: string, email?: string, exp?: number }>(idToken)
+        const expectedClientId = import.meta.env.VITE_COGNITO_USER_POOL_CLIENT_ID
 
-      localStorage.setItem(IdTokenKey, idToken)
-      localStorage.setItem(lastAuthUserKey, decoded.email)
+        if (decoded.aud !== expectedClientId) {
+          throw new Error('The app token belongs to a different environment')
+        }
 
-      const url = new URL(window.location.href)
-      url.searchParams.delete(ID_TOKEN_PARAM)
-      window.history.replaceState({}, document.title, url.toString())
+        if (!decoded.exp || decoded.exp * 1000 <= Date.now()) {
+          throw new Error('The app token has expired')
+        }
+
+        if (decoded.email) {
+          const storagePrefix = `CognitoIdentityServiceProvider.${decoded.aud}`
+          localStorage.setItem(`${storagePrefix}.${decoded.email}.idToken`, idToken)
+          localStorage.setItem(`${storagePrefix}.LastAuthUser`, decoded.email)
+          handoffIdToken = idToken
+        }
+      } catch (error) {
+        console.error('[App] Invalid ID token received from app:', error)
+      } finally {
+        const url = new URL(window.location.href)
+        url.searchParams.delete(ID_TOKEN_PARAM)
+        window.history.replaceState({}, document.title, url.toString())
+      }
     }
 
-    authUser()
-  }, [])
+    authUser(handoffIdToken)
+  }, [authUser, idToken])
 
   return (
     <>

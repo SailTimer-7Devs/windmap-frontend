@@ -77,7 +77,7 @@ function TextField<T extends FieldValues>(
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           className={cx(
-            'w-full h-14 rounded-md border px-3 pt-5 pb-2 text-sm bg-white',
+            'w-full h-14 rounded-md border px-3 pt-5 pb-2 text-base bg-white',
             'focus:outline-none focus:border-blue-500 text-[var(--text-primary)]',
             isError
               ? 'border-red-500 focus:border-red-500 focus:ring-red-500 text-red-500'
