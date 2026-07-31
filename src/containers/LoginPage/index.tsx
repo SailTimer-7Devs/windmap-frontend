@@ -33,13 +33,16 @@ function LoginPage(): ReactElement {
         </Link>
       </p>
 
-      {/* <span className='text-sm text-[var(--text-secondary)] flex gap-2'>
-        Don’t have an account?
+      <span className='text-sm text-[var(--text-secondary)] flex flex-wrap items-center justify-center gap-x-2'>
+        Don’t have a SailTimer account?
 
-        <Link to={routes.SIGN_UP_ROUTE} className='hover:text-blue-300 text-[var(--primary-dark)] text-sm'>
+        <Link
+          to={routes.SIGN_UP_ROUTE}
+          className='font-medium text-[var(--primary-dark)] underline underline-offset-2 hover:text-blue-300'
+        >
           Create an account
         </Link>
-      </span> */}
+      </span>
 
       <SignInForm />
     </LoginTemplate>

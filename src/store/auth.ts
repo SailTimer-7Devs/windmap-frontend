@@ -2,7 +2,8 @@ import type {
   CurrentUser,
   SignInPayload,
   ResetPasswordPayload,
-  SignUpPayload
+  SignUpPayload,
+  ConfirmSignUpPayload
 } from 'types/user'
 
 import { create } from 'zustand'
@@ -14,6 +15,7 @@ import {
   signIn as amplifySignIn,
   signOut as amplifySignOut,
   signUp as amplifySignUp,
+  confirmSignUp as amplifyConfirmSignUp,
   resetPassword
 } from 'aws-amplify/auth'
 
@@ -52,18 +54,21 @@ const messages = {
   resetPasswordSuccess: 'Password reset email sent',
   resetPasswordError: 'Failed to send password reset email',
   signUpSuccess: 'Email verification sent',
-  signUpError: 'Failed to send email verification'
+  signUpError: 'Unable to create the account. Please check your details and try again.',
+  confirmSignUpSuccess: 'Account verified. You can now sign in.',
+  confirmSignUpError: 'The verification code is invalid or has expired.'
 }
 
 interface AuthStore {
   currentUser: Partial<CurrentUser>
   isLoading: boolean
 
-  authUser: () => Promise<void>
+  authUser: (idToken?: string) => Promise<void>
 
   signIn: (payload: SignInPayload) => Promise<void>
   resetPassword: (payload: ResetPasswordPayload) => Promise<void>
   signUp: (payload: SignUpPayload) => Promise<void>
+  confirmSignUp: (payload: ConfirmSignUpPayload) => Promise<void>
   signOut: () => Promise<void>
 }
 
@@ -75,9 +80,11 @@ export const useAuthStore = create<AuthStore>((set) => ({
   currentUser: initialUser,
   isLoading: true,
 
-  authUser: async () => {
+  authUser: async (handoffIdToken?: string) => {
     try {
-      const session = await restoreAmplifySession()
+      const session = handoffIdToken
+        ? { idToken: handoffIdToken, from: 'app handoff' }
+        : await restoreAmplifySession()
       const { idToken, from } = session || {}
 
       if (idToken) {
@@ -160,15 +167,32 @@ export const useAuthStore = create<AuthStore>((set) => ({
     try {
       await amplifySignUp({
         username: normalizeEmail(payload.email),
+        password: payload.password,
         options: {
           userAttributes: {
             email: normalizeEmail(payload.email)
           }
         }
       })
+      notifySuccess(messages.signUpSuccess)
     } catch (err) {
       notifyError(messages.signUpError)
       console.error('signUp:', err)
+      throw err
+    }
+  },
+
+  confirmSignUp: async (payload: ConfirmSignUpPayload) => {
+    try {
+      await amplifyConfirmSignUp({
+        username: normalizeEmail(payload.email),
+        confirmationCode: payload.confirmationCode.trim()
+      })
+      notifySuccess(messages.confirmSignUpSuccess)
+    } catch (err) {
+      notifyError(messages.confirmSignUpError)
+      console.error('confirmSignUp:', err)
+      throw err
     }
   },
 
@@ -193,17 +217,15 @@ export const useAuthStore = create<AuthStore>((set) => ({
   }
 }))
 
-function getIdTokenFromLocalStorage() {
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i)
+function getConfiguredIdTokenFromLocalStorage() {
+  const storagePrefix = `CognitoIdentityServiceProvider.${userPoolClientId}`
+  const lastAuthUser = localStorage.getItem(`${storagePrefix}.LastAuthUser`)
+  if (!lastAuthUser) return null
 
-    if (key && key.includes('idToken')) {
-      const value = localStorage.getItem(key)
+  const tokenKey = `${storagePrefix}.${lastAuthUser}.idToken`
+  const idToken = localStorage.getItem(tokenKey)
 
-      return { key, value }
-    }
-  }
-  return null
+  return idToken ? { key: tokenKey, value: idToken } : null
 }
 
 async function restoreAmplifySession() {
@@ -224,7 +246,7 @@ async function restoreAmplifySession() {
   }
 
   try {
-    const tokenData = getIdTokenFromLocalStorage()
+    const tokenData = getConfiguredIdTokenFromLocalStorage()
     if (tokenData && tokenData.value) {
       const { key: tokenKey, value: idToken } = tokenData
       console.info(`[restoreAmplifySession] idToken restored from localStorage key: ${tokenKey}`)
