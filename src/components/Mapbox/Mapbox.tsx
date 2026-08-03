@@ -91,6 +91,8 @@ type SimplePopoverInfo = {
 
 type PopoverInfo = WindPopoverInfo | SimplePopoverInfo | null
 
+const WIND_TARGET_COLOR = '#7CFF00'
+
 function Mapbox(): ReactElement {
   const layerName = getUrlParams()
   const visibleList = getVisibleLayerList(layerName)
@@ -687,8 +689,8 @@ function Mapbox(): ReactElement {
                         y1={popoverInfo.y}
                         x2={popoverAnchor.x}
                         y2={popoverAnchor.y}
-                        stroke='#7CFF00'
-                        strokeWidth={2.5}
+                        stroke={WIND_TARGET_COLOR}
+                        strokeWidth={2}
                         strokeDasharray='4 4'
                       />
                     </svg>
@@ -711,14 +713,18 @@ function Mapbox(): ReactElement {
 
                   <div
                     ref={popoverRef}
-                    className={`absolute z-50 pointer-events-none select-none shadow-lg p-2 rounded border border-[#7CFF00] flex flex-col gap-1 text-center ${
+                    className={`absolute z-50 pointer-events-none select-none shadow-lg p-2 rounded border flex flex-col gap-1 text-center ${
                       popoverLayout === null ? 'bottom-12 right-4 w-80 max-w-[90vw]' : ''
                     } ${popoverInfo.crowdsourced ? 'bg-gray-800' : 'bg-gray-900'}`}
-                    style={popoverLayout ? (
-                      popoverLayout.mode === 'side'
-                        ? { width: popoverLayout.width, top: popoverLayout.top, right: 16 }
-                        : { width: popoverLayout.width, left: popoverLayout.left, bottom: popoverLayout.bottom }
-                    ) : undefined}
+                    style={{
+                      borderColor: WIND_TARGET_COLOR,
+                      borderWidth: 1.5,
+                      ...(popoverLayout
+                        ? popoverLayout.mode === 'side'
+                          ? { width: popoverLayout.width, top: popoverLayout.top, right: 16 }
+                          : { width: popoverLayout.width, left: popoverLayout.left, bottom: popoverLayout.bottom }
+                        : {})
+                    }}
                   >
                     {popoverInfo.crowdsourced && (
                       <>
