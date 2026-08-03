@@ -38,12 +38,10 @@ Amplify.configure({
   }
 })
 
-/* Cognito uses the email as a case-sensitive username. Normalize it so that
-   inputs capitalized or space-padded by the client (e.g. iOS Safari auto-
-   capitalizes the first letter of a text field) still match the stored user
-   and don't fail as "Invalid email or password". */
+/* Preserve username casing for accounts created before email normalization;
+   Cognito pools may be configured with case-sensitive usernames. */
 function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase()
+  return email.trim()
 }
 
 const messages = {
