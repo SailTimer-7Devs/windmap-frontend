@@ -23,7 +23,13 @@ export default function App(): ReactElement {
 
     if (idToken) {
       try {
-        const decoded = jwtDecode<{ aud?: string, email?: string, exp?: number }>(idToken)
+        const decoded = jwtDecode<{
+          aud?: string
+          email?: string
+          exp?: number
+          sub?: string
+          'cognito:username'?: string
+        }>(idToken)
         const expectedClientId = import.meta.env.VITE_COGNITO_USER_POOL_CLIENT_ID
 
         if (decoded.aud !== expectedClientId) {
@@ -34,12 +40,17 @@ export default function App(): ReactElement {
           throw new Error('The app token has expired')
         }
 
-        if (decoded.email) {
+        const username = decoded['cognito:username'] || decoded.email || decoded.sub
+
+        if (username) {
           const storagePrefix = `CognitoIdentityServiceProvider.${decoded.aud}`
-          localStorage.setItem(`${storagePrefix}.${decoded.email}.idToken`, idToken)
-          localStorage.setItem(`${storagePrefix}.LastAuthUser`, decoded.email)
-          handoffIdToken = idToken
+          localStorage.setItem(`${storagePrefix}.${username}.idToken`, idToken)
+          localStorage.setItem(`${storagePrefix}.LastAuthUser`, username)
         }
+
+        // The backend validates the signed token. Email is not a required ID
+        // token claim, so a valid native-app handoff must not depend on it.
+        handoffIdToken = idToken
       } catch (error) {
         console.error('[App] Invalid ID token received from app:', error)
       } finally {
