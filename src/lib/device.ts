@@ -20,8 +20,18 @@ const isIPadReportingAsMac =
     /Macintosh/.test(navigator.userAgent) &&
     navigator.maxTouchPoints > 2
 
+/* Chrome DevTools may apply an iPad-sized viewport without reliably changing
+   the page's user agent (especially when device mode is enabled after load).
+   Treat the tablet breakpoint as the touch layout as well, so the map's
+   tap-target, fixed info box, and hourly forecast remain testable and usable
+   at iPad dimensions regardless of the reported browser identity. */
+const usesTabletLayout =
+    typeof window !== 'undefined' &&
+    window.matchMedia('(max-width: 1024px)').matches
+
 export const isMobile =
     device.is('iPhone') ||
     device.is('iPad') ||
     isIPadReportingAsMac ||
-    isAndroid 
+    isAndroid ||
+    usesTabletLayout

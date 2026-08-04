@@ -30,7 +30,9 @@ export const formatRasterPoint = (
   convertToKnots: boolean
 ): WindPointReading => {
   const value = convertToKnots ? convertMetersPerSecondsToKnots(raster.value) : raster.value
-  const direction = raster.direction
+  const direction = typeof raster.direction === 'number'
+    ? ((raster.direction % 360) + 360) % 360
+    : raster.direction
 
   const directionLabel = typeof direction === 'number'
     ? WeatherLayers.formatDirection(
