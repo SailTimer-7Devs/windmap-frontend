@@ -64,6 +64,7 @@ import LegendControl from './LegendControl'
 import TimelineControl from './TimelineControl'
 import TooltipControl from './TooltipControl'
 import WniLogo from './WniLogo'
+import HourlyForecastButton from './HourlyForecastButton'
 import HourlyWindForecast from './HourlyWindForecast'
 
 interface DeckGLOverlayHoverEventProps extends PickingInfo {
@@ -92,6 +93,17 @@ type SimplePopoverInfo = {
 type PopoverInfo = WindPopoverInfo | SimplePopoverInfo | null
 
 const WIND_TARGET_COLOR = '#7CFF00'
+const WIND_POPOVER_BACKGROUND = '#071628'
+const LOCATION_ACCESS_GRANTED_KEY = 'sailtimer-hourly-location-access-granted'
+
+const hasRememberedLocationAccess = (): boolean => {
+  if (typeof window === 'undefined') return false
+  try {
+    return window.localStorage.getItem(LOCATION_ACCESS_GRANTED_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
 
 function Mapbox(): ReactElement {
   const layerName = getUrlParams()
@@ -114,7 +126,7 @@ function Mapbox(): ReactElement {
     latitude: number
   } | null>(null)
   const [locationError, setLocationError] = React.useState<string | null>(
-    isWindLayer && isMobile
+    isWindLayer && isMobile && !hasRememberedLocationAccess()
       ? 'Allow location access to see the hourly wind forecast.'
       : null
   )
@@ -302,36 +314,38 @@ function Mapbox(): ReactElement {
     popoverInfoRef.current = popoverInfo
   }, [popoverInfo])
 
-  /* Hourly forecast strip uses the user's location rather than a tapped point
-     (client preference), so request it independently of the GeolocateControl
-     button - this must not touch popoverInfo/popoverAnchor in any way. */
+  const applyUserCoordinates = React.useCallback((coords: GeolocationCoordinates) => {
+    setUserCoordinates({
+      longitude: coords.longitude,
+      latitude: coords.latitude
+    })
+    window.localStorage.setItem(LOCATION_ACCESS_GRANTED_KEY, 'true')
+    setLocationError(null)
+    setShowLocationHelp(false)
+  }, [])
+
+  /* Reuse Mapbox's GeolocateControl for the hourly forecast. This is the same
+     request path used by the established map UI and, importantly, preserves
+     Mobile Safari's required user gesture through its two permission layers. */
   const requestUserLocation = React.useCallback(() => {
-    if (!navigator.geolocation) {
-      setLocationError('Location is not available in this browser.')
+    if (!geolocateControlRef.current) {
+      setLocationError('Location is not ready yet. Please try again.')
       setShowLocationHelp(true)
       return
     }
 
-    // Keep the browser permission request inside this explicit user action.
-    // Mobile Safari may suppress prompts initiated automatically during load.
     setLocationError(null)
     setShowLocationHelp(false)
+    geolocateControlRef.current.trigger()
 
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        setUserCoordinates({
-          longitude: coords.longitude,
-          latitude: coords.latitude
-        })
-        setLocationError(null)
-        setShowLocationHelp(false)
-      },
-      (error) => {
-        const permissionDenied = error.code === error.PERMISSION_DENIED
-        setLocationError(permissionDenied
-          ? 'Location access is blocked for this website.'
-          : 'Your location could not be retrieved. Please try again.')
-        setShowLocationHelp(permissionDenied)
+    /* Mapbox visibly locates and moves the map in Mobile Safari, but WebKit can
+       omit the wrapper's `geolocate` event after a permission transition. Read
+       the same granted position directly as a fallback so the hourly forecast
+       always receives the coordinates represented by Mapbox's blue dot. */
+    navigator.geolocation?.getCurrentPosition(
+      ({ coords }) => applyUserCoordinates(coords),
+      () => {
+        // GeolocateControl owns the user-facing error state via onError.
       },
       {
         enableHighAccuracy: false,
@@ -339,7 +353,87 @@ function Mapbox(): ReactElement {
         maximumAge: 300000
       }
     )
-  }, [])
+  }, [applyUserCoordinates])
+
+  React.useEffect(() => {
+    if (
+      !isWindLayer
+      || !isMobile
+      || !isMapReady
+      || !isHourlyForecastOpen
+      || userCoordinates
+    ) return
+
+    let permissionStatus: PermissionStatus | null = null
+    let disposed = false
+
+    const handlePermissionChange = () => {
+      if (disposed || !permissionStatus) return
+
+      if (permissionStatus.state === 'granted') {
+        setLocationError(null)
+        setShowLocationHelp(false)
+        requestUserLocation()
+      } else if (permissionStatus.state === 'prompt') {
+        setLocationError('Allow location access to see the hourly wind forecast.')
+        setShowLocationHelp(false)
+      } else {
+        setLocationError('Location access is blocked for this website.')
+        setShowLocationHelp(true)
+      }
+    }
+
+    const requestIfAlreadyGranted = async () => {
+      if (hasRememberedLocationAccess()) {
+        requestUserLocation()
+        return
+      }
+
+      if (!navigator.permissions?.query) return
+
+      try {
+        const nextPermissionStatus = await navigator.permissions.query({ name: 'geolocation' })
+        if (disposed) return
+
+        if (permissionStatus !== nextPermissionStatus) {
+          permissionStatus?.removeEventListener('change', handlePermissionChange)
+          permissionStatus = nextPermissionStatus
+          permissionStatus.addEventListener('change', handlePermissionChange)
+        }
+
+        if (permissionStatus.state === 'granted') {
+          requestUserLocation()
+        } else if (permissionStatus.state === 'denied') {
+          setLocationError('Location access is blocked for this website.')
+          setShowLocationHelp(true)
+        } else {
+          setLocationError('Allow location access to see the hourly wind forecast.')
+          setShowLocationHelp(false)
+        }
+      } catch {
+        // Some embedded browsers expose Permissions API without geolocation.
+        // Keep the explicit request button available in that case.
+      }
+    }
+
+    requestIfAlreadyGranted()
+
+    const retryWhenReturning = () => {
+      if (document.visibilityState === 'visible') requestIfAlreadyGranted()
+    }
+
+    window.addEventListener('focus', retryWhenReturning)
+    window.addEventListener('pageshow', retryWhenReturning)
+    document.addEventListener('visibilitychange', retryWhenReturning)
+
+    return () => {
+      disposed = true
+      permissionStatus?.removeEventListener('change', handlePermissionChange)
+      window.removeEventListener('focus', retryWhenReturning)
+      window.removeEventListener('pageshow', retryWhenReturning)
+      document.removeEventListener('visibilitychange', retryWhenReturning)
+    }
+  }, [isHourlyForecastOpen, isMapReady, isWindLayer, requestUserLocation, userCoordinates])
 
   const updateCenterPopover = React.useCallback((): boolean => {
     if (!isWindLayer || !isMobile || !mapRef.current) return false
@@ -440,6 +534,7 @@ function Mapbox(): ReactElement {
   React.useLayoutEffect(() => {
     const container = mapRef.current?.getContainer()
     const controls = document.getElementsByClassName('mapboxgl-ctrl-bottom-left')[0] as HTMLElement | undefined
+    const popover = popoverRef.current
 
     if (!isMapReady || !container || !controls) {
       setPopoverLayout(null)
@@ -480,10 +575,24 @@ function Mapbox(): ReactElement {
       const availableSideWidth = containerRect.width - MARGIN - controlsRight - GAP
 
       if (availableSideWidth >= MIN_SIDE_BY_SIDE_WIDTH) {
-        // iPad/wide: sits beside the controls, top edge aligned to theirs.
+        /* iPad/wide: this overlay's absolute containing block cannot reliably
+           use CSS `bottom` in Mobile Safari. Keep a top coordinate, reserving
+           enough measured/fallback height for either the compact GRIB box or
+           the complete five-line crowdsourced comparison. */
+        const measuredHeight = popover?.getBoundingClientRect().height || 0
+        const reservedHeight = Math.max(
+          measuredHeight,
+          popoverInfo?.kind === 'wind' && popoverInfo.crowdsourced ? 150 : 72
+        )
+        /* Mapbox's bottom-left control wrapper reports an inflated height in
+           iPad Safari. Use the visible legend's known compact footprint as the
+           alignment baseline instead of trusting that wrapper measurement. */
+        const LEGEND_BASELINE_HEIGHT = 56
+        const bottomAlignedTop = controlsTop - Math.max(0, reservedHeight - LEGEND_BASELINE_HEIGHT)
+
         setPopoverLayout({
           mode: 'side',
-          top: controlsTop,
+          top: Math.max(MARGIN, bottomAlignedTop),
           width: Math.min(MAX_WIDTH, availableSideWidth)
         })
       } else {
@@ -502,20 +611,23 @@ function Mapbox(): ReactElement {
     const resizeObserver = new ResizeObserver(updateLayout)
     resizeObserver.observe(controls)
     resizeObserver.observe(container)
+    if (popover) resizeObserver.observe(popover)
     window.addEventListener('resize', updateLayout)
+    window.visualViewport?.addEventListener('resize', updateLayout)
+    window.visualViewport?.addEventListener('scroll', updateLayout)
 
     return () => {
       resizeObserver.disconnect()
       window.removeEventListener('resize', updateLayout)
+      window.visualViewport?.removeEventListener('resize', updateLayout)
+      window.visualViewport?.removeEventListener('scroll', updateLayout)
     }
-  }, [isMapReady])
+  }, [isMapReady, popoverInfo])
 
   const handleGeolocate = (position: GeolocateResultEvent) => {
     if (mapRef.current && position?.coords) {
       const { longitude, latitude } = position.coords
-      setUserCoordinates({ longitude, latitude })
-      setLocationError(null)
-      setShowLocationHelp(false)
+      applyUserCoordinates(position.coords)
 
       mapRef.current.flyTo({
         center: [longitude, latitude],
@@ -526,6 +638,7 @@ function Mapbox(): ReactElement {
   }
 
   const handleGeolocateError = () => {
+    window.localStorage.removeItem(LOCATION_ACCESS_GRANTED_KEY)
     setLocationError('Location access is blocked for this website.')
     setShowLocationHelp(true)
   }
@@ -642,7 +755,7 @@ function Mapbox(): ReactElement {
           position='bottom-right'
         />
 
-        {visibilityTimelineControl && (
+        {visibilityTimelineControl && !(isWindLayer && isMobile) && (
           <TimelineControl
             datetimes={datetimes}
             datetime={timeline.datetime}
@@ -664,6 +777,10 @@ function Mapbox(): ReactElement {
             onSelect={handleTimelineUpdate}
             onClose={() => setIsHourlyForecastOpen(false)}
           />
+        )}
+
+        {isWindLayer && isMobile && !isHourlyForecastOpen && (
+          <HourlyForecastButton onClick={() => setIsHourlyForecastOpen(true)} />
         )}
 
         {hasTooltip && (
@@ -715,8 +832,9 @@ function Mapbox(): ReactElement {
                     ref={popoverRef}
                     className={`absolute z-50 pointer-events-none select-none shadow-lg p-2 rounded border flex flex-col gap-1 text-center ${
                       popoverLayout === null ? 'bottom-12 right-4 w-80 max-w-[90vw]' : ''
-                    } ${popoverInfo.crowdsourced ? 'bg-gray-800' : 'bg-gray-900'}`}
+                    }`}
                     style={{
+                      backgroundColor: WIND_POPOVER_BACKGROUND,
                       borderColor: WIND_TARGET_COLOR,
                       borderWidth: 1.5,
                       ...(popoverLayout

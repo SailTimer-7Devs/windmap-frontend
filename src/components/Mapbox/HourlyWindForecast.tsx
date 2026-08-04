@@ -37,10 +37,7 @@ export default function HourlyWindForecast({
       aria-label='Hourly wind forecast at your location'
     >
       <header className='flex items-center justify-between border-b border-gray-700 px-2.5 py-1.5'>
-        <div>
-          <h2 className='text-xs font-bold leading-tight'>Hourly wind at your location</h2>
-          <p className='text-[10px] leading-tight text-gray-400'>Arrow shows the direction the wind is from</p>
-        </div>
+        <h2 className='text-xs font-bold leading-tight'>Hourly wind at your location</h2>
 
         <button
           type='button'
@@ -60,29 +57,23 @@ export default function HourlyWindForecast({
             {locationError && (
               <>
                 {showLocationHelp && (
-                  <div className='w-full max-w-md rounded border border-lime-400/60 bg-gray-800 px-3 py-2 text-left text-[10px] leading-relaxed text-gray-200'>
-                    <p className='mb-1 font-semibold text-lime-300'>Allow location in Safari</p>
+                  <div className='w-full max-w-md rounded border border-[#34516f] bg-[#071628] px-3 py-2 text-left text-[10px] leading-relaxed text-gray-200'>
+                    <p className='mb-1 font-semibold text-[#b9ddff]'>Allow location access</p>
                     <ol className='list-decimal space-y-0.5 pl-4'>
-                      <li>Open the page menu beside the address bar.</li>
-                      <li>Select <strong>Website Settings</strong>.</li>
-                      <li>Set <strong>Location</strong> to <strong>Allow</strong>, then return here.</li>
+                      <li>Open your device or browser settings.</li>
+                      <li>Allow location for SailTimer or this website.</li>
+                      <li>Return here and tap <strong>Try again</strong>.</li>
                     </ol>
                   </div>
                 )}
 
                 <button
                   type='button'
-                  className='rounded bg-lime-400 px-3 py-1.5 text-[11px] font-semibold text-gray-950 shadow-sm hover:bg-lime-300 focus:outline-none focus:ring-2 focus:ring-white'
+                  className='rounded border border-[#34516f] bg-[#071628] px-3 py-1.5 text-[11px] font-semibold text-[#b9ddff] shadow-sm hover:bg-[#0b223a] focus:outline-none focus:ring-2 focus:ring-[#b9ddff]'
                   onClick={onRequestLocation}
                 >
                   {showLocationHelp ? 'Try again' : 'Request location access'}
                 </button>
-
-                {!showLocationHelp && (
-                  <p className='max-w-md text-[10px] leading-snug text-gray-400'>
-                    Safari will ask for permission. Your location is used only for this forecast.
-                  </p>
-                )}
               </>
             )}
           </div>
@@ -133,7 +124,9 @@ export default function HourlyWindForecast({
                     {Math.round(reading.value)} {reading.unit}
                   </span>
                   <span className='block text-[10px] text-gray-400'>
-                    from {reading.directionLabel || '—'}
+                    {typeof reading.direction === 'number'
+                      ? `from ${Math.round(reading.direction)}° ${reading.directionLabel || ''}`.trim()
+                      : 'from —'}
                   </span>
                 </button>
               )

@@ -7,7 +7,8 @@ import {
   WIND_ANIMATION,
   WIND_DIRECTION_HEATMAP,
   WIND_CROWDSOURCED_UV,
-  WIND_TOOLTIP
+  WIND_TOOLTIP,
+  WIND_CROWDSOURCED_TOOLTIP
 } from 'constants/layer/wind'
 import {
   WEATHER_WNI_SIGWH_HEATMAP,
@@ -37,6 +38,12 @@ const EXCLUSIVE_GROUPS = [
 ]
 
 const WIND_ANIMATION_LAYER_GROUP = [WIND_ANIMATION, WIND_CROWDSOURCED_UV]
+const WIND_PICKING_LAYER_GROUP = [WIND_TOOLTIP, WIND_CROWDSOURCED_TOOLTIP]
+
+const ensureWindPickingLayers = (list: string[]): string[] =>
+  WIND_ANIMATION_LAYER_GROUP.some(layer => list.includes(layer))
+    ? [...new Set([...list, ...WIND_PICKING_LAYER_GROUP])]
+    : list
 
 const MULTIPLE_GROUPS = [
   WEATHER_WNI_SIGWH_GROUP,
@@ -53,7 +60,7 @@ const applyExclusiveLayers = (list: string[], item: string): string[] => {
   for (const group of MULTIPLE_GROUPS) {
     if (group.includes(item)) {
       return WIND_ANIMATION_LAYER_GROUP.includes(item)
-        ? [...new Set([...list, ...group, WIND_TOOLTIP])]
+        ? ensureWindPickingLayers([...list, ...group])
         : group
     }
   }
@@ -98,7 +105,10 @@ function useLocalStorageLayer<T extends { name: string, list: string[] }>(
           }
         }
 
-        return storedValue
+        return {
+          ...storedValue,
+          list: ensureWindPickingLayers(storedValue.list)
+        }
       }
 
       return initialValue
@@ -144,7 +154,9 @@ function useLocalStorageLayer<T extends { name: string, list: string[] }>(
         if (matchedGroup) {
           return {
             ...prev,
-            list: prev.list.filter(x => !matchedGroup.includes(x))
+            list: prev.list.filter(x => (
+              !matchedGroup.includes(x) && !WIND_PICKING_LAYER_GROUP.includes(x)
+            ))
           }
         }
 
