@@ -61,7 +61,7 @@ export default function HourlyWindForecast({
                     <p className='mb-1 font-semibold text-[#b9ddff]'>Allow location access</p>
                     <ol className='list-decimal space-y-0.5 pl-4'>
                       <li>Open your device or browser settings.</li>
-                      <li>Allow location for SailTimer or this website.</li>
+                      <li>Allow location access for SailTimer.</li>
                       <li>Return here and tap <strong>Try again</strong>.</li>
                     </ol>
                   </div>
@@ -69,7 +69,7 @@ export default function HourlyWindForecast({
 
                 <button
                   type='button'
-                  className='rounded border border-[#34516f] bg-[#071628] px-3 py-1.5 text-[11px] font-semibold text-[#b9ddff] shadow-sm hover:bg-[#0b223a] focus:outline-none focus:ring-2 focus:ring-[#b9ddff]'
+                  className='rounded border border-gray-300 bg-gray-100 px-3 py-1.5 text-[11px] font-semibold text-[#071628] shadow-sm hover:bg-white focus:outline-none focus:ring-2 focus:ring-white'
                   onClick={onRequestLocation}
                 >
                   {showLocationHelp ? 'Try again' : 'Request location access'}
