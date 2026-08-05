@@ -1,6 +1,6 @@
 export const META = {
   wind: {
-    title: 'Crowdsourced wind map',
+    title: 'SailTimer Crowdsourced Wind Map',
     description: 'Crowdsourced measurements have more accuracy and higher resolution than the GRIB forecast based on satellite imaging from 500 - 22,000 miles up in space. Only from SailTimer.'
   },
 

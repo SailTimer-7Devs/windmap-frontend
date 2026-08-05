@@ -10,6 +10,7 @@ import type { MapboxOverlay } from '@deck.gl/mapbox'
 import type { Palette } from 'cpt2js'
 
 import type { RasterPointProperties } from 'weatherlayers-gl'
+import type { TextureData } from 'weatherlayers-gl/client'
 
 import React from 'react'
 
@@ -50,7 +51,7 @@ import {
   formatRasterPoint,
   getCircularDirectionDifference,
   getSpeedDifference,
-  isCrowdsourcedNoData
+  hasCrowdsourcedDataAt
 } from 'lib/wind'
 import type { WindPointReading } from 'lib/wind'
 import { getDateTimeByLayerName } from 'lib/timeline'
@@ -95,13 +96,24 @@ type PopoverInfo = WindPopoverInfo | SimplePopoverInfo | null
 const WIND_TARGET_COLOR = '#7CFF00'
 const WIND_POPOVER_BACKGROUND = '#071628'
 const LOCATION_ACCESS_GRANTED_KEY = 'sailtimer-hourly-location-access-granted'
+const LOCATION_COORDINATES_KEY = 'sailtimer-hourly-location-coordinates'
 
-const hasRememberedLocationAccess = (): boolean => {
-  if (typeof window === 'undefined') return false
+type UserCoordinates = {
+  longitude: number
+  latitude: number
+}
+
+const getRememberedUserCoordinates = (): UserCoordinates | null => {
+  if (typeof window === 'undefined') return null
   try {
-    return window.localStorage.getItem(LOCATION_ACCESS_GRANTED_KEY) === 'true'
+    if (window.localStorage.getItem(LOCATION_ACCESS_GRANTED_KEY) !== 'true') return null
+
+    const stored = JSON.parse(window.localStorage.getItem(LOCATION_COORDINATES_KEY) || 'null')
+    return Number.isFinite(stored?.longitude) && Number.isFinite(stored?.latitude)
+      ? { longitude: stored.longitude, latitude: stored.latitude }
+      : null
   } catch {
-    return false
+    return null
   }
 }
 
@@ -121,12 +133,11 @@ function Mapbox(): ReactElement {
   const [unit, setUnit] = React.useState<string>('')
   const [popoverInfo, setPopoverInfo] = React.useState<PopoverInfo>(null)
   const [zoom, setZoom] = React.useState(BASE.INITIAL_VIEW_STATE.zoom)
-  const [userCoordinates, setUserCoordinates] = React.useState<{
-    longitude: number
-    latitude: number
-  } | null>(null)
+  const [userCoordinates, setUserCoordinates] = React.useState<UserCoordinates | null>(
+    getRememberedUserCoordinates
+  )
   const [locationError, setLocationError] = React.useState<string | null>(
-    isWindLayer && isMobile && !hasRememberedLocationAccess()
+    isWindLayer && isMobile && !getRememberedUserCoordinates()
       ? 'Allow location access to see the hourly wind forecast.'
       : null
   )
@@ -170,12 +181,24 @@ function Mapbox(): ReactElement {
   const overlayRef = React.useRef<MapboxOverlay | null>(null)
   const popoverRef = React.useRef<HTMLDivElement>(null)
   const popoverInfoRef = React.useRef<PopoverInfo>(null)
+  const crowdsourcedImageRef = React.useRef<TextureData | undefined>(undefined)
+
+  const crowdsourcedLayer = layerList.find(
+    layer => layer.id === WIND_LAYER_KEYS.WIND_CROWDSOURCED_TOOLTIP
+  )
+
+  React.useEffect(() => {
+    crowdsourcedImageRef.current = (
+      crowdsourcedLayer?.props as unknown as { image?: TextureData } | undefined
+    )?.image
+  }, [crowdsourcedLayer])
 
   /* Anchor point (top-center of the fixed lower-right wind popover box,
      relative to the map container) that the pointer line is drawn to. Recomputed
      whenever the box's content/size changes since a 2-line vs 5-line popover
      shifts where that corner sits. */
   const [popoverAnchor, setPopoverAnchor] = React.useState<{ x: number, y: number } | null>(null)
+  const [popoverHeight, setPopoverHeight] = React.useState(0)
 
   /* Layout for the fixed wind popover box, computed against the lower-left
      mapbox controls stack (timeline + legend) so the two never collide and
@@ -252,12 +275,19 @@ function Mapbox(): ReactElement {
       layerIds: [WIND_LAYER_KEYS.WIND_CROWDSOURCED_TOOLTIP]
     }) as DeckGLOverlayHoverEventProps | null
 
+    const lngLat = mapRef.current?.unproject([x, y])
+    const hasCrowdsourcedData = Boolean(
+      crowdInfo?.raster
+      && lngLat
+      && hasCrowdsourcedDataAt(crowdsourcedImageRef.current, lngLat.lng, lngLat.lat)
+    )
+
     const grib = formatRasterPoint(
       gribInfo.raster,
       UNIT_FORMAT[WIND_LAYER_KEYS.WIND_TOOLTIP as LayerKey] || '',
       convertToKnots
     )
-    const crowdsourced = crowdInfo?.raster
+    const crowdsourced = hasCrowdsourcedData && crowdInfo?.raster
       ? formatRasterPoint(
         crowdInfo.raster,
         UNIT_FORMAT[WIND_LAYER_KEYS.WIND_CROWDSOURCED_TOOLTIP as LayerKey] || '',
@@ -267,9 +297,7 @@ function Mapbox(): ReactElement {
 
     return {
       grib,
-      crowdsourced: crowdsourced && !isCrowdsourcedNoData(crowdsourced)
-        ? crowdsourced
-        : undefined
+      crowdsourced
     }
   }, [isWindLayer, isWniWindLayer, isOceanCurrentLayer])
 
@@ -315,11 +343,14 @@ function Mapbox(): ReactElement {
   }, [popoverInfo])
 
   const applyUserCoordinates = React.useCallback((coords: GeolocationCoordinates) => {
-    setUserCoordinates({
+    const nextCoordinates = {
       longitude: coords.longitude,
       latitude: coords.latitude
-    })
+    }
+
+    setUserCoordinates(nextCoordinates)
     window.localStorage.setItem(LOCATION_ACCESS_GRANTED_KEY, 'true')
+    window.localStorage.setItem(LOCATION_COORDINATES_KEY, JSON.stringify(nextCoordinates))
     setLocationError(null)
     setShowLocationHelp(false)
   }, [])
@@ -378,17 +409,12 @@ function Mapbox(): ReactElement {
         setLocationError('Allow location access to see the hourly wind forecast.')
         setShowLocationHelp(false)
       } else {
-        setLocationError('Location access is blocked for this website.')
+        setLocationError('Location access is blocked for SailTimer.')
         setShowLocationHelp(true)
       }
     }
 
     const requestIfAlreadyGranted = async () => {
-      if (hasRememberedLocationAccess()) {
-        requestUserLocation()
-        return
-      }
-
       if (!navigator.permissions?.query) return
 
       try {
@@ -404,7 +430,7 @@ function Mapbox(): ReactElement {
         if (permissionStatus.state === 'granted') {
           requestUserLocation()
         } else if (permissionStatus.state === 'denied') {
-          setLocationError('Location access is blocked for this website.')
+          setLocationError('Location access is blocked for SailTimer.')
           setShowLocationHelp(true)
         } else {
           setLocationError('Allow location access to see the hourly wind forecast.')
@@ -475,6 +501,62 @@ function Mapbox(): ReactElement {
     return Boolean(reading)
   }, [isWindLayer, pickWindDataAt])
 
+  /* Location approval can trigger a camera animation and a layer refresh.
+     Re-pick at the granted geographic position until the raster is ready so
+     the target and its information box never disappear after permission is
+     accepted, including inside iOS WKWebView/Safari. */
+  React.useEffect(() => {
+    if (!isMapReady || !isWindLayer || !isMobile || !userCoordinates || !mapRef.current) return
+
+    let timeoutId = 0
+    let disposed = false
+    const startedAt = Date.now()
+    const RETRY_MS = 150
+    const TIMEOUT_MS = 5000
+
+    const attempt = () => {
+      if (disposed || !mapRef.current) return
+
+      const point = mapRef.current.project([
+        userCoordinates.longitude,
+        userCoordinates.latitude
+      ])
+      const container = mapRef.current.getContainer()
+      const isOnMap = point.x >= 0
+        && point.y >= 0
+        && point.x <= container.clientWidth
+        && point.y <= container.clientHeight
+      const reading = isOnMap ? pickWindDataAt(point.x, point.y) : null
+
+      if (reading) {
+        const nextPopover: WindPopoverInfo = {
+          kind: 'wind',
+          source: 'center',
+          x: point.x,
+          y: point.y,
+          longitude: userCoordinates.longitude,
+          latitude: userCoordinates.latitude,
+          ...reading
+        }
+
+        popoverInfoRef.current = nextPopover
+        setPopoverInfo(nextPopover)
+        return
+      }
+
+      if (Date.now() - startedAt < TIMEOUT_MS) {
+        timeoutId = window.setTimeout(attempt, RETRY_MS)
+      }
+    }
+
+    attempt()
+
+    return () => {
+      disposed = true
+      window.clearTimeout(timeoutId)
+    }
+  }, [isMapReady, isWindLayer, pickWindDataAt, userCoordinates])
+
   /* Show the default centered popover as soon as the map is ready. The deck.gl
      overlay and its raster image data may not be available the instant the map
      fires `load`, so a single center pick can come back empty; retry briefly
@@ -510,6 +592,7 @@ function Mapbox(): ReactElement {
 
     if (!element || !container || !popoverInfo || popoverInfo.kind !== 'wind') {
       setPopoverAnchor(null)
+      setPopoverHeight(0)
       return
     }
 
@@ -521,6 +604,7 @@ function Mapbox(): ReactElement {
         x: boxRect.left - containerRect.left + boxRect.width / 2,
         y: boxRect.top - containerRect.top
       })
+      setPopoverHeight(boxRect.height)
     }
 
     updateAnchor()
@@ -639,8 +723,17 @@ function Mapbox(): ReactElement {
 
   const handleGeolocateError = () => {
     window.localStorage.removeItem(LOCATION_ACCESS_GRANTED_KEY)
-    setLocationError('Location access is blocked for this website.')
+    window.localStorage.removeItem(LOCATION_COORDINATES_KEY)
+    setUserCoordinates(null)
+    setLocationError('Location access is blocked for SailTimer.')
     setShowLocationHelp(true)
+  }
+
+  const handleMapClick: NonNullable<MapCallbacks['onClick']> = (event) => {
+    handleMobileClick({
+      x: event.point.x,
+      y: event.point.y
+    } as DeckGLOverlayHoverEventProps)
   }
 
   /* prevent issue with WebGL context is having problems 
@@ -738,6 +831,7 @@ function Mapbox(): ReactElement {
         renderWorldCopies={false}
         onMove={handleMapMove}
         onMoveEnd={isMobile ? updateCenterPopover : undefined}
+        onClick={isMobile ? handleMapClick : undefined}
       >
         <GeolocateControl
           {...BASE.MAP_VIEW_CONTROLS_PROPS}
@@ -780,7 +874,12 @@ function Mapbox(): ReactElement {
         )}
 
         {isWindLayer && isMobile && !isHourlyForecastOpen && (
-          <HourlyForecastButton onClick={() => setIsHourlyForecastOpen(true)} />
+          <HourlyForecastButton
+            bottomOffset={popoverLayout?.mode === 'stacked' && popoverHeight > 0
+              ? (popoverLayout.bottom ?? 0) + popoverHeight + 12
+              : undefined}
+            onClick={() => setIsHourlyForecastOpen(true)}
+          />
         )}
 
         {hasTooltip && (
@@ -861,8 +960,8 @@ function Mapbox(): ReactElement {
                     {renderWindRow(popoverInfo.grib, 'text-white')}
 
                     {popoverInfo.crowdsourced && (
-                      <span className='whitespace-nowrap text-[clamp(8px,2.5vw,11px)] leading-tight font-semibold tracking-tight text-[#ff6257]'>
-                        Increased Accuracy: Wind Direction{' '}
+                      <span className='mt-2 whitespace-nowrap text-[clamp(10px,2.6vw,13px)] leading-tight font-bold tracking-tight text-[#ff6257]'>
+                        Increased Accuracy:&nbsp;&nbsp;Wind Direction{' '}
                         {typeof popoverInfo.grib.direction === 'number' && typeof popoverInfo.crowdsourced.direction === 'number'
                           ? Math.round(getCircularDirectionDifference(popoverInfo.grib.direction, popoverInfo.crowdsourced.direction))
                           : '—'
@@ -943,7 +1042,7 @@ function Mapbox(): ReactElement {
           views={BASE.MAP_VIEW}
           controller={true}
           onHover={isMobile ? undefined : handlePick}
-          onClick={isMobile ? handleMobileClick : handlePick}
+          onClick={isMobile ? undefined : handlePick}
           layers={visibleLayers}
         />
       </Map>

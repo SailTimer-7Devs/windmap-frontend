@@ -2,13 +2,15 @@ import type { ReactElement } from 'react'
 
 type HourlyForecastButtonProps = {
   onClick: () => void
+  bottomOffset?: number
 }
 
-export default function HourlyForecastButton({ onClick }: HourlyForecastButtonProps): ReactElement {
+export default function HourlyForecastButton({ onClick, bottomOffset }: HourlyForecastButtonProps): ReactElement {
   return (
     <button
       type='button'
-      className='absolute bottom-20 left-4 z-50 flex items-center gap-2 rounded border border-[#34516f] bg-[#071628]/95 px-3 py-2 text-xs font-semibold text-[#b9ddff] shadow-lg backdrop-blur hover:bg-[#0b223a] focus:outline-none focus:ring-2 focus:ring-[#b9ddff]'
+      className='absolute left-4 z-[60] flex items-center gap-2 rounded border border-[#34516f] bg-[#071628]/95 px-3 py-2 text-xs font-semibold text-[#b9ddff] shadow-lg backdrop-blur hover:bg-[#0b223a] focus:outline-none focus:ring-2 focus:ring-[#b9ddff]'
+      style={{ bottom: bottomOffset ?? 80 }}
       aria-label='Open hourly wind forecast'
       onClick={onClick}
     >

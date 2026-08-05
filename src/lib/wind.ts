@@ -1,4 +1,5 @@
 import type { RasterPointProperties } from 'weatherlayers-gl'
+import type { TextureData } from 'weatherlayers-gl/client'
 
 import * as WeatherLayers from 'weatherlayers-gl'
 
@@ -53,9 +54,30 @@ export const getCircularDirectionDifference = (a: number, b: number): number => 
 export const getSpeedDifference = (a: number, b: number): number => Math.abs(a - b)
 
 /**
- * Empty cells in the current crowdsourced vector raster decode as the same
- * low SW reading instead of NaN. Keep that data-source sentinel out of the UI
- * so an absent measurement is not presented as real crowdsourced wind.
+ * Crowdsourced vector rasters use neutral RGB (128, 128, 128) for empty cells.
+ * The GPU picker still decodes those pixels as a small wind reading on some
+ * browsers, so validate the source pixel directly before showing comparison
+ * rows in the tooltip.
  */
-export const isCrowdsourcedNoData = (reading: WindPointReading): boolean =>
-  reading.directionLabel === 'SW' && Math.round(reading.value) === 2
+export const hasCrowdsourcedDataAt = (
+  image: TextureData | undefined,
+  longitude: number,
+  latitude: number
+): boolean => {
+  if (!image || !image.width || !image.height) return false
+
+  const normalizedX = Math.min(1, Math.max(0, (longitude + 180) / 360))
+  const normalizedY = Math.min(1, Math.max(0, (90 - latitude) / 180))
+  const x = Math.min(image.width - 1, Math.floor(normalizedX * image.width))
+  const y = Math.min(image.height - 1, Math.floor(normalizedY * image.height))
+  const channelCount = image.data.length / (image.width * image.height)
+
+  if (!Number.isInteger(channelCount) || channelCount < 2) return false
+
+  const offset = (y * image.width + x) * channelCount
+  const u = image.data[offset]
+  const v = image.data[offset + 1]
+
+  if (!Number.isFinite(u) || !Number.isFinite(v)) return false
+  return u !== 128 || v !== 128
+}
