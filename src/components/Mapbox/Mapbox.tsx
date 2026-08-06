@@ -74,7 +74,7 @@ interface DeckGLOverlayHoverEventProps extends PickingInfo {
 
 type WindPopoverInfo = {
   kind: 'wind'
-  source: 'center' | 'tap'
+  source: 'center' | 'location' | 'tap'
   x: number
   y: number
   longitude?: number
@@ -133,11 +133,14 @@ function Mapbox(): ReactElement {
   const [unit, setUnit] = React.useState<string>('')
   const [popoverInfo, setPopoverInfo] = React.useState<PopoverInfo>(null)
   const [zoom, setZoom] = React.useState(BASE.INITIAL_VIEW_STATE.zoom)
-  const [userCoordinates, setUserCoordinates] = React.useState<UserCoordinates | null>(
+  const [initialUserCoordinates] = React.useState<UserCoordinates | null>(
     getRememberedUserCoordinates
   )
+  const [userCoordinates, setUserCoordinates] = React.useState<UserCoordinates | null>(
+    initialUserCoordinates
+  )
   const [locationError, setLocationError] = React.useState<string | null>(
-    isWindLayer && isMobile && !getRememberedUserCoordinates()
+    isWindLayer && isMobile && !initialUserCoordinates
       ? 'Allow location access to see the hourly wind forecast.'
       : null
   )
@@ -182,6 +185,7 @@ function Mapbox(): ReactElement {
   const popoverRef = React.useRef<HTMLDivElement>(null)
   const popoverInfoRef = React.useRef<PopoverInfo>(null)
   const crowdsourcedImageRef = React.useRef<TextureData | undefined>(undefined)
+  const mapPressStartRef = React.useRef<{ x: number, y: number } | null>(null)
 
   const crowdsourcedLayer = layerList.find(
     layer => layer.id === WIND_LAYER_KEYS.WIND_CROWDSOURCED_TOOLTIP
@@ -302,8 +306,8 @@ function Mapbox(): ReactElement {
   }, [isWindLayer, isWniWindLayer, isOceanCurrentLayer])
 
   const handleMobileClick = (e: DeckGLOverlayHoverEventProps) => {
-    const x = e.x || 0
-    const y = e.y || 0
+    const x = e.x ?? 0
+    const y = e.y ?? 0
 
     if (isWindLayer) {
       const reading = pickWindDataAt(x, y)
@@ -311,7 +315,7 @@ function Mapbox(): ReactElement {
 
       const lngLat = mapRef.current?.unproject([x, y])
 
-      setPopoverInfo({
+      const nextPopover: WindPopoverInfo = {
         kind: 'wind',
         source: 'tap',
         x,
@@ -319,13 +323,19 @@ function Mapbox(): ReactElement {
         longitude: lngLat?.lng,
         latitude: lngLat?.lat,
         ...reading
-      })
+      }
+
+      /* Keep the imperative ref in sync immediately. A tap can arrive at the
+         end of a small pan, before React has committed the state update; the
+         following move-end event must not restore the previous target. */
+      popoverInfoRef.current = nextPopover
+      setPopoverInfo(nextPopover)
       return
     }
 
     if (!e.raster) return
 
-    setPopoverInfo({
+    const nextPopover: SimplePopoverInfo = {
       kind: 'simple',
       source: 'tap',
       x,
@@ -335,7 +345,9 @@ function Mapbox(): ReactElement {
         UNIT_FORMAT[e.layer?.id as LayerKey] || '',
         isWindLayer || isWniWindLayer || isOceanCurrentLayer
       )
-    })
+    }
+    popoverInfoRef.current = nextPopover
+    setPopoverInfo(nextPopover)
   }
 
   React.useEffect(() => {
@@ -493,7 +505,11 @@ function Mapbox(): ReactElement {
             y,
             longitude: lngLat.lng,
             latitude: lngLat.lat,
-            ...reading
+            ...reading,
+            /* An automatic startup target is only a neutral map anchor. Do
+               not claim a crowdsourced measurement until the device location
+               is resolved or the user explicitly selects a point. */
+            crowdsourced: undefined
           }
         : null
     })
@@ -531,7 +547,7 @@ function Mapbox(): ReactElement {
       if (reading) {
         const nextPopover: WindPopoverInfo = {
           kind: 'wind',
-          source: 'center',
+          source: 'location',
           x: point.x,
           y: point.y,
           longitude: userCoordinates.longitude,
@@ -709,16 +725,7 @@ function Mapbox(): ReactElement {
   }, [isMapReady, popoverInfo])
 
   const handleGeolocate = (position: GeolocateResultEvent) => {
-    if (mapRef.current && position?.coords) {
-      const { longitude, latitude } = position.coords
-      applyUserCoordinates(position.coords)
-
-      mapRef.current.flyTo({
-        center: [longitude, latitude],
-        zoom: 15,
-        speed: 1.2
-      })
-    }
+    if (position?.coords) applyUserCoordinates(position.coords)
   }
 
   const handleGeolocateError = () => {
@@ -734,6 +741,23 @@ function Mapbox(): ReactElement {
       x: event.point.x,
       y: event.point.y
     } as DeckGLOverlayHoverEventProps)
+  }
+
+  const handleMapPressStart = (event: { point: { x: number, y: number } }) => {
+    mapPressStartRef.current = { x: event.point.x, y: event.point.y }
+  }
+
+  const handleMapPressEnd = (event: { point: { x: number, y: number } }) => {
+    const start = mapPressStartRef.current
+    mapPressStartRef.current = null
+    if (!start) return
+
+    const distance = Math.hypot(event.point.x - start.x, event.point.y - start.y)
+
+    /* Mobile fingers rarely land and lift on the exact same pixel. Preserve
+       genuine pans, but treat a short movement as a tap and select its final
+       position even when Mapbox suppresses its regular click event. */
+    if (distance <= 18) handleMapClick(event as Parameters<typeof handleMapClick>[0])
   }
 
   /* prevent issue with WebGL context is having problems 
@@ -827,11 +851,23 @@ function Mapbox(): ReactElement {
         style={BASE.MAP_STYLE}
         mapboxAccessToken={BASE.MAPBOX_ACCESS_TOKEN}
         mapStyle={BASE.BASEMAP_VECTOR_STYLE_URL}
-        initialViewState={BASE.INITIAL_VIEW_STATE}
+        initialViewState={initialUserCoordinates
+          ? {
+              ...BASE.INITIAL_VIEW_STATE,
+              longitude: initialUserCoordinates.longitude,
+              latitude: initialUserCoordinates.latitude
+            }
+          : BASE.INITIAL_VIEW_STATE
+        }
+        clickTolerance={14}
         renderWorldCopies={false}
         onMove={handleMapMove}
         onMoveEnd={isMobile ? updateCenterPopover : undefined}
         onClick={isMobile ? handleMapClick : undefined}
+        onMouseDown={isMobile ? handleMapPressStart : undefined}
+        onMouseUp={isMobile ? handleMapPressEnd : undefined}
+        onTouchStart={isMobile ? handleMapPressStart : undefined}
+        onTouchEnd={isMobile ? handleMapPressEnd : undefined}
       >
         <GeolocateControl
           {...BASE.MAP_VIEW_CONTROLS_PROPS}
@@ -960,12 +996,17 @@ function Mapbox(): ReactElement {
                     {renderWindRow(popoverInfo.grib, 'text-white')}
 
                     {popoverInfo.crowdsourced && (
-                      <span className='mt-2 whitespace-nowrap text-[clamp(10px,2.6vw,13px)] leading-tight font-bold tracking-tight text-[#ff6257]'>
-                        Increased Accuracy:&nbsp;&nbsp;Wind Direction{' '}
-                        {typeof popoverInfo.grib.direction === 'number' && typeof popoverInfo.crowdsourced.direction === 'number'
-                          ? Math.round(getCircularDirectionDifference(popoverInfo.grib.direction, popoverInfo.crowdsourced.direction))
-                          : '—'
-                        }°, Speed {Math.round(getSpeedDifference(popoverInfo.grib.value, popoverInfo.crowdsourced.value))} knots
+                      <span className='mt-3 flex flex-col items-center justify-center gap-0.5 px-1 text-[clamp(11px,1.35vw,13px)] leading-tight font-bold tracking-tight text-[#ff6257]'>
+                        <span className='text-center'>
+                          Increased Accuracy with Crowdsourced Measurements:
+                        </span>
+                        <span>
+                          Wind Direction{' '}
+                          {typeof popoverInfo.grib.direction === 'number' && typeof popoverInfo.crowdsourced.direction === 'number'
+                            ? Math.round(getCircularDirectionDifference(popoverInfo.grib.direction, popoverInfo.crowdsourced.direction))
+                            : '—'
+                          }°, Speed {Math.round(getSpeedDifference(popoverInfo.grib.value, popoverInfo.crowdsourced.value))} knots
+                        </span>
                       </span>
                     )}
                   </div>
