@@ -643,7 +643,7 @@ function Mapbox(): ReactElement {
 
     const MARGIN = 16
     const GAP = 16
-    const MAX_WIDTH = 360
+    const MAX_WIDTH = 420
     const MIN_SIDE_BY_SIDE_WIDTH = 240
 
     const updateLayout = () => {
@@ -966,7 +966,7 @@ function Mapbox(): ReactElement {
                   <div
                     ref={popoverRef}
                     className={`absolute z-50 pointer-events-none select-none shadow-lg p-2 rounded border flex flex-col gap-1 text-center ${
-                      popoverLayout === null ? 'bottom-12 right-4 w-80 max-w-[90vw]' : ''
+                      popoverLayout === null ? 'bottom-12 right-4 w-96 max-w-[90vw]' : ''
                     }`}
                     style={{
                       backgroundColor: WIND_POPOVER_BACKGROUND,
@@ -996,7 +996,7 @@ function Mapbox(): ReactElement {
                     {renderWindRow(popoverInfo.grib, 'text-white')}
 
                     {popoverInfo.crowdsourced && (
-                      <span className='mt-3 flex flex-col items-center justify-center gap-0.5 px-1 text-[clamp(11px,1.35vw,13px)] leading-tight font-bold tracking-tight text-[#ff6257]'>
+                      <span className='mt-3 flex flex-col items-center justify-center gap-0.5 px-1 text-[13px] leading-tight font-bold tracking-tight text-[#ff6257]'>
                         <span className='text-center'>
                           Increased Accuracy with Crowdsourced Measurements:
                         </span>
