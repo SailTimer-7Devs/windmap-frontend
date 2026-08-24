@@ -11,7 +11,7 @@ export default function HourlyForecastButton({ onClick, bottomOffset }: HourlyFo
       type='button'
       className='absolute left-4 z-[60] flex items-center gap-2 rounded border border-[#34516f] bg-[#071628]/95 px-3 py-2 text-xs font-semibold text-[#b9ddff] shadow-lg backdrop-blur hover:bg-[#0b223a] focus:outline-none focus:ring-2 focus:ring-[#b9ddff]'
       style={{ bottom: bottomOffset ?? 80 }}
-      aria-label='Open hourly wind forecast'
+      aria-label='Open hourly forecast'
       onClick={onClick}
     >
       <svg
