@@ -34,6 +34,7 @@ import { UNIT_FORMAT } from 'constants/layer/units'
 
 import useLayerData from 'hooks/useLayerData'
 import useHourlyWindForecast from 'hooks/useHourlyWindForecast'
+import useHourlyWniForecast from 'hooks/useHourlyWniForecast'
 import useLocalStorageLayer from 'hooks/useLocalStorageLayer'
 import useTimelinePreload from 'hooks/useTimelinePreload'
 import useUrlChange from 'hooks/useUrlChange'
@@ -67,6 +68,7 @@ import TooltipControl from './TooltipControl'
 import WniLogo from './WniLogo'
 import HourlyForecastButton from './HourlyForecastButton'
 import HourlyWindForecast from './HourlyWindForecast'
+import HourlyWniForecast from './HourlyWniForecast'
 
 interface DeckGLOverlayHoverEventProps extends PickingInfo {
   raster?: RasterPointProperties
@@ -89,6 +91,7 @@ type SimplePopoverInfo = {
   x: number
   y: number
   reading: WindPointReading
+  precision: number
 }
 
 type PopoverInfo = WindPopoverInfo | SimplePopoverInfo | null
@@ -139,14 +142,15 @@ function Mapbox(): ReactElement {
   const [userCoordinates, setUserCoordinates] = React.useState<UserCoordinates | null>(
     initialUserCoordinates
   )
+  const supportsHourlyForecast = isWindLayer || isWeatherWniLayer
   const [locationError, setLocationError] = React.useState<string | null>(
-    isWindLayer && isMobile && !initialUserCoordinates
-      ? 'Allow location access to see the hourly wind forecast.'
+    supportsHourlyForecast && isMobile && !initialUserCoordinates
+      ? 'Allow location access to see the hourly forecast.'
       : null
   )
   const [showLocationHelp, setShowLocationHelp] = React.useState(false)
   const [isHourlyForecastOpen, setIsHourlyForecastOpen] = React.useState(
-    isWindLayer && isMobile
+    supportsHourlyForecast && isMobile
   )
 
   const storageLayerValue = { name: layerName, list: visibleList }
@@ -164,10 +168,37 @@ function Mapbox(): ReactElement {
     datetimes,
     isWindLayer && isMobile && isHourlyForecastOpen
   )
+  const hourlyWniForecast = useHourlyWniForecast(
+    userCoordinates,
+    datetimes,
+    isWeatherWniLayer && isMobile && isHourlyForecastOpen
+  )
 
   const isWniWindLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV)
   const isOceanCurrentLayer = storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_OCEAN_CURRENT_UV)
   const hasTooltip = isWindLayer || isWeatherWniLayer
+  const wniPickingLayerIds = React.useMemo((): string[] | undefined => {
+    if (!isWeatherWniLayer) return undefined
+
+    if (storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_OCEAN_CURRENT_UV)) {
+      return [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_OCEAN_CURRENT_TOOLTIP]
+    }
+    if (storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_UV)) {
+      return [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_WIND_TOOLTIP]
+    }
+    if (storageLayer.list.includes(WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SIGWH_UV)) {
+      return [WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SIGWH_UV_TOOLTIP]
+    }
+
+    const scalarLayer = storageLayer.list.find(layer => [
+      WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_INTPCP,
+      WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_AIR_TEMPERATURE,
+      WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_VISIBILITY,
+      WEATHER_WNI_LAYER_KEYS.WEATHER_WNI_SST
+    ].includes(layer))
+
+    return scalarLayer ? [scalarLayer] : undefined
+  }, [isWeatherWniLayer, storageLayer.list])
 
   const handleTimelineUpdate = React.useCallback((datetime: string) => {
     const timelineIndex = datetimes.findIndex(dt => dt === datetime)
@@ -335,15 +366,26 @@ function Mapbox(): ReactElement {
 
     if (!e.raster) return
 
+    const pickedLayerId = wniPickingLayerIds?.[0] || e.layer?.id || ''
+    const isPickedOceanCurrent = pickedLayerId.includes('ocean_current')
+    const isPickedWind = pickedLayerId.includes('wind_uv')
+    const isPickedWave = pickedLayerId.includes('sigwh')
+    const simpleUnit = isPickedOceanCurrent || isPickedWind
+      ? 'knots'
+      : isPickedWave
+        ? 'feet'
+        : UNIT_FORMAT[pickedLayerId as LayerKey] || ''
+
     const nextPopover: SimplePopoverInfo = {
       kind: 'simple',
       source: 'tap',
       x,
       y,
+      precision: isPickedOceanCurrent ? 1 : 0,
       reading: formatRasterPoint(
         e.raster,
-        UNIT_FORMAT[e.layer?.id as LayerKey] || '',
-        isWindLayer || isWniWindLayer || isOceanCurrentLayer
+        simpleUnit,
+        isWindLayer || isPickedWind || isPickedOceanCurrent
       )
     }
     popoverInfoRef.current = nextPopover
@@ -400,7 +442,7 @@ function Mapbox(): ReactElement {
 
   React.useEffect(() => {
     if (
-      !isWindLayer
+      !supportsHourlyForecast
       || !isMobile
       || !isMapReady
       || !isHourlyForecastOpen
@@ -418,7 +460,7 @@ function Mapbox(): ReactElement {
         setShowLocationHelp(false)
         requestUserLocation()
       } else if (permissionStatus.state === 'prompt') {
-        setLocationError('Allow location access to see the hourly wind forecast.')
+        setLocationError('Allow location access to see the hourly forecast.')
         setShowLocationHelp(false)
       } else {
         setLocationError('Location access is blocked for SailTimer.')
@@ -445,7 +487,7 @@ function Mapbox(): ReactElement {
           setLocationError('Location access is blocked for SailTimer.')
           setShowLocationHelp(true)
         } else {
-          setLocationError('Allow location access to see the hourly wind forecast.')
+          setLocationError('Allow location access to see the hourly forecast.')
           setShowLocationHelp(false)
         }
       } catch {
@@ -471,7 +513,7 @@ function Mapbox(): ReactElement {
       window.removeEventListener('pageshow', retryWhenReturning)
       document.removeEventListener('visibilitychange', retryWhenReturning)
     }
-  }, [isHourlyForecastOpen, isMapReady, isWindLayer, requestUserLocation, userCoordinates])
+  }, [isHourlyForecastOpen, isMapReady, requestUserLocation, supportsHourlyForecast, userCoordinates])
 
   const updateCenterPopover = React.useCallback((): boolean => {
     if (!isWindLayer || !isMobile || !mapRef.current) return false
@@ -737,6 +779,26 @@ function Mapbox(): ReactElement {
   }
 
   const handleMapClick: NonNullable<MapCallbacks['onClick']> = (event) => {
+    if (isWeatherWniLayer && overlayRef.current) {
+      const picked = overlayRef.current.pickObject({
+        x: event.point.x,
+        y: event.point.y,
+        layerIds: wniPickingLayerIds
+      }) as DeckGLOverlayHoverEventProps | null
+
+      if (picked?.raster) {
+        handleMobileClick({
+          ...picked,
+          x: event.point.x,
+          y: event.point.y
+        })
+      } else {
+        popoverInfoRef.current = null
+        setPopoverInfo(null)
+      }
+      return
+    }
+
     handleMobileClick({
       x: event.point.x,
       y: event.point.y
@@ -885,7 +947,7 @@ function Mapbox(): ReactElement {
           position='bottom-right'
         />
 
-        {visibilityTimelineControl && !(isWindLayer && isMobile) && (
+        {visibilityTimelineControl && !(supportsHourlyForecast && isMobile) && (
           <TimelineControl
             datetimes={datetimes}
             datetime={timeline.datetime}
@@ -909,7 +971,21 @@ function Mapbox(): ReactElement {
           />
         )}
 
-        {isWindLayer && isMobile && !isHourlyForecastOpen && (
+        {isWeatherWniLayer && isMobile && isHourlyForecastOpen && (
+          <HourlyWniForecast
+            forecasts={hourlyWniForecast.forecasts}
+            selectedDatetime={timeline.datetime}
+            isLocating={!userCoordinates && !locationError}
+            locationError={locationError}
+            showLocationHelp={showLocationHelp}
+            forecastError={hourlyWniForecast.error}
+            onRequestLocation={requestUserLocation}
+            onSelect={handleTimelineUpdate}
+            onClose={() => setIsHourlyForecastOpen(false)}
+          />
+        )}
+
+        {supportsHourlyForecast && isMobile && !isHourlyForecastOpen && (
           <HourlyForecastButton
             bottomOffset={popoverLayout?.mode === 'stacked' && popoverHeight > 0
               ? (popoverLayout.bottom ?? 0) + popoverHeight + 12
@@ -1044,10 +1120,7 @@ function Mapbox(): ReactElement {
                   )}
 
                   <span>
-                    {isOceanCurrentLayer
-                      ? popoverInfo.reading.value.toFixed(1)
-                      : Math.round(popoverInfo.reading.value)
-                    } {popoverInfo.reading.unit}
+                    {popoverInfo.reading.value.toFixed(popoverInfo.precision)} {popoverInfo.reading.unit}
                   </span>
                 </div>
               )
