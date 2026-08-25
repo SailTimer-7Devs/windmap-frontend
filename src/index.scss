@@ -9,6 +9,50 @@
   --primary-dark: #2653B5;
 }
 
+html:has(.sailtimer-weather-overlay),
+body:has(.sailtimer-weather-overlay),
+#root:has(.sailtimer-weather-overlay) {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: transparent !important;
+}
+
+.sailtimer-weather-overlay,
+.sailtimer-weather-overlay .maplibregl-map,
+.sailtimer-weather-overlay .maplibregl-canvas-container,
+.sailtimer-weather-overlay .maplibregl-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent !important;
+}
+
+.sailtimer-weather-overlay {
+  pointer-events: none;
+}
+
+html:has(.sailtimer-native-weather-overlay),
+body:has(.sailtimer-native-weather-overlay),
+#root:has(.sailtimer-native-weather-overlay),
+.sailtimer-native-weather-overlay,
+.sailtimer-native-weather-overlay .mapboxgl-map,
+.sailtimer-native-weather-overlay .mapboxgl-canvas-container,
+.sailtimer-native-weather-overlay .mapboxgl-canvas {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: transparent !important;
+}
+
+.sailtimer-native-weather-overlay {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
 $base-font-size: 14px;
 $base-line-height: 1.2;
 
