@@ -56,6 +56,7 @@ import {
 } from 'lib/wind'
 import type { WindPointReading } from 'lib/wind'
 import { getDateTimeByLayerName } from 'lib/timeline'
+import type { SailTimerOverlayApi, SailTimerViewport } from 'components/WeatherOverlay/WeatherOverlay'
 import { setMetaData } from 'lib/meta'
 import { isMobile } from 'lib/device'
 
@@ -100,6 +101,7 @@ const WIND_TARGET_COLOR = '#7CFF00'
 const WIND_POPOVER_BACKGROUND = '#071628'
 const LOCATION_ACCESS_GRANTED_KEY = 'sailtimer-hourly-location-access-granted'
 const LOCATION_COORDINATES_KEY = 'sailtimer-hourly-location-coordinates'
+const TRANSPARENT_MAP_STYLE = { version: 8 as const, sources: {}, layers: [] }
 
 type UserCoordinates = {
   longitude: number
@@ -121,6 +123,7 @@ const getRememberedUserCoordinates = (): UserCoordinates | null => {
 }
 
 function Mapbox(): ReactElement {
+  const isTransparentNativeOverlay = new URL(window.location.href).searchParams.get('transparentOverlay') === '1'
   const layerName = getUrlParams()
   const visibleList = getVisibleLayerList(layerName)
   const isWindLayer = isWind(layerName)
@@ -227,6 +230,47 @@ function Mapbox(): ReactElement {
       crowdsourcedLayer?.props as unknown as { image?: TextureData } | undefined
     )?.image
   }, [crowdsourcedLayer])
+
+  React.useEffect(() => {
+    if (!isTransparentNativeOverlay) return
+
+    const emitOverlayEvent = (name: string, detail: Record<string, unknown> = {}) => {
+      const message = { source: 'sailtimer-overlay', version: '1.0', name, ...detail }
+      window.dispatchEvent(new CustomEvent('sailtimer-overlay', { detail: message }))
+      window.webkit?.messageHandlers?.sailTimerOverlay?.postMessage(message)
+    }
+
+    const setViewport = (viewport: SailTimerViewport) => {
+      if (!mapRef.current) return
+      mapRef.current.fitBounds(
+        [[viewport.west, viewport.south], [viewport.east, viewport.north]],
+        {
+          bearing: viewport.bearing ?? 0,
+          pitch: viewport.pitch ?? 0,
+          duration: viewport.animated ? 150 : 0,
+          padding: 0
+        }
+      )
+    }
+
+    const api: SailTimerOverlayApi = {
+      version: '1.0',
+      setViewport,
+      setVisible: visible => { if (mapRef.current) mapRef.current.getContainer().style.visibility = visible ? 'visible' : 'hidden' },
+      pause: () => {},
+      resume: () => {},
+      resize: () => mapRef.current?.resize(),
+      getState: () => ({ ready: isMapReady, visible: true, paused: false })
+    }
+    window.SailTimerOverlay = api
+    emitOverlayEvent('bridgeReady', { apiVersion: api.version })
+    if (isMapReady) emitOverlayEvent('ready', { product: layerName })
+
+    return () => {
+      if (window.SailTimerOverlay === api) delete window.SailTimerOverlay
+    }
+
+  }, [isMapReady, isTransparentNativeOverlay, layerName])
 
   /* Anchor point (top-center of the fixed lower-right wind popover box,
      relative to the map container) that the pointer line is drawn to. Recomputed
@@ -890,8 +934,8 @@ function Mapbox(): ReactElement {
   }
 
   return (
-    <>
-      <div className='absolute top-[10px] right-[10px] z-10 flex gap-2'>
+    <div className={isTransparentNativeOverlay ? 'sailtimer-native-weather-overlay' : 'contents'}>
+      {!isTransparentNativeOverlay && <div className='absolute top-[10px] right-[10px] z-10 flex gap-2'>
         <BrandMenu isWindLayer={isWindLayer} />
 
         <LayerListMenu
@@ -899,7 +943,7 @@ function Mapbox(): ReactElement {
           layersId={storageLayer.list}
           toggle={toggle}
         />
-      </div>
+      </div>}
 
       {!isMapReady && (
         <div className='absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black/30 z-20'>
@@ -912,7 +956,7 @@ function Mapbox(): ReactElement {
         onLoad={handleMapLoad}
         style={BASE.MAP_STYLE}
         mapboxAccessToken={BASE.MAPBOX_ACCESS_TOKEN}
-        mapStyle={BASE.BASEMAP_VECTOR_STYLE_URL}
+        mapStyle={isTransparentNativeOverlay ? TRANSPARENT_MAP_STYLE : BASE.BASEMAP_VECTOR_STYLE_URL}
         initialViewState={initialUserCoordinates
           ? {
               ...BASE.INITIAL_VIEW_STATE,
@@ -931,21 +975,21 @@ function Mapbox(): ReactElement {
         onTouchStart={isMobile ? handleMapPressStart : undefined}
         onTouchEnd={isMobile ? handleMapPressEnd : undefined}
       >
-        <GeolocateControl
+        {!isTransparentNativeOverlay && <GeolocateControl
           {...BASE.MAP_VIEW_CONTROLS_PROPS}
           ref={geolocateControlRef}
           onGeolocate={handleGeolocate}
           onError={handleGeolocateError}
           showAccuracyCircle={false}
-        />
+        />}
 
-        <FullscreenControl {...BASE.MAP_VIEW_CONTROLS_PROPS} />
-        <NavigationControl {...BASE.MAP_VIEW_CONTROLS_PROPS} />
+        {!isTransparentNativeOverlay && <FullscreenControl {...BASE.MAP_VIEW_CONTROLS_PROPS} />}
+        {!isTransparentNativeOverlay && <NavigationControl {...BASE.MAP_VIEW_CONTROLS_PROPS} />}
 
-        <ScaleControl
+        {!isTransparentNativeOverlay && <ScaleControl
           unit='nautical'
           position='bottom-right'
-        />
+        />}
 
         {visibilityTimelineControl && !(supportsHourlyForecast && isMobile) && (
           <TimelineControl
@@ -1148,11 +1192,11 @@ function Mapbox(): ReactElement {
           />
         )}
 
-        {!isWindLayer && <WniLogo />}
+        {!isTransparentNativeOverlay && !isWindLayer && <WniLogo />}
 
         <DeckGLOverlay
           ref={overlayRef}
-          interleaved
+          interleaved={!isTransparentNativeOverlay}
           views={BASE.MAP_VIEW}
           controller={true}
           onHover={isMobile ? undefined : handlePick}
@@ -1160,7 +1204,7 @@ function Mapbox(): ReactElement {
           layers={visibleLayers}
         />
       </Map>
-    </>
+    </div>
   )
 }
 
