@@ -125,7 +125,11 @@ const getRememberedUserCoordinates = (): UserCoordinates | null => {
 function Mapbox(): ReactElement {
   const isTransparentNativeOverlay = new URL(window.location.href).searchParams.get('transparentOverlay') === '1'
   const layerName = getUrlParams()
-  const visibleList = getVisibleLayerList(layerName)
+  const visibleList = getVisibleLayerList(layerName).filter(layer => (
+    !(isTransparentNativeOverlay && layerName === 'wind')
+      || (layer !== WIND_LAYER_KEYS.WIND_HEATMAP
+        && layer !== WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP)
+  ))
   const isWindLayer = isWind(layerName)
   const isWeatherWniLayer = isWeatherWni(layerName)
 
@@ -162,7 +166,10 @@ function Mapbox(): ReactElement {
     value: storageLayer,
     reset,
     toggle
-  } = useLocalStorageLayer(STORAGE_LAYER_KEY, storageLayerValue)
+  } = useLocalStorageLayer(
+    isTransparentNativeOverlay ? `${STORAGE_LAYER_KEY}-native-overlay` : STORAGE_LAYER_KEY,
+    storageLayerValue
+  )
 
   const { layerList, layerMenu } = useLayerData(storageLayer.name, timeline.index, zoom)
   const { getTimelinePreload } = useTimelinePreload(storageLayer.name, datetimes)
@@ -340,19 +347,27 @@ function Mapbox(): ReactElement {
 
     const convertToKnots = isWindLayer || isWniWindLayer || isOceanCurrentLayer
 
-    const gribInfo = overlayRef.current.pickObject({
-      x,
-      y,
-      layerIds: [WIND_LAYER_KEYS.WIND_TOOLTIP]
-    }) as DeckGLOverlayHoverEventProps | null
+    let gribInfo: DeckGLOverlayHoverEventProps | null
+    let crowdInfo: DeckGLOverlayHoverEventProps | null
+    try {
+      gribInfo = overlayRef.current.pickObject({
+        x,
+        y,
+        layerIds: [WIND_LAYER_KEYS.WIND_TOOLTIP]
+      }) as DeckGLOverlayHoverEventProps | null
+
+      crowdInfo = overlayRef.current.pickObject({
+        x,
+        y,
+        layerIds: [WIND_LAYER_KEYS.WIND_CROWDSOURCED_TOOLTIP]
+      }) as DeckGLOverlayHoverEventProps | null
+    } catch {
+      // Deck may not have created its picking framebuffer during the first
+      // render yet. Startup/location effects retry once the overlay is ready.
+      return null
+    }
 
     if (!gribInfo?.raster) return null
-
-    const crowdInfo = overlayRef.current.pickObject({
-      x,
-      y,
-      layerIds: [WIND_LAYER_KEYS.WIND_CROWDSOURCED_TOOLTIP]
-    }) as DeckGLOverlayHoverEventProps | null
 
     const lngLat = mapRef.current?.unproject([x, y])
     const hasCrowdsourcedData = Boolean(
@@ -458,8 +473,20 @@ function Mapbox(): ReactElement {
      Mobile Safari's required user gesture through its two permission layers. */
   const requestUserLocation = React.useCallback(() => {
     if (!geolocateControlRef.current) {
-      setLocationError('Location is not ready yet. Please try again.')
-      setShowLocationHelp(true)
+      setLocationError(null)
+      setShowLocationHelp(false)
+      navigator.geolocation?.getCurrentPosition(
+        ({ coords }) => applyUserCoordinates(coords),
+        () => {
+          setLocationError('Location access is blocked for SailTimer.')
+          setShowLocationHelp(true)
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 300000
+        }
+      )
       return
     }
 
@@ -966,6 +993,13 @@ function Mapbox(): ReactElement {
           : BASE.INITIAL_VIEW_STATE
         }
         clickTolerance={14}
+        dragPan={!isTransparentNativeOverlay}
+        scrollZoom={!isTransparentNativeOverlay}
+        boxZoom={!isTransparentNativeOverlay}
+        dragRotate={!isTransparentNativeOverlay}
+        keyboard={!isTransparentNativeOverlay}
+        doubleClickZoom={!isTransparentNativeOverlay}
+        touchZoomRotate={!isTransparentNativeOverlay}
         renderWorldCopies={false}
         onMove={handleMapMove}
         onMoveEnd={isMobile ? updateCenterPopover : undefined}
@@ -1031,9 +1065,11 @@ function Mapbox(): ReactElement {
 
         {supportsHourlyForecast && isMobile && !isHourlyForecastOpen && (
           <HourlyForecastButton
-            bottomOffset={popoverLayout?.mode === 'stacked' && popoverHeight > 0
-              ? (popoverLayout.bottom ?? 0) + popoverHeight + 12
-              : undefined}
+            bottomOffset={popoverHeight > 0
+              ? Math.max((popoverLayout?.bottom ?? 0) + popoverHeight + 12, 180)
+              : popoverInfo
+                ? 180
+                : undefined}
             onClick={() => setIsHourlyForecastOpen(true)}
           />
         )}
@@ -1198,7 +1234,7 @@ function Mapbox(): ReactElement {
           ref={overlayRef}
           interleaved={!isTransparentNativeOverlay}
           views={BASE.MAP_VIEW}
-          controller={true}
+          controller={!isTransparentNativeOverlay}
           onHover={isMobile ? undefined : handlePick}
           onClick={isMobile ? undefined : handlePick}
           layers={visibleLayers}

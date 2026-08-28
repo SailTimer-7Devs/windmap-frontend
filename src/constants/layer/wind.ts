@@ -47,6 +47,9 @@ export const WIND_LAYER_KEYS = {
   WIND_CROWDSOURCED_TOOLTIP
 }
 
+const isTransparentNativeOverlay = typeof window !== 'undefined'
+  && new URL(window.location.href).searchParams.get('transparentOverlay') === '1'
+
 export const WIND_VISIBLE_LAYERS = [
   WIND_ANIMATION,
   WIND_CROWDSOURCED_UV,
@@ -173,7 +176,7 @@ export const getWindLayers = (layersState: LayersState, zoom: number = 0): Layer
     maxAge: 60,
     speedFactor: 20,
     width: setParticleWidthByDevice() * 1.6,
-    opacity: 0.1,
+    opacity: isTransparentNativeOverlay ? 0.5 : 0.1,
     animate: true,
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
@@ -192,7 +195,7 @@ export const getWindLayers = (layersState: LayersState, zoom: number = 0): Layer
     maxAge: 70,
     speedFactor: 20,
     width: setParticleWidthByDevice()* 1.6,
-    opacity: 0.4,
+    opacity: isTransparentNativeOverlay ? 0.7 : 0.4,
     animate: true,
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
