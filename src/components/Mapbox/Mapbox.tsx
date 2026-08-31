@@ -896,13 +896,26 @@ function Mapbox(): ReactElement {
   /* prevent issue with WebGL context is having problems 
      with buffer reinitialization on show\hide layers */
   const visibleLayers = React.useMemo(() => {
+    // Native overlays have no layer menu, so do not inherit an old browser
+    // preference that may have disabled animation or crowdsourced particles.
+    // Always render both wind streams and the barbs in this presentation.
+    const activeLayerIds = isTransparentNativeOverlay && isWindLayer
+      ? [
+          WIND_LAYER_KEYS.WIND_ANIMATION,
+          WIND_LAYER_KEYS.WIND_CROWDSOURCED_UV,
+          WIND_LAYER_KEYS.WIND_BARBS,
+          WIND_LAYER_KEYS.WIND_TOOLTIP,
+          WIND_LAYER_KEYS.WIND_CROWDSOURCED_TOOLTIP
+        ]
+      : storageLayer.list
+
     return layerList
-      .filter(({ id }) => storageLayer.list.some(layer => id.includes(layer)))
+      .filter(({ id }) => activeLayerIds.some(layer => id.includes(layer)))
       .map(layerItem => {
         const props = { ...layerItem.props, visible: true }
         return layerItem.clone(props)
       })
-  }, [layerList, storageLayer.list])
+  }, [isTransparentNativeOverlay, isWindLayer, layerList, storageLayer.list])
 
   const isWindHeatMapLayer = React.useMemo(() => {
     return storageLayer.list.includes(WIND_LAYER_KEYS.WIND_HEATMAP)
