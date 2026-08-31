@@ -53,6 +53,15 @@ body:has(.sailtimer-native-weather-overlay),
   overflow: hidden;
 }
 
+/* Navionics commonly uses white water, while the GRIB animation and wind
+   barbs are intentionally white. Add a narrow dark halo to rendered overlay
+   pixels so both remain legible without reintroducing the wind heatmap. */
+.sailtimer-native-weather-overlay .mapboxgl-canvas {
+  filter:
+    drop-shadow(0 0 1px rgba(0, 0, 0, 0.95))
+    drop-shadow(0 0 1px rgba(0, 0, 0, 0.8));
+}
+
 $base-font-size: 14px;
 $base-line-height: 1.2;
 
