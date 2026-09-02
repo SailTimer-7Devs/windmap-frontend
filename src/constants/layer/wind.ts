@@ -153,20 +153,6 @@ export const getWindLayers = (layersState: LayersState, zoom: number = 0): Layer
     beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
   }),
 
-  ...(isTransparentNativeOverlay ? [new WeatherLayers.GridLayer({
-    id: `${WIND_LAYER_KEYS.WIND_BARBS}-outline`,
-    image: layersState[WIND_LAYER_KEYS.WIND_BARBS as LayerKey],
-    bounds: BASE.WIND_MAP_BOUNDS,
-    imageUnscale: BASE.IMAGE_UNSCALE,
-    density: getDensity(zoom),
-    iconSize: 56,
-    iconColor: [4, 10, 20, 255],
-    imageType: 'VECTOR',
-    extensions: [new ClipExtension()],
-    style: WeatherLayers.GridStyle.WIND_BARB,
-    clipBounds: BASE.CLIP_BOUNDS
-  })] : []),
-
   new WeatherLayers.GridLayer({
     id: WIND_LAYER_KEYS.WIND_BARBS,
     image: layersState[WIND_LAYER_KEYS.WIND_BARBS as LayerKey],
@@ -174,31 +160,14 @@ export const getWindLayers = (layersState: LayersState, zoom: number = 0): Layer
     imageUnscale: BASE.IMAGE_UNSCALE,
     density: getDensity(zoom),
     iconSize: 50,
-    iconColor: [255, 255, 255, 255],
+    iconColor: isTransparentNativeOverlay
+      ? [4, 10, 20, 255]
+      : [255, 255, 255, 255],
     imageType: 'VECTOR',
     extensions: [new ClipExtension()],
     style: WeatherLayers.GridStyle.WIND_BARB,
     clipBounds: BASE.CLIP_BOUNDS
   }),
-
-  ...(isTransparentNativeOverlay ? [new WeatherLayers.ParticleLayer({
-    id: `${WIND_LAYER_KEYS.WIND_ANIMATION}-outline`,
-    image: layersState[WIND_LAYER_KEYS.WIND_ANIMATION as LayerKey],
-    imageType: 'VECTOR',
-    imageUnscale: BASE.IMAGE_UNSCALE,
-    bounds: BASE.WIND_MAP_BOUNDS,
-    numParticles: getNumParticles(zoom),
-    color: [4, 10, 20],
-    maxAge: 60,
-    speedFactor: 20,
-    width: setParticleWidthByDevice() * 3.2,
-    opacity: 0.9,
-    animate: true,
-    extensions: [new ClipExtension()],
-    clipBounds: BASE.CLIP_BOUNDS,
-    getPolygonOffset: () => [0, -1001],
-    beforeId: BASE.BASEMAP_VECTOR_LAYER_BEFORE_ID
-  })] : []),
 
   new WeatherLayers.ParticleLayer({
     id: WIND_LAYER_KEYS.WIND_ANIMATION,
@@ -207,11 +176,11 @@ export const getWindLayers = (layersState: LayersState, zoom: number = 0): Layer
     imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
     numParticles: getNumParticles(zoom),
-    color: [255, 255, 255],
+    color: isTransparentNativeOverlay ? [4, 10, 20] : [255, 255, 255],
     maxAge: 60,
     speedFactor: 20,
-    width: setParticleWidthByDevice() * 1.6,
-    opacity: isTransparentNativeOverlay ? 0.5 : 0.1,
+    width: setParticleWidthByDevice() * (isTransparentNativeOverlay ? 2.2 : 1.6),
+    opacity: isTransparentNativeOverlay ? 0.9 : 0.1,
     animate: true,
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
@@ -226,11 +195,11 @@ export const getWindLayers = (layersState: LayersState, zoom: number = 0): Layer
     imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
     numParticles: setParticlesNumbersByDeviceType(),
-    color: [245, 1, 249],
+    color: isTransparentNativeOverlay ? [4, 10, 20] : [245, 1, 249],
     maxAge: 70,
     speedFactor: 20,
-    width: setParticleWidthByDevice()* 1.6,
-    opacity: isTransparentNativeOverlay ? 0.7 : 0.4,
+    width: setParticleWidthByDevice() * (isTransparentNativeOverlay ? 2.2 : 1.6),
+    opacity: isTransparentNativeOverlay ? 0.9 : 0.4,
     animate: true,
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,

@@ -167,7 +167,13 @@ function Mapbox(): ReactElement {
     reset,
     toggle
   } = useLocalStorageLayer(
-    isTransparentNativeOverlay ? `${STORAGE_LAYER_KEY}-native-overlay` : STORAGE_LAYER_KEY,
+    // WNI's transparent overlay intentionally follows the parameter selected
+    // in the full weather map (wind, waves, fog, temperature, etc.). Wind
+    // keeps its overlay-specific storage because its transparent presentation
+    // removes the colored heatmap without changing the full map preference.
+    isTransparentNativeOverlay && !isWeatherWniLayer
+      ? `${STORAGE_LAYER_KEY}-native-overlay`
+      : STORAGE_LAYER_KEY,
     storageLayerValue
   )
 
