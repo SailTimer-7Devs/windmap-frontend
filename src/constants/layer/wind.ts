@@ -195,7 +195,10 @@ export const getWindLayers = (layersState: LayersState, zoom: number = 0): Layer
     imageUnscale: BASE.IMAGE_UNSCALE,
     bounds: BASE.WIND_MAP_BOUNDS,
     numParticles: setParticlesNumbersByDeviceType(),
-    color: isTransparentNativeOverlay ? [4, 10, 20] : [245, 1, 249],
+    // Crowdsourced observations must remain visually distinct from the GRIB
+    // forecast in every presentation. Only the GRIB stream is changed from
+    // white to dark ink for transparent overlays over Navionics charts.
+    color: [245, 1, 249],
     maxAge: 70,
     speedFactor: 20,
     width: setParticleWidthByDevice() * (isTransparentNativeOverlay ? 2.2 : 1.6),
