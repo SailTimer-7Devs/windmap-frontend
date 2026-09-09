@@ -226,6 +226,7 @@ function Mapbox(): ReactElement {
   }, [datetimes])
 
   const mapRef = React.useRef<MapRef>(null)
+  const pendingNativeViewportRef = React.useRef<SailTimerViewport | null>(null)
   const geolocateControlRef = React.useRef<GeolocateControlInstance>(null)
   const tooltipControlRef = React.useRef<WeatherLayers.TooltipControl | null>(null)
   const overlayRef = React.useRef<MapboxOverlay | null>(null)
@@ -253,8 +254,8 @@ function Mapbox(): ReactElement {
       window.webkit?.messageHandlers?.sailTimerOverlay?.postMessage(message)
     }
 
-    const setViewport = (viewport: SailTimerViewport) => {
-      if (!mapRef.current) return
+    const applyViewport = (viewport: SailTimerViewport) => {
+      if (!mapRef.current || !isMapReady) return
       mapRef.current.fitBounds(
         [[viewport.west, viewport.south], [viewport.east, viewport.north]],
         {
@@ -264,6 +265,14 @@ function Mapbox(): ReactElement {
           padding: 0
         }
       )
+    }
+
+    const setViewport = (viewport: SailTimerViewport) => {
+      // Native hosts can report their chart bounds before the WNI layer and
+      // Mapbox style have finished initializing. Retain the latest bounds and
+      // apply them again when the requested renderer is ready.
+      pendingNativeViewportRef.current = viewport
+      applyViewport(viewport)
     }
 
     const api: SailTimerOverlayApi = {
@@ -277,7 +286,12 @@ function Mapbox(): ReactElement {
     }
     window.SailTimerOverlay = api
     emitOverlayEvent('bridgeReady', { apiVersion: api.version })
-    if (isMapReady) emitOverlayEvent('ready', { product: layerName })
+    if (isMapReady) {
+      if (pendingNativeViewportRef.current) {
+        applyViewport(pendingNativeViewportRef.current)
+      }
+      emitOverlayEvent('ready', { product: layerName })
+    }
 
     return () => {
       if (window.SailTimerOverlay === api) delete window.SailTimerOverlay
