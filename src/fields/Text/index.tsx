@@ -8,7 +8,10 @@ import { Description, Field, Input, Label } from '@headlessui/react'
 import useFormContext from 'hooks/useFormContext'
 import useFormState from 'hooks/useFormState'
 
-type TextFieldProps<T extends FieldValues> = {
+type TextFieldProps<T extends FieldValues> = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'children' | 'className' | 'name'
+> & {
   label?: string
   name: Path<T>
   placeholder?: string

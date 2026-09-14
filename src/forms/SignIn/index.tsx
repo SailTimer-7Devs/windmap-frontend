@@ -64,6 +64,13 @@ function SignInForm({ children }: PropsWithChildren): ReactElement {
       >
         Login
       </Form.SubmitButton>
+
+      <a
+        href='mailto:info@SailTimer.co'
+        className='mt-2 text-center text-sm text-[var(--primary-dark)] underline underline-offset-2 hover:text-blue-300'
+      >
+        Support: info@SailTimer.co
+      </a>
     </Form.Redux>
   )
 }

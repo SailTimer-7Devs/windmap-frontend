@@ -13,11 +13,15 @@ export async function getCookies(idToken: string): Promise<void> {
     throw new Error('ID token was not provided')
   }
 
-  await fetch(`${API_URL}/sign-cookies`, {
+  const response = await fetch(`${API_URL}/sign-cookies`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${idToken}`
     },
     credentials: 'include'
   })
+
+  if (!response.ok) {
+    throw new Error(`Unable to establish the subscription session (${response.status})`)
+  }
 }
