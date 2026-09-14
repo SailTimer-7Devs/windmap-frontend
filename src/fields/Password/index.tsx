@@ -23,6 +23,10 @@ function PasswordField(
       {...props}
       ref={ref}
       type={showPassword ? 'text' : 'password'}
+      autoCapitalize='none'
+      autoCorrect='off'
+      spellCheck={false}
+      autoComplete={props.autoComplete || 'current-password'}
       className='pr-10'
     >
       {({ isError }) => {
