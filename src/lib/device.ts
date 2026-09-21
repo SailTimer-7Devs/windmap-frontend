@@ -7,7 +7,13 @@ export const deviceType = parcer.getDevice().type
 export const device = await parcer.getDevice().withFeatureCheck()
 export const os = parcer.getOS()
 
-export const isAndroid = device.is('Android')
+/* ua-parser's feature-checked device result can be empty for Android tablet
+   WebViews (most often in a wide landscape viewport). The platform token is
+   stable in Android WebView user agents, so keep it as the authoritative
+   fallback and do not let rotation switch the weather map to desktop UI. */
+export const isAndroid =
+    device.is('Android') ||
+    (typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent))
 
 /* iPadOS Safari reports a desktop "Macintosh" User-Agent by default (Apple's
    intentional behavior since iOS 13), which ua-parser-js normally catches via
