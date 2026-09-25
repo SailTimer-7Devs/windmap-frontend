@@ -80,14 +80,33 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   authUser: async (handoffIdToken?: string) => {
     try {
-      const session = handoffIdToken
+      let session = handoffIdToken
         ? { idToken: handoffIdToken, from: 'app handoff' }
         : await restoreAmplifySession()
+
+      if (session?.idToken) {
+        try {
+          await getCookies(session.idToken)
+        } catch (handoffError) {
+          // A native-app handoff token can belong to a different Cognito app
+          // client than the weather site. Do not let that discard a valid
+          // session previously established in this persistent WebView.
+          if (!handoffIdToken) throw handoffError
+
+          console.warn('[authUser] App handoff failed; trying saved web session')
+          const savedSession = await restoreAmplifySession()
+          if (!savedSession?.idToken || savedSession.idToken === handoffIdToken) {
+            throw handoffError
+          }
+
+          await getCookies(savedSession.idToken)
+          session = savedSession
+        }
+      }
+
       const { idToken, from } = session || {}
 
       if (idToken) {
-        await getCookies(idToken)
-
         set({
           currentUser: {
             isAuthorized: true
