@@ -27,13 +27,21 @@ export default function App(): ReactElement {
           aud?: string
           email?: string
           exp?: number
+          iss?: string
           sub?: string
           'cognito:username'?: string
         }>(idToken)
-        const expectedClientId = import.meta.env.VITE_COGNITO_USER_POOL_CLIENT_ID
+        const userPoolId = import.meta.env.VITE_COGNITO_USER_POOL_ID
+        const region = userPoolId.split('_', 1)[0]
+        const expectedIssuer = `https://cognito-idp.${region}.amazonaws.com/${userPoolId}`
 
-        if (decoded.aud !== expectedClientId) {
-          throw new Error('The app token belongs to a different environment')
+        // The iOS app and this website intentionally use different Cognito
+        // app clients in the same user pool. Trust the pool issuer here and
+        // let /sign-cookies verify the token signature; requiring the web
+        // client's aud rejects a valid native-app handoff and sends the user
+        // back to /login every time Wind or WNI is opened.
+        if (!decoded.aud || decoded.iss !== expectedIssuer) {
+          throw new Error('The app token belongs to a different Cognito user pool')
         }
 
         if (!decoded.exp || decoded.exp * 1000 <= Date.now()) {
