@@ -37,7 +37,7 @@ export default function HourlyWindForecast({
     <section
       className={`absolute z-50 overflow-hidden rounded bg-gray-900/95 text-white shadow-lg backdrop-blur ${
         isNativeOverlay
-          ? 'left-[112px] right-4 top-[72px]'
+          ? 'left-4 right-4 mx-auto max-w-xl top-[var(--st-overlay-top,280px)] max-h-[35vh] overflow-y-auto'
           : 'left-4 right-4 top-16 mx-auto max-w-xl'
       }`}
       aria-label='Hourly wind forecast at your location'
