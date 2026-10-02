@@ -74,7 +74,7 @@ export default function HourlyWniForecast({
     <section
       className={`absolute z-50 overflow-hidden rounded-md border border-[#34516f] bg-[#071628]/95 text-white shadow-xl backdrop-blur ${
         isNativeOverlay
-          ? 'left-[112px] right-4 top-[72px]'
+          ? 'left-4 right-4 mx-auto max-w-xl top-[var(--st-overlay-top,280px)] max-h-[35vh] overflow-y-auto'
           : 'left-3 right-3 top-16 mx-auto max-w-xl'
       }`}
       aria-label='Hourly WNI forecast at your location'
