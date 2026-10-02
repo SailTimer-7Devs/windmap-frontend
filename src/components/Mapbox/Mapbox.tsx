@@ -125,11 +125,10 @@ const getRememberedUserCoordinates = (): UserCoordinates | null => {
 function Mapbox(): ReactElement {
   const isTransparentNativeOverlay = new URL(window.location.href).searchParams.get('transparentOverlay') === '1'
   const layerName = getUrlParams()
-  const visibleList = getVisibleLayerList(layerName).filter(layer => (
-    !(isTransparentNativeOverlay && layerName === 'wind')
-      || (layer !== WIND_LAYER_KEYS.WIND_HEATMAP
-        && layer !== WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP)
-  ))
+  // Keep the selected color layer in native-overlay mode. Removing both Wind
+  // heatmaps left only sparse animated particles, which could make an active
+  // overlay indistinguishable from the Navionics chart underneath it.
+  const visibleList = getVisibleLayerList(layerName)
   const isWindLayer = isWind(layerName)
   const isWeatherWniLayer = isWeatherWni(layerName)
 
@@ -918,9 +917,12 @@ function Mapbox(): ReactElement {
   const visibleLayers = React.useMemo(() => {
     // Native overlays have no layer menu, so do not inherit an old browser
     // preference that may have disabled animation or crowdsourced particles.
-    // Always render both wind streams and the barbs in this presentation.
+    // Always render the translucent speed field, both wind streams, and the
+    // barbs in this presentation. Without the speed field, sparse particles
+    // can make an active overlay look identical to the chart underneath it.
     const activeLayerIds = isTransparentNativeOverlay && isWindLayer
       ? [
+          WIND_LAYER_KEYS.WIND_HEATMAP,
           WIND_LAYER_KEYS.WIND_ANIMATION,
           WIND_LAYER_KEYS.WIND_CROWDSOURCED_UV,
           WIND_LAYER_KEYS.WIND_BARBS,
