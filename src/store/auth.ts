@@ -19,7 +19,7 @@ import {
   resetPassword
 } from 'aws-amplify/auth'
 
-import { getCookies } from 'lib/cookies'
+import { CookieExchangeError, getCookies } from 'lib/cookies'
 import { NATIVE_ID_TOKEN_KEY, usableNativeIdToken } from 'lib/nativeSession'
 import { notifySuccess, notifyError } from 'lib/toast'
 
@@ -84,17 +84,30 @@ export const useAuthStore = create<AuthStore>((set) => ({
       let session = handoffIdToken
         ? { idToken: handoffIdToken, from: 'app handoff' }
         : await restoreAmplifySession()
+      const fromNativeApp = !!handoffIdToken || session?.from === 'saved native handoff'
 
       if (session?.idToken) {
         try {
-          await getCookies(session.idToken)
+          if (fromNativeApp) {
+            await getCookiesAwaitingSubscription(session.idToken)
+          } else {
+            await getCookies(session.idToken)
+          }
           if (handoffIdToken) {
             try { localStorage.setItem(NATIVE_ID_TOKEN_KEY, handoffIdToken) } catch { /* Native app can supply it again. */ }
           }
         } catch (handoffError) {
-          // A native-app handoff token can belong to a different Cognito app
-          // client than the weather site. Do not let that discard a valid
-          // session previously established in this persistent WebView.
+          // The app proved who the user is; a 403 only means the subscription
+          // record has not reached SailTimer's server yet. Never answer that
+          // with the web login page, which cannot fix it.
+          if (fromNativeApp && isSubscriptionNotRecorded(handoffError)) {
+            console.warn('[authUser] Subscription not yet recorded for app user')
+            set({
+              currentUser: { isAuthorized: false, activationPending: true },
+              isLoading: false
+            })
+            return
+          }
           if (!handoffIdToken) throw handoffError
 
           console.warn('[authUser] App handoff failed; trying saved web session')
@@ -239,6 +252,30 @@ export const useAuthStore = create<AuthStore>((set) => ({
     }
   }
 }))
+
+const SUBSCRIPTION_RETRY_DELAYS_MS = [1500, 2500, 4000, 6000, 8000]
+
+function isSubscriptionNotRecorded(error: unknown): boolean {
+  return error instanceof CookieExchangeError && error.status === 403
+}
+
+// Right after a purchase, or when an App Store renewal is being recorded, the
+// app opens the map while SailTimer's server is still writing the subscription.
+// Wait for it instead of failing the first /sign-cookies attempt.
+async function getCookiesAwaitingSubscription(
+  idToken: string,
+  delays: number[] = SUBSCRIPTION_RETRY_DELAYS_MS
+): Promise<void> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await getCookies(idToken)
+      return
+    } catch (error) {
+      if (!isSubscriptionNotRecorded(error) || attempt >= delays.length) throw error
+      await new Promise(resolve => setTimeout(resolve, delays[attempt]))
+    }
+  }
+}
 
 function getConfiguredIdTokenFromLocalStorage() {
   const storagePrefix = `CognitoIdentityServiceProvider.${userPoolClientId}`

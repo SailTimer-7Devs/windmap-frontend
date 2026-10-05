@@ -36,7 +36,7 @@ const storeBundle = await build({
     build.onLoad({ filter: /.*/, namespace: 'fixture' }, args => ({ contents:
       args.path === 'aws-amplify' ? 'export const Amplify={configure(){}}' :
       args.path === 'aws-amplify/auth' ? 'export async function fetchAuthSession(){return {}}; export async function signOut(){}; export async function signIn(){}; export async function signUp(){}; export async function confirmSignUp(){}; export async function resetPassword(){};' :
-      args.path === 'lib/cookies' ? 'export async function getCookies(token){globalThis.cookieTokens.push(token);if(globalThis.rejectCookie)throw new Error("server rejected token")}' :
+      args.path === 'lib/cookies' ? 'export class CookieExchangeError extends Error{constructor(status){super("status "+status);this.status=status}};export async function getCookies(token){globalThis.cookieTokens.push(token);if(globalThis.cookieFailures&&globalThis.cookieFailures())throw new CookieExchangeError(globalThis.cookieStatus);if(globalThis.rejectCookie)throw new Error("server rejected token")}' :
       'export function notifySuccess(){};export function notifyError(){}'
     }))
   } }]
@@ -62,3 +62,31 @@ try { await store.getState().authUser(liveToken) } finally { console.error = ori
 assert.equal(storage.has('sailtimer.nativeIdToken'), false, 'rejected token is never persisted')
 assert.equal(store.getState().currentUser.isAuthorized, false)
 console.log('Native handoff, reload, logout, and server-rejection lifecycle checks passed.')
+
+// The app's user is known but the subscription record is still being written:
+// keep retrying /sign-cookies, and never fall back to the web login page.
+globalThis.rejectCookie = false
+storage.clear()
+let pendingFailures = 1
+globalThis.cookieStatus = 403
+const storeWithPending = await freshStore('purchase-race')
+const originalWarn = console.warn
+console.warn = () => {}
+try {
+  globalThis.cookieFailures = () => pendingFailures-- > 0
+  await storeWithPending.getState().authUser(liveToken)
+  assert.equal(storeWithPending.getState().currentUser.isAuthorized, true, 'retry succeeds once the record exists')
+  assert.equal(storeWithPending.getState().currentUser.activationPending, undefined)
+
+  globalThis.cookieFailures = () => true
+  storage.clear()
+  const neverRecorded = await freshStore('never-recorded')
+  await neverRecorded.getState().authUser(liveToken)
+  assert.equal(neverRecorded.getState().currentUser.isAuthorized, false)
+  assert.equal(neverRecorded.getState().currentUser.activationPending, true, 'shows activation message, not login')
+  assert.equal(storage.has('sailtimer.nativeIdToken'), false)
+} finally {
+  console.warn = originalWarn
+  globalThis.cookieFailures = undefined
+}
+console.log('Subscription-record retry and activation-pending checks passed.')
