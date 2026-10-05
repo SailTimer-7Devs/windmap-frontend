@@ -20,6 +20,7 @@ import {
 } from 'aws-amplify/auth'
 
 import { getCookies } from 'lib/cookies'
+import { NATIVE_ID_TOKEN_KEY, usableNativeIdToken } from 'lib/nativeSession'
 import { notifySuccess, notifyError } from 'lib/toast'
 
 const userPoolId = import.meta.env.VITE_COGNITO_USER_POOL_ID
@@ -87,6 +88,9 @@ export const useAuthStore = create<AuthStore>((set) => ({
       if (session?.idToken) {
         try {
           await getCookies(session.idToken)
+          if (handoffIdToken) {
+            try { localStorage.setItem(NATIVE_ID_TOKEN_KEY, handoffIdToken) } catch { /* Native app can supply it again. */ }
+          }
         } catch (handoffError) {
           // A native-app handoff token can belong to a different Cognito app
           // client than the weather site. Do not let that discard a valid
@@ -152,6 +156,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
         const idToken = session.tokens?.idToken?.toString()
         if (!idToken) throw new Error('Missing ID token')
         await getCookies(idToken)
+        localStorage.removeItem(NATIVE_ID_TOKEN_KEY)
 
         set({
           currentUser: {
@@ -214,6 +219,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   },
 
   signOut: async () => {
+    localStorage.removeItem(NATIVE_ID_TOKEN_KEY)
     try {
       await amplifySignOut()
 
@@ -264,12 +270,23 @@ async function restoreAmplifySession() {
 
   try {
     const tokenData = getConfiguredIdTokenFromLocalStorage()
-    if (tokenData && tokenData.value) {
+    if (tokenData && usableNativeIdToken(tokenData.value, userPoolId)) {
       const { key: tokenKey, value: idToken } = tokenData
       console.info(`[restoreAmplifySession] idToken restored from localStorage key: ${tokenKey}`)
       return { idToken, from: 'localStorage' }
     }
   } catch (error) {
     console.error('[restoreAmplifySession] Failed to read idToken from localStorage:', error)
+  }
+
+  // Native tokens use another app-client ID and are not an Amplify login.
+  // Preserve a server-accepted handoff across web reloads without inventing
+  // an Amplify refresh session or reading tokens from arbitrary client keys.
+  try {
+    const idToken = usableNativeIdToken(localStorage.getItem(NATIVE_ID_TOKEN_KEY), userPoolId)
+    if (idToken) return { idToken, from: 'saved native handoff' }
+    localStorage.removeItem(NATIVE_ID_TOKEN_KEY)
+  } catch {
+    // Storage can be unavailable; the next native navigation supplies a token.
   }
 }

@@ -48,14 +48,8 @@ export default function App(): ReactElement {
           throw new Error('The app token has expired')
         }
 
-        const username = decoded['cognito:username'] || decoded.email || decoded.sub
-
-        if (username) {
-          const storagePrefix = `CognitoIdentityServiceProvider.${decoded.aud}`
-          localStorage.setItem(`${storagePrefix}.${username}.idToken`, idToken)
-          localStorage.setItem(`${storagePrefix}.LastAuthUser`, username)
-        }
-
+        // authUser persists the native handoff only after the server accepts
+        // it. Do not manufacture an Amplify login under another client ID.
         // The backend validates the signed token. Email is not a required ID
         // token claim, so a valid native-app handoff must not depend on it.
         handoffIdToken = idToken
