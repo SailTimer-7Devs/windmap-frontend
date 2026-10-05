@@ -53,12 +53,6 @@ body:has(.sailtimer-native-weather-overlay),
   overflow: hidden;
 }
 
-// The native app measures its instrument bar in the web view's coordinates.
-// Keep the legend (and the forecast positioned relative to it) above that bar.
-.sailtimer-native-weather-overlay .mapboxgl-ctrl-bottom-left {
-  bottom: var(--st-overlay-bottom, 128px);
-}
-
 $base-font-size: 14px;
 $base-line-height: 1.2;
 
