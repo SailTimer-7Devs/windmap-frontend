@@ -13,10 +13,48 @@ import { useAuthStore } from 'store/auth'
 
 const ID_TOKEN_PARAM = 'idToken'
 
+const APP_SESSION_AUTO_RETRY_MS = 20000
+
+// Shown to SailTimer-app users instead of the web login page when the weather
+// session cannot be established yet. Retries on its own and on demand.
+function AppSessionNotice({ issue, onRetry }: {
+  issue: 'activation' | 'unavailable'
+  onRetry: () => void
+}): ReactElement {
+  React.useEffect(() => {
+    const timer = window.setInterval(onRetry, APP_SESSION_AUTO_RETRY_MS)
+    return () => window.clearInterval(timer)
+  }, [onRetry])
+
+  return (
+    <div className='w-full h-dvh flex items-center justify-center p-6'>
+      <div className='max-w-sm rounded bg-gray-900/90 px-4 py-3 text-center text-sm text-white shadow-lg'>
+        <p>
+          {issue === 'activation'
+            ? 'Your subscription is still being activated. The map will open automatically.'
+            : 'The weather service could not be reached. The map will open automatically when the connection returns.'}
+        </p>
+        <button
+          type='button'
+          className='mt-3 rounded bg-white px-3 py-1.5 font-semibold text-gray-900'
+          onClick={onRetry}
+        >
+          Try again
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function App(): ReactElement {
   const idToken = React.useRef(getUrlParams(ID_TOKEN_PARAM, '')).current
 
   const { isLoading, authUser, currentUser } = useAuthStore()
+  const appSessionToken = currentUser.appSessionToken
+  const retryAppSession = React.useCallback(
+    () => { authUser(appSessionToken) },
+    [authUser, appSessionToken]
+  )
 
   React.useEffect(() => {
     let handoffIdToken: string | undefined
@@ -72,13 +110,11 @@ export default function App(): ReactElement {
           <div className='relative w-full h-dvh flex items-center justify-center'>
             <Spinner show={isLoading} />
           </div>)
-        : currentUser.activationPending
-          ? (
-            <div className='w-full h-dvh flex items-center justify-center p-6'>
-              <p className='max-w-sm rounded bg-gray-900/90 px-4 py-3 text-center text-sm text-white shadow-lg'>
-                Your subscription is still being activated. Please close this map and open it again in a minute.
-              </p>
-            </div>)
+        : currentUser.appSessionIssue
+          ? <AppSessionNotice
+              issue={currentUser.appSessionIssue}
+              onRetry={retryAppSession}
+            />
           : <Outlet />}
 
       <Toaster
