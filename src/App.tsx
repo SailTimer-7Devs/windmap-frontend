@@ -19,12 +19,30 @@ const APP_SESSION_AUTO_RETRY_MS = 20000
 // session cannot be established yet. Retries on its own and on demand.
 function AppSessionNotice({ issue, onRetry }: {
   issue: 'activation' | 'unavailable'
-  onRetry: () => void
+  onRetry: () => Promise<void>
 }): ReactElement {
-  React.useEffect(() => {
-    const timer = window.setInterval(onRetry, APP_SESSION_AUTO_RETRY_MS)
-    return () => window.clearInterval(timer)
+  const [isRetrying, setIsRetrying] = React.useState(false)
+  const busyRef = React.useRef(false)
+
+  // One attempt at a time: manual and automatic retries never overlap.
+  const retry = React.useCallback(async () => {
+    if (busyRef.current) return
+    busyRef.current = true
+    setIsRetrying(true)
+    try {
+      await onRetry()
+    } finally {
+      busyRef.current = false
+      setIsRetrying(false)
+    }
   }, [onRetry])
+
+  // The next automatic retry is scheduled only after the previous one ends.
+  React.useEffect(() => {
+    if (isRetrying) return
+    const timer = window.setTimeout(retry, APP_SESSION_AUTO_RETRY_MS)
+    return () => window.clearTimeout(timer)
+  }, [isRetrying, retry])
 
   return (
     <div className='w-full h-dvh flex items-center justify-center p-6'>
@@ -36,10 +54,11 @@ function AppSessionNotice({ issue, onRetry }: {
         </p>
         <button
           type='button'
-          className='mt-3 rounded bg-white px-3 py-1.5 font-semibold text-gray-900'
-          onClick={onRetry}
+          className='mt-3 rounded bg-white px-3 py-1.5 font-semibold text-gray-900 disabled:opacity-60'
+          onClick={retry}
+          disabled={isRetrying}
         >
-          Try again
+          {isRetrying ? 'Trying…' : 'Try again'}
         </button>
       </div>
     </div>
@@ -52,7 +71,7 @@ export default function App(): ReactElement {
   const { isLoading, authUser, currentUser } = useAuthStore()
   const appSessionToken = currentUser.appSessionToken
   const retryAppSession = React.useCallback(
-    () => { authUser(appSessionToken) },
+    () => authUser(appSessionToken),
     [authUser, appSessionToken]
   )
 

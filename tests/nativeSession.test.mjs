@@ -36,7 +36,7 @@ const storeBundle = await build({
     build.onLoad({ filter: /.*/, namespace: 'fixture' }, args => ({ contents:
       args.path === 'aws-amplify' ? 'export const Amplify={configure(){}}' :
       args.path === 'aws-amplify/auth' ? 'export async function fetchAuthSession(){return {}}; export async function signOut(){}; export async function signIn(){}; export async function signUp(){}; export async function confirmSignUp(){}; export async function resetPassword(){};' :
-      args.path === 'lib/cookies' ? 'export class CookieExchangeError extends Error{constructor(status){super("status "+status);this.status=status}};export async function getCookies(token){globalThis.cookieTokens.push(token);if(globalThis.cookieFailures&&globalThis.cookieFailures())throw new CookieExchangeError(globalThis.cookieStatus);if(globalThis.rejectCookie)throw new Error("server rejected token")}' :
+      args.path === 'lib/cookies' ? 'export class CookieExchangeError extends Error{constructor(status){super("status "+status);this.status=status}};globalThis.CookieExchangeError=CookieExchangeError;export async function getCookies(token,timeoutMs){globalThis.cookieTokens.push(token);if(globalThis.cookieHook)return globalThis.cookieHook(token,timeoutMs);if(globalThis.cookieFailures&&globalThis.cookieFailures())throw new CookieExchangeError(globalThis.cookieStatus);if(globalThis.rejectCookie)throw new Error("server rejected token")}' :
       'export function notifySuccess(){};export function notifyError(){}'
     }))
   } }]
@@ -121,3 +121,53 @@ for (const [status, label] of [[500, 'HTTP 500'], [0, 'network failure']]) {
   }
 }
 console.log('HTTP 500, network failure and Try-again recovery checks passed.')
+
+// Codex F1: an older, still-running attempt must not overwrite a newer success.
+{
+  storage.clear()
+  const store = await freshStore('overlap')
+  let releaseA
+  const heldA = new Promise((_, reject) => { releaseA = reject })
+  let calls = 0
+  globalThis.cookieHook = () => (++calls === 1 ? heldA : Promise.resolve())
+  const warn = console.warn
+  console.warn = () => {}
+  try {
+    const attemptA = store.getState().authUser(liveToken)
+    await store.getState().authUser(liveToken)
+    assert.equal(store.getState().currentUser.isAuthorized, true, 'newer attempt succeeded')
+    releaseA(new globalThis.CookieExchangeError(401))
+    await attemptA
+    assert.equal(store.getState().currentUser.isAuthorized, true, 'stale failure is ignored')
+    assert.equal(store.getState().currentUser.appSessionIssue, undefined)
+  } finally {
+    console.warn = warn
+    globalThis.cookieHook = undefined
+  }
+}
+console.log('Overlapping-attempt guard check passed.')
+
+// Codex F2: the 30-second cap is a hard limit, including slow requests.
+{
+  storage.clear()
+  const store = await freshStore('deadline')
+  globalThis.cookieStatus = 0
+  let attempts = 0
+  globalThis.cookieHook = (_, timeoutMs) => new Promise((_, reject) => setTimeout(() => {
+    attempts++; reject(new globalThis.CookieExchangeError(0))
+  }, Math.min(timeoutMs ?? 10000, 10000)))
+  const warn = console.warn
+  console.warn = () => {}
+  const started = Date.now()
+  try {
+    await store.getState().authUser(liveToken)
+  } finally {
+    console.warn = warn
+    globalThis.cookieHook = undefined
+  }
+  const elapsed = Date.now() - started
+  assert.ok(attempts > 1, 'slow failures are retried')
+  assert.ok(elapsed <= 30500, `finished within 30 s (took ${elapsed} ms)`)
+  assert.equal(store.getState().currentUser.appSessionIssue, 'unavailable')
+}
+console.log('30-second deadline check passed.')
