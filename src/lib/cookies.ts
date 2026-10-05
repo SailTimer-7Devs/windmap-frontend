@@ -18,7 +18,10 @@ export class CookieExchangeError extends Error {
   }
 }
 
-export async function getCookies(idToken: string): Promise<void> {
+export async function getCookies(
+  idToken: string,
+  timeoutMs: number = SIGN_COOKIES_TIMEOUT_MS
+): Promise<void> {
   if (import.meta.env.VITE_STAGE === 'dev') {
     return Promise.resolve()
   }
@@ -28,7 +31,7 @@ export async function getCookies(idToken: string): Promise<void> {
   }
 
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), SIGN_COOKIES_TIMEOUT_MS)
+  const timer = setTimeout(() => controller.abort(), Math.min(timeoutMs, SIGN_COOKIES_TIMEOUT_MS))
   let response: Response
   try {
     response = await fetch(`${API_URL}/sign-cookies`, {

@@ -75,11 +75,20 @@ const initialUser: Partial<CurrentUser> = {
   isAuthorized: false
 }
 
+// Only the most recent authUser call may change state. An older attempt that
+// is still retrying must not overwrite the result of a newer one (for example
+// a manual "Try again" that already succeeded).
+let latestAuthAttempt = 0
+
 export const useAuthStore = create<AuthStore>((set) => ({
   currentUser: initialUser,
   isLoading: true,
 
   authUser: async (handoffIdToken?: string) => {
+    const attempt = ++latestAuthAttempt
+    const setLatest = (state: Partial<AuthStore>) => {
+      if (attempt === latestAuthAttempt) set(state)
+    }
     try {
       let session = handoffIdToken
         ? { idToken: handoffIdToken, from: 'app handoff' }
@@ -104,7 +113,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
           if (fromNativeApp) {
             const activation = isSubscriptionNotRecorded(handoffError)
             console.warn(`[authUser] App session not established (${activation ? 'activation' : 'unavailable'})`)
-            set({
+            setLatest({
               currentUser: {
                 isAuthorized: false,
                 appSessionIssue: activation ? 'activation' : 'unavailable',
@@ -130,7 +139,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       const { idToken, from } = session || {}
 
       if (idToken) {
-        set({
+        setLatest({
           currentUser: {
             isAuthorized: true
           },
@@ -139,7 +148,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
         console.info(`[authUser] Authorized via ${from}`)
       } else {
-        set({
+        setLatest({
           currentUser: {
             isAuthorized: false
           },
@@ -151,7 +160,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     } catch (error) {
       console.error('[authUser] unexpected error:', error)
 
-      set({
+      setLatest({
         currentUser: initialUser,
         isLoading: false
       })
@@ -159,6 +168,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   },
 
   signIn: async (payload: SignInPayload) => {
+    latestAuthAttempt++
     try {
       const { isSignedIn, nextStep } = await amplifySignIn({
         username: normalizeEmail(payload.email),
@@ -238,6 +248,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   },
 
   signOut: async () => {
+    latestAuthAttempt++
     localStorage.removeItem(NATIVE_ID_TOKEN_KEY)
     try {
       await amplifySignOut()
@@ -286,11 +297,12 @@ async function getCookiesAwaitingSubscription(
   const deadline = Date.now() + deadlineMs
   for (let attempt = 0; ; attempt++) {
     try {
-      await getCookies(idToken)
+      // Each request may only use the time left before the deadline.
+      await getCookies(idToken, Math.max(1, deadline - Date.now()))
       return
     } catch (error) {
       if (!isRetryable(error) || attempt >= delays.length ||
-          Date.now() + delays[attempt] > deadline) throw error
+          Date.now() + delays[attempt] >= deadline) throw error
       await new Promise(resolve => setTimeout(resolve, delays[attempt]))
     }
   }
