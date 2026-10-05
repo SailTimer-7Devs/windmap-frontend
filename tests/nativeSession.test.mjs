@@ -76,17 +76,48 @@ try {
   globalThis.cookieFailures = () => pendingFailures-- > 0
   await storeWithPending.getState().authUser(liveToken)
   assert.equal(storeWithPending.getState().currentUser.isAuthorized, true, 'retry succeeds once the record exists')
-  assert.equal(storeWithPending.getState().currentUser.activationPending, undefined)
+  assert.equal(storeWithPending.getState().currentUser.appSessionIssue, undefined)
 
   globalThis.cookieFailures = () => true
   storage.clear()
   const neverRecorded = await freshStore('never-recorded')
   await neverRecorded.getState().authUser(liveToken)
   assert.equal(neverRecorded.getState().currentUser.isAuthorized, false)
-  assert.equal(neverRecorded.getState().currentUser.activationPending, true, 'shows activation message, not login')
+  assert.equal(neverRecorded.getState().currentUser.appSessionIssue, 'activation', 'shows activation message, not login')
+  assert.equal(neverRecorded.getState().currentUser.appSessionToken, liveToken, 'keeps token for retry')
   assert.equal(storage.has('sailtimer.nativeIdToken'), false)
 } finally {
   console.warn = originalWarn
   globalThis.cookieFailures = undefined
 }
 console.log('Subscription-record retry and activation-pending checks passed.')
+
+// Server errors and network failures must also keep app users off the login page.
+for (const [status, label] of [[500, 'HTTP 500'], [0, 'network failure']]) {
+  storage.clear()
+  globalThis.cookieStatus = status
+  let failures = 1
+  globalThis.cookieFailures = () => failures-- > 0
+  const warn = console.warn
+  console.warn = () => {}
+  try {
+    const recovers = await freshStore(`transient-${status}`)
+    await recovers.getState().authUser(liveToken)
+    assert.equal(recovers.getState().currentUser.isAuthorized, true, `${label} is retried`)
+
+    globalThis.cookieFailures = () => true
+    storage.clear()
+    const down = await freshStore(`down-${status}`)
+    await down.getState().authUser(liveToken)
+    assert.equal(down.getState().currentUser.isAuthorized, false)
+    assert.equal(down.getState().currentUser.appSessionIssue, 'unavailable', `${label} shows retry notice, not login`)
+
+    globalThis.cookieFailures = () => false
+    await down.getState().authUser(down.getState().currentUser.appSessionToken)
+    assert.equal(down.getState().currentUser.isAuthorized, true, `${label}: Try again recovers`)
+  } finally {
+    console.warn = warn
+    globalThis.cookieFailures = undefined
+  }
+}
+console.log('HTTP 500, network failure and Try-again recovery checks passed.')

@@ -97,13 +97,19 @@ export const useAuthStore = create<AuthStore>((set) => ({
             try { localStorage.setItem(NATIVE_ID_TOKEN_KEY, handoffIdToken) } catch { /* Native app can supply it again. */ }
           }
         } catch (handoffError) {
-          // The app proved who the user is; a 403 only means the subscription
-          // record has not reached SailTimer's server yet. Never answer that
-          // with the web login page, which cannot fix it.
-          if (fromNativeApp && isSubscriptionNotRecorded(handoffError)) {
-            console.warn('[authUser] Subscription not yet recorded for app user')
+          // The app proved who the user is. A 403 means the subscription
+          // record has not reached SailTimer's server yet; other failures are
+          // server or network problems. The web login page cannot fix either,
+          // so app users get a retryable message instead.
+          if (fromNativeApp) {
+            const activation = isSubscriptionNotRecorded(handoffError)
+            console.warn(`[authUser] App session not established (${activation ? 'activation' : 'unavailable'})`)
             set({
-              currentUser: { isAuthorized: false, activationPending: true },
+              currentUser: {
+                isAuthorized: false,
+                appSessionIssue: activation ? 'activation' : 'unavailable',
+                appSessionToken: session.idToken
+              },
               isLoading: false
             })
             return
@@ -259,19 +265,32 @@ function isSubscriptionNotRecorded(error: unknown): boolean {
   return error instanceof CookieExchangeError && error.status === 403
 }
 
+// 403 (record not written yet), 5xx and network failures/timeouts can clear up
+// on their own; 401 means the token itself was rejected and will not.
+function isRetryable(error: unknown): boolean {
+  return error instanceof CookieExchangeError &&
+    (error.status === 403 || error.status === 0 || error.status >= 500)
+}
+
+// Upper bound on the spinner, including slow or timed-out requests.
+const APP_SESSION_DEADLINE_MS = 30000
+
 // Right after a purchase, or when an App Store renewal is being recorded, the
 // app opens the map while SailTimer's server is still writing the subscription.
 // Wait for it instead of failing the first /sign-cookies attempt.
 async function getCookiesAwaitingSubscription(
   idToken: string,
-  delays: number[] = SUBSCRIPTION_RETRY_DELAYS_MS
+  delays: number[] = SUBSCRIPTION_RETRY_DELAYS_MS,
+  deadlineMs: number = APP_SESSION_DEADLINE_MS
 ): Promise<void> {
+  const deadline = Date.now() + deadlineMs
   for (let attempt = 0; ; attempt++) {
     try {
       await getCookies(idToken)
       return
     } catch (error) {
-      if (!isSubscriptionNotRecorded(error) || attempt >= delays.length) throw error
+      if (!isRetryable(error) || attempt >= delays.length ||
+          Date.now() + delays[attempt] > deadline) throw error
       await new Promise(resolve => setTimeout(resolve, delays[attempt]))
     }
   }
