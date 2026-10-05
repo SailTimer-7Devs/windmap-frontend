@@ -18,6 +18,9 @@ type HourlyWniForecastProps = {
   onRequestLocation: () => void
   onSelect: (datetime: string) => void
   onClose: () => void
+  // On phones the app keeps its GPS and zoom buttons above the overlay's
+  // top area; start the panel below them so its close button stays tappable.
+  isNativeOverlay?: boolean
 }
 
 const hourFormatter = new Intl.DateTimeFormat(undefined, { hour: 'numeric' })
@@ -64,12 +67,13 @@ export default function HourlyWniForecast({
   forecastError,
   onRequestLocation,
   onSelect,
-  onClose
+  onClose,
+  isNativeOverlay = false
 }: HourlyWniForecastProps): ReactElement {
   const message = locationError || forecastError
 
   return (
-    <section className='absolute left-3 right-3 top-16 z-50 mx-auto max-w-xl overflow-hidden rounded-md border border-[#34516f] bg-[#071628]/95 text-white shadow-xl backdrop-blur' aria-label='Hourly WNI forecast at your location'>
+    <section className={`absolute left-3 right-3 top-16 ${isNativeOverlay ? 'max-sm:top-[196px]' : ''} z-50 mx-auto max-w-xl overflow-hidden rounded-md border border-[#34516f] bg-[#071628]/95 text-white shadow-xl backdrop-blur`} aria-label='Hourly WNI forecast at your location'>
       <header className='flex items-center justify-between border-b border-[#34516f] px-2.5 py-1.5'>
         <div>
           <h2 className='text-xs font-bold leading-tight'>Hourly WNI forecast</h2>
