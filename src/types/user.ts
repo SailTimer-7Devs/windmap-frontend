@@ -20,4 +20,7 @@ export type ConfirmSignUpPayload = {
 
 export type CurrentUser = {
   isAuthorized: boolean
+  // The SailTimer app handed over a valid login, but the subscription record
+  // has not reached the server yet. Shown instead of the web login page.
+  activationPending?: boolean
 }
