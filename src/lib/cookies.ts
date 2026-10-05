@@ -4,6 +4,16 @@ if (!API_URL) {
   throw new Error('Missing env variables: API_URL')
 }
 
+export class CookieExchangeError extends Error {
+  readonly status: number
+
+  constructor(status: number) {
+    super(`Unable to establish the subscription session (${status})`)
+    this.name = 'CookieExchangeError'
+    this.status = status
+  }
+}
+
 export async function getCookies(idToken: string): Promise<void> {
   if (import.meta.env.VITE_STAGE === 'dev') {
     return Promise.resolve()
@@ -22,6 +32,6 @@ export async function getCookies(idToken: string): Promise<void> {
   })
 
   if (!response.ok) {
-    throw new Error(`Unable to establish the subscription session (${response.status})`)
+    throw new CookieExchangeError(response.status)
   }
 }

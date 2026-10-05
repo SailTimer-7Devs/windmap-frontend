@@ -1081,7 +1081,6 @@ function Mapbox(): ReactElement {
             onRequestLocation={requestUserLocation}
             onSelect={handleTimelineUpdate}
             onClose={() => setIsHourlyForecastOpen(false)}
-            isNativeOverlay={isTransparentNativeOverlay}
           />
         )}
 
@@ -1096,7 +1095,6 @@ function Mapbox(): ReactElement {
             onRequestLocation={requestUserLocation}
             onSelect={handleTimelineUpdate}
             onClose={() => setIsHourlyForecastOpen(false)}
-            isNativeOverlay={isTransparentNativeOverlay}
           />
         )}
 

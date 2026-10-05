@@ -12,7 +12,6 @@ type HourlyWindForecastProps = {
   onRequestLocation: () => void
   onSelect: (datetime: string) => void
   onClose: () => void
-  isNativeOverlay?: boolean
 }
 
 const hourFormatter = new Intl.DateTimeFormat(undefined, {
@@ -28,18 +27,13 @@ export default function HourlyWindForecast({
   forecastError,
   onRequestLocation,
   onSelect,
-  onClose,
-  isNativeOverlay = false
+  onClose
 }: HourlyWindForecastProps): ReactElement {
   const message = locationError || forecastError
 
   return (
     <section
-      className={`absolute z-50 overflow-hidden rounded bg-gray-900/95 text-white shadow-lg backdrop-blur ${
-        isNativeOverlay
-          ? 'left-4 right-4 mx-auto max-w-xl top-[var(--st-overlay-top,280px)] max-h-[35vh] overflow-y-auto'
-          : 'left-4 right-4 top-16 mx-auto max-w-xl'
-      }`}
+      className='absolute z-50 left-4 right-4 top-16 mx-auto max-w-xl overflow-hidden rounded bg-gray-900/95 text-white shadow-lg backdrop-blur'
       aria-label='Hourly wind forecast at your location'
     >
       <header className='flex items-center justify-between border-b border-gray-700 px-2.5 py-1.5'>
