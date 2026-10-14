@@ -125,12 +125,15 @@ const getRememberedUserCoordinates = (): UserCoordinates | null => {
 function Mapbox(): ReactElement {
   const isTransparentNativeOverlay = new URL(window.location.href).searchParams.get('transparentOverlay') === '1'
   const layerName = getUrlParams()
-  // Keep the selected color layer in native-overlay mode. Removing both Wind
-  // heatmaps left only sparse animated particles, which could make an active
-  // overlay indistinguishable from the Navionics chart underneath it.
-  const visibleList = getVisibleLayerList(layerName)
   const isWindLayer = isWind(layerName)
   const isWeatherWniLayer = isWeatherWni(layerName)
+  // Native chart overlays show wind animation and readings without covering
+  // the chart with the full-map wind-speed color field or its legend.
+  const visibleList = getVisibleLayerList(layerName).filter(layer => (
+    !(isTransparentNativeOverlay && isWindLayer)
+      || (layer !== WIND_LAYER_KEYS.WIND_HEATMAP
+        && layer !== WIND_LAYER_KEYS.WIND_DIRECTION_HEATMAP)
+  ))
 
   const datetimes = getDateTimeByLayerName(layerName)
 
@@ -917,12 +920,9 @@ function Mapbox(): ReactElement {
   const visibleLayers = React.useMemo(() => {
     // Native overlays have no layer menu, so do not inherit an old browser
     // preference that may have disabled animation or crowdsourced particles.
-    // Always render the translucent speed field, both wind streams, and the
-    // barbs in this presentation. Without the speed field, sparse particles
-    // can make an active overlay look identical to the chart underneath it.
+    // Always render both wind streams and the barbs in this presentation.
     const activeLayerIds = isTransparentNativeOverlay && isWindLayer
       ? [
-          WIND_LAYER_KEYS.WIND_HEATMAP,
           WIND_LAYER_KEYS.WIND_ANIMATION,
           WIND_LAYER_KEYS.WIND_CROWDSOURCED_UV,
           WIND_LAYER_KEYS.WIND_BARBS,
@@ -1257,7 +1257,7 @@ function Mapbox(): ReactElement {
             )
         )}
 
-        {isWindHeatMapLayer && (
+        {isWindHeatMapLayer && !(isTransparentNativeOverlay && isWindLayer) && (
           <LegendControl
             title='Wind speed'
             unitFormat={{ unit: 'knots' }}
