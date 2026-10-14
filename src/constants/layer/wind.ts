@@ -100,9 +100,7 @@ export const getWindLayers = (layersState: LayersState, zoom: number = 0): Layer
     imageType: 'SCALAR',
     bounds: BASE.WIND_MAP_BOUNDS,
     palette: BASE.WIND_SPEED_PALETTE_1_40 as Palette,
-    // A slightly stronger translucent fill makes the weather layer visibly
-    // distinct over Navionics without hiding chart labels or coastlines.
-    opacity: isTransparentNativeOverlay ? 0.34 : 0.2,
+    opacity: 0.2,
     imageUnscale: [0, 255],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
@@ -116,7 +114,7 @@ export const getWindLayers = (layersState: LayersState, zoom: number = 0): Layer
     bounds: BASE.WIND_MAP_BOUNDS,
     palette: BASE.EXPERIMENTAL_WIND_PALETTE_0_16 as Palette,
     imageInterpolation: 'NEAREST',
-    opacity: isTransparentNativeOverlay ? 0.34 : 0.2,
+    opacity: 0.2,
     imageUnscale: [0, 16],
     extensions: [new ClipExtension()],
     clipBounds: BASE.CLIP_BOUNDS,
