@@ -267,6 +267,7 @@ function Mapbox(): ReactElement {
           padding: 0
         }
       )
+      window.dispatchEvent(new Event('sailtimer-native-viewport'))
     }
 
     const setViewport = (viewport: SailTimerViewport) => {
@@ -611,10 +612,11 @@ function Mapbox(): ReactElement {
   const updateCenterPopover = React.useCallback((): boolean => {
     if (!isWindLayer || !isMobile || !mapRef.current) return false
 
-    /* Once either the initial or tapped target has a geographic anchor,
-       preserve it instead of resetting the target to the screen center. */
+    /* A tapped or GPS target is intentional. The automatic center target must
+       follow a later native chart viewport instead of remaining offscreen. */
     if (
       popoverInfoRef.current?.kind === 'wind'
+      && popoverInfoRef.current.source !== 'center'
       && typeof popoverInfoRef.current.longitude === 'number'
       && typeof popoverInfoRef.current.latitude === 'number'
     ) return true
@@ -628,6 +630,7 @@ function Mapbox(): ReactElement {
     setPopoverInfo(prev => {
       if (
         prev?.kind === 'wind'
+        && prev.source !== 'center'
         && typeof prev.longitude === 'number'
         && typeof prev.latitude === 'number'
       ) return prev
@@ -708,30 +711,35 @@ function Mapbox(): ReactElement {
     }
   }, [isMapReady, isWindLayer, pickWindDataAt, userCoordinates])
 
-  /* Show the default centered popover as soon as the map is ready. The deck.gl
-     overlay and its raster image data may not be available the instant the map
-     fires `load`, so a single center pick can come back empty; retry briefly
-     until it succeeds (or a tap takes over) so the popover reliably appears on
-     first load without needing a pan. */
+  /* Show the default centered popover once the weather raster is pickable.
+     In a native chart overlay, the host may set its viewport after Mapbox's
+     load event and the raster can arrive well after the hourly table. Keep
+     retrying while mounted instead of giving up after a fixed startup window;
+     updateCenterPopover stops immediately once a tap or location takes over. */
   React.useEffect(() => {
     if (!isMapReady || !isWindLayer || !isMobile) return
 
     let timeoutId = 0
-    const startedAt = Date.now()
-    const RETRY_MS = 150
-    const TIMEOUT_MS = 4000
+    const RETRY_MS = 500
 
     const attempt = () => {
       if (updateCenterPopover()) return
 
-      if (Date.now() - startedAt < TIMEOUT_MS) {
-        timeoutId = window.setTimeout(attempt, RETRY_MS)
-      }
+      timeoutId = window.setTimeout(attempt, RETRY_MS)
     }
 
+    const retryAfterNativeViewport = () => {
+      window.clearTimeout(timeoutId)
+      timeoutId = window.setTimeout(attempt, RETRY_MS)
+    }
+
+    window.addEventListener('sailtimer-native-viewport', retryAfterNativeViewport)
     attempt()
 
-    return () => window.clearTimeout(timeoutId)
+    return () => {
+      window.removeEventListener('sailtimer-native-viewport', retryAfterNativeViewport)
+      window.clearTimeout(timeoutId)
+    }
   }, [isMapReady, isWindLayer, updateCenterPopover])
 
   /* The wind popover box sits fixed in the lower-right corner; track its
