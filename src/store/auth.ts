@@ -128,7 +128,15 @@ export const useAuthStore = create<AuthStore>((set) => ({
             })
             return
           }
-          if (!handoffIdToken) throw handoffError
+          if (!handoffIdToken) {
+            const issue = isSubscriptionNotRecorded(handoffError) ? 'subscription' : 'unavailable'
+            console.warn(`[authUser] Web session not established (${issue})`)
+            setLatest({
+              currentUser: { isAuthorized: false, appSessionIssue: issue },
+              isLoading: false
+            })
+            return
+          }
 
           console.warn('[authUser] App handoff failed; trying saved web session')
           const savedSession = await restoreAmplifySession()
@@ -174,17 +182,32 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   signIn: async (payload: SignInPayload) => {
     latestAuthAttempt++
+    let result: Awaited<ReturnType<typeof amplifySignIn>>
     try {
-      const { isSignedIn, nextStep } = await amplifySignIn({
+      result = await amplifySignIn({
         username: normalizeEmail(payload.email),
         password: payload.password,
         options: {
           authFlowType: 'USER_PASSWORD_AUTH'
         }
       })
+    } catch (err) {
+      // A previous attempt may have authenticated with Cognito but failed to
+      // obtain subscription cookies. Reuse that session instead of calling
+      // signIn again and misreporting "already signed in" as a bad password.
+      if ((err as { name?: string }).name === 'UserAlreadyAuthenticatedException') {
+        await useAuthStore.getState().authUser()
+        return
+      }
+      notifyError(messages.signInError)
+      console.error('signIn:', err)
+      return
+    }
 
-      const isNotConfirmed = nextStep.signInStep === 'CONFIRM_SIGN_UP'
-      if (isSignedIn) {
+    const { isSignedIn, nextStep } = result
+    const isNotConfirmed = nextStep.signInStep === 'CONFIRM_SIGN_UP'
+    if (isSignedIn) {
+      try {
         // It's necessary to use idToken for API Gateway authorizer
         const session = await fetchAuthSession()
         const idToken = session.tokens?.idToken?.toString()
@@ -199,14 +222,18 @@ export const useAuthStore = create<AuthStore>((set) => ({
           isLoading: false
         })
         notifySuccess(messages.signInSuccess)
-      } else if (isNotConfirmed) {
-        notifySuccess(messages.signInNotConfirmed)
-      } else {
-        console.error('signIn:', nextStep)
+      } catch (err) {
+        const issue = isSubscriptionNotRecorded(err) ? 'subscription' : 'unavailable'
+        console.warn(`[signIn] Authenticated, but weather session is ${issue}`)
+        set({
+          currentUser: { isAuthorized: false, appSessionIssue: issue },
+          isLoading: false
+        })
       }
-    } catch (err) {
-      notifyError(messages.signInError)
-      console.error('signIn:', err)
+    } else if (isNotConfirmed) {
+      notifySuccess(messages.signInNotConfirmed)
+    } else {
+      console.error('signIn:', nextStep)
     }
   },
 

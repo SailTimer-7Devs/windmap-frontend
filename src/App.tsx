@@ -15,11 +15,12 @@ const ID_TOKEN_PARAM = 'idToken'
 
 const APP_SESSION_AUTO_RETRY_MS = 20000
 
-// Shown to SailTimer-app users instead of the web login page when the weather
-// session cannot be established yet. Retries on its own and on demand.
-function AppSessionNotice({ issue, onRetry }: {
-  issue: 'activation' | 'unavailable'
+// Shown after authentication when the weather session cannot be established.
+// Transient issues retry automatically; a missing web subscription does not.
+function AppSessionNotice({ issue, onRetry, onSignOut }: {
+  issue: 'activation' | 'subscription' | 'unavailable'
   onRetry: () => Promise<void>
+  onSignOut?: () => Promise<void>
 }): ReactElement {
   const [isRetrying, setIsRetrying] = React.useState(false)
   const busyRef = React.useRef(false)
@@ -39,10 +40,12 @@ function AppSessionNotice({ issue, onRetry }: {
 
   // The next automatic retry is scheduled only after the previous one ends.
   React.useEffect(() => {
-    if (isRetrying) return
+    // A web account without a subscription will not become entitled merely
+    // by polling. Let the user check again after buying or switch accounts.
+    if (isRetrying || issue === 'subscription') return
     const timer = window.setTimeout(retry, APP_SESSION_AUTO_RETRY_MS)
     return () => window.clearTimeout(timer)
-  }, [isRetrying, retry])
+  }, [isRetrying, issue, retry])
 
   return (
     <div className='w-full h-dvh flex items-center justify-center p-6'>
@@ -50,7 +53,9 @@ function AppSessionNotice({ issue, onRetry }: {
         <p>
           {issue === 'activation'
             ? 'Your subscription is still being activated. The map will open automatically.'
-            : 'The weather service could not be reached. The map will open automatically when the connection returns.'}
+            : issue === 'subscription'
+              ? 'You are signed in, but no active weather-map subscription was found for this account. If you just purchased one, check again shortly.'
+              : 'The weather service could not be reached. The map will open automatically when the connection returns.'}
         </p>
         <button
           type='button'
@@ -58,8 +63,13 @@ function AppSessionNotice({ issue, onRetry }: {
           onClick={retry}
           disabled={isRetrying}
         >
-          {isRetrying ? 'Trying…' : 'Try again'}
+          {isRetrying ? 'Trying…' : issue === 'subscription' ? 'Check again' : 'Try again'}
         </button>
+        {onSignOut && <button
+          type='button'
+          className='ml-3 underline'
+          onClick={onSignOut}
+        >Sign out</button>}
       </div>
     </div>
   )
@@ -68,7 +78,7 @@ function AppSessionNotice({ issue, onRetry }: {
 export default function App(): ReactElement {
   const idToken = React.useRef(getUrlParams(ID_TOKEN_PARAM, '')).current
 
-  const { isLoading, authUser, currentUser } = useAuthStore()
+  const { isLoading, authUser, signOut, currentUser } = useAuthStore()
   const appSessionToken = currentUser.appSessionToken
   const retryAppSession = React.useCallback(
     () => authUser(appSessionToken),
@@ -133,6 +143,7 @@ export default function App(): ReactElement {
           ? <AppSessionNotice
               issue={currentUser.appSessionIssue}
               onRetry={retryAppSession}
+              onSignOut={appSessionToken ? undefined : signOut}
             />
           : <Outlet />}
 
