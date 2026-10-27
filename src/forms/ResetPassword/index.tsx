@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement } from 'react'
-import type { SignInPayload } from 'types/user'
+import type { ResetPasswordPayload } from 'types/user'
 import type { SchemaFieldProps } from 'types/form'
 
 import Form from 'components/Form'
@@ -13,23 +13,30 @@ import { useAuthStore } from 'store/auth'
 
 const INITIAL_VALUES = RESET_PASSWORD_SCHEMA.getDefault()
 
-function ResetPasswordForm({ children }: PropsWithChildren): ReactElement {
+function ResetPasswordForm({ children, onCodeSent }: PropsWithChildren<{ onCodeSent: (email: string) => void }>): ReactElement {
   const { resetPassword } = useAuthStore()
 
   const { fields } = RESET_PASSWORD_SCHEMA.describe() as SchemaFieldProps
 
   return (
-    <Form.Redux<SignInPayload>
+    <Form.Redux<ResetPasswordPayload>
       className='w-full flex flex-col gap-2'
       name={RESET_PASSWORD_FORM}
       action={resetPassword}
       schema={RESET_PASSWORD_SCHEMA}
       initialValues={INITIAL_VALUES}
+      mutationOptions={{ onSuccess: (_result, variables) => onCodeSent((variables as unknown as ResetPasswordPayload).email.trim()) }}
     >
       <Form.Field
         component={TextField}
         label={fields.email.label}
         name='email'
+        type='email'
+        inputMode='email'
+        autoComplete='email'
+        autoCapitalize='none'
+        autoCorrect='off'
+        spellCheck={false}
         required
       />
 
