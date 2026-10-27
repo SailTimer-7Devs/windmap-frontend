@@ -2,6 +2,7 @@ import type {
   CurrentUser,
   SignInPayload,
   ResetPasswordPayload,
+  ConfirmResetPasswordPayload,
   SignUpPayload,
   ConfirmSignUpPayload
 } from 'types/user'
@@ -16,7 +17,8 @@ import {
   signOut as amplifySignOut,
   signUp as amplifySignUp,
   confirmSignUp as amplifyConfirmSignUp,
-  resetPassword
+  resetPassword,
+  confirmResetPassword
 } from 'aws-amplify/auth'
 
 import { CookieExchangeError, getCookies } from 'lib/cookies'
@@ -50,8 +52,10 @@ const messages = {
   signInNotConfirmed: 'Account is not confirmed',
   signInError: 'Invalid email or password',
   signOutSuccess: 'You have successfully signed out',
-  resetPasswordSuccess: 'Password reset email sent',
+  resetPasswordSuccess: 'Verification code sent. Check your email.',
   resetPasswordError: 'Failed to send password reset email',
+  confirmResetPasswordSuccess: 'Password updated. You can now sign in.',
+  confirmResetPasswordError: 'Could not reset your password. Check the code and try again.',
   signUpSuccess: 'Email verification sent',
   signUpError: 'Unable to create the account. Please check your details and try again.',
   confirmSignUpSuccess: 'Account verified. You can now sign in.',
@@ -66,6 +70,7 @@ interface AuthStore {
 
   signIn: (payload: SignInPayload) => Promise<void>
   resetPassword: (payload: ResetPasswordPayload) => Promise<void>
+  confirmResetPassword: (payload: ConfirmResetPasswordPayload) => Promise<void>
   signUp: (payload: SignUpPayload) => Promise<void>
   confirmSignUp: (payload: ConfirmSignUpPayload) => Promise<void>
   signOut: () => Promise<void>
@@ -208,9 +213,26 @@ export const useAuthStore = create<AuthStore>((set) => ({
   resetPassword: async (payload: ResetPasswordPayload) => {
     try {
       await resetPassword({ username: normalizeEmail(payload.email) })
+      notifySuccess(messages.resetPasswordSuccess)
     } catch (err) {
       notifyError(messages.resetPasswordError)
       console.error('resetPassword:', err)
+      throw err
+    }
+  },
+
+  confirmResetPassword: async (payload: ConfirmResetPasswordPayload) => {
+    try {
+      await confirmResetPassword({
+        username: normalizeEmail(payload.email),
+        confirmationCode: payload.confirmationCode.trim(),
+        newPassword: payload.password
+      })
+      notifySuccess(messages.confirmResetPasswordSuccess)
+    } catch (err) {
+      notifyError(messages.confirmResetPasswordError)
+      console.error('confirmResetPassword:', err)
+      throw err
     }
   },
 

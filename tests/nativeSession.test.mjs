@@ -35,7 +35,7 @@ const storeBundle = await build({
     build.onResolve({ filter: /^(aws-amplify(\/auth)?|lib\/cookies|lib\/toast)$/ }, args => ({ path: args.path, namespace: 'fixture' }))
     build.onLoad({ filter: /.*/, namespace: 'fixture' }, args => ({ contents:
       args.path === 'aws-amplify' ? 'export const Amplify={configure(){}}' :
-      args.path === 'aws-amplify/auth' ? 'export async function fetchAuthSession(){return {}}; export async function signOut(){}; export async function signIn(){}; export async function signUp(){}; export async function confirmSignUp(){}; export async function resetPassword(){};' :
+      args.path === 'aws-amplify/auth' ? 'export async function fetchAuthSession(){return {}}; export async function signOut(){}; export async function signIn(){}; export async function signUp(){}; export async function confirmSignUp(){}; export async function resetPassword(){}; export async function confirmResetPassword(){};' :
       args.path === 'lib/cookies' ? 'export class CookieExchangeError extends Error{constructor(status){super("status "+status);this.status=status}};globalThis.CookieExchangeError=CookieExchangeError;export async function getCookies(token,timeoutMs){globalThis.cookieTokens.push(token);if(globalThis.cookieHook)return globalThis.cookieHook(token,timeoutMs);if(globalThis.cookieFailures&&globalThis.cookieFailures())throw new CookieExchangeError(globalThis.cookieStatus);if(globalThis.rejectCookie)throw new Error("server rejected token")}' :
       'export function notifySuccess(){};export function notifyError(){}'
     }))

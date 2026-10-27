@@ -7,6 +7,13 @@ export type ResetPasswordPayload = {
   email: string
 }
 
+export type ConfirmResetPasswordPayload = {
+  email: string
+  confirmationCode: string
+  password: string
+  confirmPassword: string
+}
+
 export type SignUpPayload = {
   email: string
   password: string
